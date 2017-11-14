@@ -25,15 +25,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
+import javax.ws.rs.core.Response;
+import javax.rmi.CORBA.Util;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
 import com.evolveum.midpoint.client.api.ServiceUtil;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
+import com.evolveum.prism.xml.ns._public.types_3.ProtectedStringType;
+import com.sun.org.apache.xerces.internal.dom.ElementNSImpl;
+import com.sun.org.apache.xerces.internal.dom.TextImpl;
+import com.sun.org.apache.xpath.internal.functions.FuncSubstring;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.transport.local.LocalConduit;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -54,12 +64,14 @@ import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 public class TestBasic {
 	
 	private static Server server;
-	private static final String ENDPOINT_ADDRESS = "http://localhost:18080/rest";
-	//private static final String ENDPOINT_ADDRESS = "http://mpdev1.its.uwo.pri:8080/midpoint/ws/rest";
+	//private static final String ENDPOINT_ADDRESS = "http://localhost:18080/rest";
+	private static final String ENDPOINT_ADDRESS = "http://mpdev1.its.uwo.pri:8080/midpoint/ws/rest";
+	private static final String ADMIN = "administrator";
+	private static final String ADMIN_PASS = "5ecr3t";
 
 	@BeforeClass
 	public void init() throws IOException {
-		startServer();
+		//startServer();
 	}
 	
 	@Test
@@ -105,7 +117,6 @@ public class TestBasic {
 		} catch (ObjectNotFoundException e) {
 			// nothing to do. this is expected
 		}
-		
 	}
 
 	@Test
@@ -144,25 +155,23 @@ public class TestBasic {
 		UserType user = ref.get();
 		assertEquals(user.getDescription(), "test description");
 		assertEquals(util.getOrig(user.getGivenName()), "Charlie");
-
 		ref	= service.users().oid("123").modify().delete("givenName", util.createPoly("Charlie")).post();
 
 		assertEquals(ref.get().getGivenName(), null);
-
 	}
 
-	@Test
-	public void test201UserDelete() throws Exception{
-		// SETUP
-		Service service = getService();
-
-		// WHEN
-		try{
-			service.users().oid("123").delete();
-		}catch(ObjectNotFoundException e){
-			fail("Cannot delete user, user not found");
-		}
-	}
+//	@Test
+//	public void test900UserDelete() throws Exception{
+//		// SETUP
+//		Service service = getService();
+//
+//		// WHEN
+//		try{
+//			service.users().oid("123").delete();
+//		}catch(ObjectNotFoundException e){
+//			fail("Cannot delete user, user not found");
+//		}
+//	}
 	
 	@Test
 	public void test010UserSearch() throws Exception {
@@ -187,8 +196,8 @@ public class TestBasic {
 
 	@Test
 	public void test100challengeRepsonse() throws Exception {
-		RestJaxbService service = (RestJaxbService) getService("administrator", "", AuthenticationType.SECQ);
-		
+		RestJaxbService service = (RestJaxbService) getService(ADMIN, "", AuthenticationType.SECQ);
+
 		try { 
 			service.users().oid("123").get();
 			fail("unexpected success. should fail because of authentication");
@@ -206,7 +215,7 @@ public class TestBasic {
 
 		}
 		
-		service = (RestJaxbService) getService("administrator", challenge.getAnswer());
+		service = (RestJaxbService) getService(ADMIN, challenge.getAnswer());
 		
 		try { 
 			service.users().oid("123").get();
@@ -221,35 +230,98 @@ public class TestBasic {
 	@Test
 	public void test200fullChallengeRepsonse() throws Exception {
 		RestJaxbService service = (RestJaxbService) getService(null, null, null);
-		
-		try { 
+
+		try {
 			service.users().oid("123").get();
 			fail("unexpected success. should fail because of authentication");
 		} catch (AuthenticationException ex) {
-			//this is expected.. 
+			//this is expected..
 		}
-		
+
 		List<AuthenticationType> supportedAuthentication = service.getSupportedAuthenticationsByServer();
 		assertNotNull("no supported authentication. something wen wrong", supportedAuthentication);
 		AuthenticationType basicAtuh = supportedAuthentication.iterator().next();
 		assertEquals(basicAtuh.getType(), AuthenticationType.BASIC.getType(), "expected basic authentication, but got" + basicAtuh);
-		
-		
-		service = (RestJaxbService) getService("administrator", "5ecr3t", basicAtuh);
-		
-		try { 
+
+
+		service = (RestJaxbService) getService(ADMIN, ADMIN_PASS, basicAtuh);
+
+		try {
 			service.users().oid("123").get();
-			
+
 		} catch (AuthenticationException ex) {
 			fail("should authenticate user successfully");
 		}
-		
-		
+
+
+	}
+
+	@Test
+	public void test201modifyGenerate() throws Exception
+	{
+		Service service = getService();
+		ObjectReference<UserType> userRef = service.users().oid("123").modifyGenerate("givenName").post();
+		UserType user = userRef.get();
+		assertNotNull(service.util().getOrig(user.getGivenName()));
+	}
+
+	@Test
+	public void test202policyGenerate() throws Exception
+	{
+		Service service = getService();
+		String generatedPassword = service.valuePolicies().oid("00000000-0000-0000-0000-000000000003").generate().post();
+		assertNotNull(generatedPassword);
 	}
 	
-private Service getService() throws IOException {
-		
-		return getService("administrator", "5ecr3t", AuthenticationType.BASIC);
+	public void test012Self() throws Exception {
+		Service service = getService();
+
+		UserType loggedInUser = null;
+
+		try {
+			loggedInUser = service.self();
+
+		} catch (AuthenticationException ex) {
+			fail("should authenticate user successfully");
+		}
+
+		assertEquals(service.util().getOrig(loggedInUser.getName()), ADMIN);
+	}
+
+	@Test
+	public void test013SelfImpersonate() throws Exception {
+		Service service = getService();
+
+		UserType loggedInUser = null;
+
+		try {
+			loggedInUser = service.impersonate("44af349b-5a0c-4f3a-9fe9-2f64d9390ed3").self();
+
+		} catch (AuthenticationException ex) {
+			fail("should authenticate user successfully");
+		}
+
+		assertEquals(service.util().getOrig(loggedInUser.getName()), "impersonate");
+	}
+
+
+	@Test
+	public void test203UserDelete() throws Exception{
+		// SETUP
+		Service service = getService();
+
+		// WHEN
+		try{
+			service.users().oid("123").delete();
+		}catch(ObjectNotFoundException e){
+			fail("Cannot delete user, user not found");
+		}
+	}
+
+
+
+	private Service getService() throws IOException {		
+		return getService(ADMIN, ADMIN_PASS, AuthenticationType.BASIC);
 		
 	}
 	
