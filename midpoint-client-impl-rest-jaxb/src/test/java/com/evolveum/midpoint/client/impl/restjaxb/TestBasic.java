@@ -223,6 +223,8 @@ public class TestBasic {
 			.and()
 				.item(emailAddress)
 					.eq("jack@example.com")
+					//.and()
+					//.item(new QName()).ref("").and().item(itemPath)
 				.finishQuery()
 				.get();
 		

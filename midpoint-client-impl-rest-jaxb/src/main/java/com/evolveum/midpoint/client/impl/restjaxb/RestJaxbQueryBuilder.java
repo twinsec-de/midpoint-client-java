@@ -136,7 +136,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	}
 
 	@Override
-	public QueryBuilder<O> gt() {
+	public AtomicFilterExit<O> gt() {
 		Element greater = queryForService.getDomSerializer().createGreaterFilter(itemPath, null);
 		return new RestJaxbQueryBuilder<O>(this, greater, owner);
 	}
@@ -148,7 +148,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	}
 
 	@Override
-	public QueryBuilder<O> ge() {
+	public AtomicFilterExit<O> ge() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -160,7 +160,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	}
 
 	@Override
-	public QueryBuilder<O> lt() {
+	public AtomicFilterExit<O> lt() {
 		Element less = queryForService.getDomSerializer().createLessFilter(itemPath, null);
 		return new RestJaxbQueryBuilder<O>(this, less, owner);
 	}
@@ -172,7 +172,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	}
 
 	@Override
-	public QueryBuilder<O> le() {
+	public AtomicFilterExit<O> le() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -232,7 +232,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	}
 
 	@Override
-	public QueryBuilder<O> ref(QName relation) {
+	public AtomicFilterExit<O> ref(QName relation) {
 		ObjectReferenceType refType = new ObjectReferenceType();
 		refType.setRelation(relation);
 		Element substring = queryForService.getDomSerializer().createRefFilter(itemPath, Arrays.asList(refType));
@@ -240,19 +240,19 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	}
 
 	@Override
-	public QueryBuilder<O> ref(ObjectReferenceType... value) {
+	public AtomicFilterExit<O> ref(ObjectReferenceType... value) {
 		Element substring = queryForService.getDomSerializer().createRefFilter(itemPath, Arrays.asList(value));
 		return new RestJaxbQueryBuilder<O>(this, substring, owner);
 	}
 
 	@Override
-	public QueryBuilder<O> ref(Collection<ObjectReferenceType> values) {
+	public AtomicFilterExit<O> ref(Collection<ObjectReferenceType> values) {
 		Element substring = queryForService.getDomSerializer().createRefFilter(itemPath, values);
 		return new RestJaxbQueryBuilder<O>(this, substring, owner);
 	}
 
 	@Override
-	public QueryBuilder<O> ref(String... oids) {
+	public AtomicFilterExit<O> ref(String... oids) {
 		List<ObjectReferenceType> refTypes = new ArrayList<>();
 		for (String oid : oids) {
 			ObjectReferenceType refType = new ObjectReferenceType();
@@ -264,7 +264,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	}
 
 	@Override
-	public QueryBuilder<O> ref(String oid, QName targetTypeName) {
+	public AtomicFilterExit<O> ref(String oid, QName targetTypeName) {
 		ObjectReferenceType refType = new ObjectReferenceType();
 		refType.setOid(oid);
 		refType.setType(targetTypeName);
@@ -273,7 +273,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	}
 
 	@Override
-	public QueryBuilder<O> isNull() {
+	public AtomicFilterExit<O> isNull() {
 		// TODO Auto-generated method stub
 		return null;
 	}

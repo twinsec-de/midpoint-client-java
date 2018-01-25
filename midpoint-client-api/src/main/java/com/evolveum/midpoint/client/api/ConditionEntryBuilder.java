@@ -30,13 +30,13 @@ public interface ConditionEntryBuilder<O extends ObjectType> {
 	public MatchingRuleEntryBuilder<O> eqPoly(String orig, String norm);
 	public MatchingRuleEntryBuilder<O> eqPoly(String orig);
 	public MatchingRuleEntryBuilder<O> gt(Object value);
-	public QueryBuilder<O> gt();
+	public AtomicFilterExit<O> gt();
 	public MatchingRuleEntryBuilder<O> ge(Object value);
-	public QueryBuilder<O> ge();
+	public AtomicFilterExit<O> ge();
 	public MatchingRuleEntryBuilder<O> lt(Object value);
-	public QueryBuilder<O> lt();
+	public AtomicFilterExit<O> lt();
 	public MatchingRuleEntryBuilder<O> le(Object value);
-	public QueryBuilder<O> le();
+	public AtomicFilterExit<O> le();
 	public MatchingRuleEntryBuilder<O> startsWith(Object value);
 	public MatchingRuleEntryBuilder<O>  startsWithPoly(String orig, String norm);
 	public MatchingRuleEntryBuilder<O>  startsWithPoly(String orig);
@@ -46,10 +46,10 @@ public interface ConditionEntryBuilder<O extends ObjectType> {
 	public MatchingRuleEntryBuilder<O>  contains(Object value);
 	public MatchingRuleEntryBuilder<O>  containsPoly(String orig, String norm);
 	public MatchingRuleEntryBuilder<O>  containsPoly(String orig);
-	public QueryBuilder<O>  ref(QName relation);
-	public QueryBuilder<O>  ref(ObjectReferenceType... value);
-	public QueryBuilder<O>  ref(Collection<ObjectReferenceType> values);
-	public QueryBuilder<O>  ref(String... oid);
-	public QueryBuilder<O>  ref(String oid, QName targetTypeName);
-	public QueryBuilder<O>  isNull();
+	public AtomicFilterExit<O>  ref(QName relation);
+	public AtomicFilterExit<O>  ref(ObjectReferenceType... value);
+	public AtomicFilterExit<O>  ref(Collection<ObjectReferenceType> values);
+	public AtomicFilterExit<O>  ref(String... oid);
+	public AtomicFilterExit<O>  ref(String oid, QName targetTypeName);
+	public AtomicFilterExit<O>  isNull();
 }
