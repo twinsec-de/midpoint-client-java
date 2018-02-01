@@ -30,6 +30,7 @@ public interface Service {
 
 	ObjectCollectionService<UserType> users();
 
+	RpcService rpc();
 
 	PolicyCollectionService<ValuePolicyType> valuePolicies();
 	

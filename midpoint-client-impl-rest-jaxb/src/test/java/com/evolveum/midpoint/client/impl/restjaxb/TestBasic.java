@@ -21,6 +21,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,8 @@ import javax.ws.rs.core.Response;
 import javax.rmi.CORBA.Util;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
 
 import com.evolveum.midpoint.client.api.ServiceUtil;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
@@ -54,6 +57,9 @@ import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.client.impl.restjaxb.service.AuthenticationProvider;
 import com.evolveum.midpoint.client.impl.restjaxb.service.MidpointMockRestService;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.ActivationStatusType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.ActivationType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultStatusType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
@@ -64,14 +70,14 @@ import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 public class TestBasic {
 	
 	private static Server server;
-	//private static final String ENDPOINT_ADDRESS = "http://localhost:18080/rest";
-	private static final String ENDPOINT_ADDRESS = "http://mpdev1.its.uwo.pri:8080/midpoint/ws/rest";
+	private static final String ENDPOINT_ADDRESS = "http://localhost:8080/midpoint/ws/rest";
+//	private static final String ENDPOINT_ADDRESS = "http://mpdev1.its.uwo.pri:8080/midpoint/ws/rest";
 	private static final String ADMIN = "administrator";
 	private static final String ADMIN_PASS = "5ecr3t";
 
 	@BeforeClass
 	public void init() throws IOException {
-		//startServer();
+		startServer();
 	}
 	
 	@Test
@@ -81,6 +87,12 @@ public class TestBasic {
 		UserType userBefore = new UserType();
 		userBefore.setName(service.util().createPoly("foo"));
 		userBefore.setOid("123");
+		
+		ActivationType activation = new ActivationType();
+		
+		XMLGregorianCalendar validFrom = service.util().asXMLGregorianCalendar(new Date());
+		activation.setValidFrom(validFrom);
+		userBefore.setActivation(activation);
 		
 		// WHEN
 		ObjectReference<UserType> ref = service.users().add(userBefore).post();
@@ -180,6 +192,15 @@ public class TestBasic {
 		// WHEN
 		ItemPathType itemPath = new ItemPathType();
 		itemPath.setValue("name");
+		
+		ItemPathType givenName = new ItemPathType();
+		givenName.setValue("givenName");
+		
+		ItemPathType activation = new ItemPathType();
+		activation.setValue("activation/administrativeStatus");
+		
+		ItemPathType emailAddress = new ItemPathType();
+		emailAddress.setValue("emailAddress");
 //		AssignmentType cal = new AssignmentType();
 //		cal.setDescription("asdasda");
 //		ObjectReferenceType ort = new ObjectReferenceType();
@@ -188,7 +209,24 @@ public class TestBasic {
 //		ActivationType activation = new ActivationType();
 //		activation.setAdministrativeStatus(ActivationStatusType.ARCHIVED);
 //		cal.setActivation(activation);
-		SearchResult<UserType> result = service.users().search().queryFor(UserType.class).item(itemPath).eq("jack").finishQuery().get();
+		SearchResult<UserType> result = service.users().search().queryFor(UserType.class)
+				.item(itemPath)
+					.eqPoly("jack")
+				
+			.and()
+				.item(givenName)
+					.eqPoly("sparrow")
+				
+			.or()
+				.item(activation)
+					.eq(ActivationStatusType.ENABLED)
+			.and()
+				.item(emailAddress)
+					.eq("jack@example.com")
+					//.and()
+					//.item(new QName()).ref("").and().item(itemPath)
+				.finishQuery()
+				.get();
 		
 		// THEN
 		assertEquals(result.size(), 0);
@@ -260,8 +298,18 @@ public class TestBasic {
 	public void test201modifyGenerate() throws Exception
 	{
 		Service service = getService();
-		ObjectReference<UserType> userRef = service.users().oid("123").modifyGenerate("givenName").post();
-		UserType user = userRef.get();
+		PolicyItemsDefinitionType policyItemsDefinition = service.users().oid("876").generate()
+				.items()
+					.item()
+						.path("givenName")
+					.build()
+				.post();
+		
+		assertEquals(1, policyItemsDefinition.getPolicyItemDefinition().size());
+		PolicyItemDefinitionType policyitemDefinition = policyItemsDefinition.getPolicyItemDefinition().iterator().next();
+		assertNotNull(policyitemDefinition.getValue());
+		
+		UserType user = service.users().oid("876").get();
 		assertNotNull(service.util().getOrig(user.getGivenName()));
 	}
 
@@ -269,8 +317,16 @@ public class TestBasic {
 	public void test202policyGenerate() throws Exception
 	{
 		Service service = getService();
-		String generatedPassword = service.valuePolicies().oid("00000000-0000-0000-0000-000000000003").generate().post();
-		assertNotNull(generatedPassword);
+		PolicyItemsDefinitionType policyItemsDefinition = service.rpc().generate()
+				.items()
+					.item()
+						.policy("00000000-0000-0000-0000-000000000003")
+					.build()
+				.post();
+		assertEquals(1, policyItemsDefinition.getPolicyItemDefinition().size());
+		PolicyItemDefinitionType policyitemDefinition = policyItemsDefinition.getPolicyItemDefinition().iterator().next();
+		assertNotNull(policyitemDefinition.getValue());
+		
 	}
 	
 	public void test012Self() throws Exception {
@@ -286,6 +342,86 @@ public class TestBasic {
 		}
 
 		assertEquals(service.util().getOrig(loggedInUser.getName()), ADMIN);
+	}
+	
+	@Test
+	public void test203rpcValidate() throws Exception {
+		Service service = getService();
+		PolicyItemsDefinitionType defs = service.rpc().validate()
+				.items()
+					.item()
+						.policy("00000000-0000-0000-0000-p00000000001")
+						.value("asdasd")
+					.build()
+				.post();
+		
+		boolean allMatch = defs.getPolicyItemDefinition().stream().allMatch(def -> def.getResult().getStatus() == OperationResultStatusType.SUCCESS);
+		assertEquals(allMatch, true);
+	}
+	
+	@Test
+	public void test204rpcValidate() throws Exception {
+		Service service = getService();
+		service.rpc().validate().items()
+					.item()
+						.value("asdasd")
+					.build()
+				.post();
+	}
+	
+	@Test
+	public void test205rpcValidate() throws Exception {
+		Service service = getService();
+		service.rpc().validate()
+			.items()
+				.item()
+					.value("asdasd123@#")
+				.item()
+					.value("asdasdasd345345!!!")
+				.item()
+					.policy("00000000-0000-0000-0000-p00000000001")
+					.value("dfgsdf")
+				.build()
+			.post();
+	}
+	
+	@Test
+	public void test210rpcGenerate() throws Exception {
+		Service service = getService();
+		service.rpc().generate()
+			.items()
+				.item()
+					.policy("00000000-0000-0000-0000-p00000000001")
+						.path("name")
+					.build()
+				.post();
+	}
+	
+	@Test
+	public void test211rpcGenerate() throws Exception {
+		Service service = getService();
+		service.rpc().generate()
+			.items()
+				.item()
+					.path("name")
+				.build()
+			.post();
+	}
+	
+	@Test
+	public void test212rpcGenerate() throws Exception {
+		Service service = getService();
+		service.rpc().generate()
+			.items()
+				.item()
+					.path("name")
+				.item()
+					.path("fullName")
+				.item()
+					.policy("00000000-0000-0000-0000-p00000000001")
+					.path("credentials/password/value")
+				.build()
+			.post();
 	}
 
 	@Test
@@ -317,6 +453,7 @@ public class TestBasic {
 			fail("Cannot delete user, user not found");
 		}
 	}
+	
 
 
 

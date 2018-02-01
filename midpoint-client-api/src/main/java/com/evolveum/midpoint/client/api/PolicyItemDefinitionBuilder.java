@@ -13,26 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.evolveum.midpoint.client.impl.restjaxb;
+package com.evolveum.midpoint.client.api;
 
-public class BasicChallenge implements AuthenticationChallenge{
+/**
+ * 
+ * @author katkav
+ *
+ */
+public interface PolicyItemDefinitionBuilder extends PolicyItemDefinitionEntryBuilder {
 
-	String username;
-	String password;
+	PolicyItemDefinitionEntryOrExitBuilder item();
 	
-	public String getUsername() {
-		return username;
-	}
 	
-	public void setUsername(String username) {
-		this.username = username;
-	}
-	
-	public String getPassword() {
-		return password;
-	}
-	
-	public void setPassword(String password) {
-		this.password = password;
-	}
 }
