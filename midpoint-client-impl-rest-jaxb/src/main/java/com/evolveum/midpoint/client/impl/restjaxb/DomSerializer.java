@@ -208,21 +208,19 @@ private Element createPropertyValueFilter(String filterType, ItemPathType itemPa
 	Element path = document.createElement(FILTER_PATH);
 	path.setTextContent(itemPath.getValue());
 	greater.appendChild(path);
-	
-	Element value = document.createElement(FILTER_VALUE);
+
 	Marshaller marshaller;
 	try {
 		marshaller = jaxbContext.createMarshaller();
-		marshaller.marshal(new JAXBElement(new QName(SchemaConstants.NS_QUERY, "value"), valueToSearch.getClass(), valueToSearch),
-				value);
+		marshaller.marshal(new JAXBElement(new QName(SchemaConstants.NS_QUERY, FILTER_VALUE), valueToSearch.getClass(), valueToSearch),
+				greater);
 		
 	} catch (JAXBException e) {
 		//throw new SchemaException(e);
 		// TODO: how to properly handle??
 		throw new IllegalStateException(e);
 	}
-	
-	greater.appendChild(value);
+
 	return greater;
 }
 	
