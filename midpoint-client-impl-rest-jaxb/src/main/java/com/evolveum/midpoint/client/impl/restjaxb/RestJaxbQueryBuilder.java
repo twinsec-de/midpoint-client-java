@@ -34,6 +34,7 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 import com.evolveum.prism.xml.ns._public.query_3.QueryType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
+
 /**
  * 
  * @author katkav
@@ -304,28 +305,29 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 //		return new RestJaxbQueryBuilder<>(queryForService, type, query, owner);
 	}
 
+	public AtomicFilterExit<O> appendMatchingRuleElement(Element filterClause, DomSerializer.MatchingRuleType matchingRuleType){
+		Element appendedFilter = queryForService.getDomSerializer().appendMatchingRuleElement(filterClause, matchingRuleType);
+		return new RestJaxbQueryBuilder<O>(this, appendedFilter, owner);
+	}
+
 	@Override
 	public AtomicFilterExit<O> matchingOrig() {
-		// TODO Auto-generated method stub
-		return null;
+		return appendMatchingRuleElement(filterClause, DomSerializer.MatchingRuleType.POLY_STRING_ORIG);
 	}
 
 	@Override
 	public AtomicFilterExit<O> matchingNorm() {
-		// TODO Auto-generated method stub
-		return null;
+		return appendMatchingRuleElement(filterClause, DomSerializer.MatchingRuleType.POLY_STRING_NORM);
 	}
 
 	@Override
 	public AtomicFilterExit<O> matchingStrict() {
-		// TODO Auto-generated method stub
-		return null;
+		return appendMatchingRuleElement(filterClause, DomSerializer.MatchingRuleType.POLY_STRING_STRICT);
 	}
 
 	@Override
 	public AtomicFilterExit<O> matchingCaseIgnore() {
-		// TODO Auto-generated method stub
-		return null;
+		return appendMatchingRuleElement(filterClause, DomSerializer.MatchingRuleType.STRING_IGNORE_CASE);
 	}
 
 	@Override
