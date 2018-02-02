@@ -113,7 +113,6 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	@Override
 	public PagingRuleBuilder<O> paging()
 	{
-
 		PagingType pagingType = new PagingType();
 
 		query.setPaging(pagingType);

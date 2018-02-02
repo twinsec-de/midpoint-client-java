@@ -101,6 +101,7 @@ public class FilterBuilder<O extends ObjectType> implements QueryBuilder<O>, Ato
 		return RestJaxbQueryBuilder.create(service, type, this).item(qnames);
 	}
 
+	//TODO: Maybe we can re-structure interfaces to exclude some of the duplicated methods like build and paging
 	@Override
 	public PagingRuleBuilder<O> paging()
 	{

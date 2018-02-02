@@ -8,15 +8,10 @@ import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
  */
 public interface PagingRuleBuilder <O extends ObjectType>
 {
-    /**
-     * Paging rules
-     */
     public PagingRuleBuilder<O> orderBy(ItemPathType itemPath);
     public PagingRuleBuilder<O> offSet(Integer offsetAmount);
     public PagingRuleBuilder<O> maxSize(Integer size);
     public PagingRuleBuilder<O> groupBy(ItemPathType itemPath);
 
     public  QueryBuilder<O> finishPaging();
-
-
 }
