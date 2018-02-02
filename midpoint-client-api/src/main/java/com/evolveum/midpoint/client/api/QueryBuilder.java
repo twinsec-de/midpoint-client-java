@@ -41,9 +41,10 @@ public interface QueryBuilder<O extends ObjectType> extends Get<SearchResult<O>>
 	
 	public ConditionEntryBuilder<O> item(ItemPathType itemPath); 
 	public ConditionEntryBuilder<O> item(QName... qnames);
+
+	public PagingRuleBuilder<O> paging();
 	
-	
-	
+
 	/**
 	 * Shortcut.
 	 * From: r.query().item(x).eq(y).build().get();

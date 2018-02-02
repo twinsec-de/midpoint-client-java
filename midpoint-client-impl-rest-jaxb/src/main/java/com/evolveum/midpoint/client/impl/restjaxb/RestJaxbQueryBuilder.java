@@ -22,13 +22,10 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import com.evolveum.midpoint.client.api.*;
+import com.evolveum.prism.xml.ns._public.query_3.PagingType;
 import org.w3c.dom.Element;
 
-import com.evolveum.midpoint.client.api.AtomicFilterExit;
-import com.evolveum.midpoint.client.api.ConditionEntryBuilder;
-import com.evolveum.midpoint.client.api.MatchingRuleEntryBuilder;
-import com.evolveum.midpoint.client.api.QueryBuilder;
-import com.evolveum.midpoint.client.api.SearchService;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectReferenceType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 import com.evolveum.prism.xml.ns._public.query_3.QueryType;
@@ -40,7 +37,8 @@ import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
  * @author katkav
  *
  */
-public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<O>, ConditionEntryBuilder<O>, MatchingRuleEntryBuilder<O> {
+public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<O>, ConditionEntryBuilder<O>, MatchingRuleEntryBuilder<O>, PagingRuleBuilder<O>
+{
 
 	private ItemPathType itemPath;
 	private RestJaxbQueryBuilder<O> originalFilter;
@@ -110,6 +108,51 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	@Override
 	public ConditionEntryBuilder<O> item(QName... qnames) {
 		return new RestJaxbQueryBuilder<>(this, queryForService.util().createItemPathType(qnames), owner);
+	}
+
+	@Override
+	public PagingRuleBuilder<O> paging()
+	{
+
+		PagingType pagingType = new PagingType();
+
+		query.setPaging(pagingType);
+
+		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
+	}
+
+	@Override
+	public PagingRuleBuilder<O> orderBy(ItemPathType itemPath)
+	{
+		query.getPaging().setOrderBy(itemPath);
+		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
+	}
+
+	@Override
+	public PagingRuleBuilder<O> groupBy(ItemPathType itemPath)
+	{
+		query.getPaging().setGroupBy(itemPath);
+		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
+	}
+
+	@Override
+	public PagingRuleBuilder<O> offSet(Integer offsetAmount)
+	{
+		query.getPaging().setOffset(offsetAmount);
+		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
+	}
+
+	@Override
+	public PagingRuleBuilder<O> maxSize(Integer maxSize)
+	{
+		query.getPaging().setMaxSize(maxSize);
+		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
+	}
+
+	@Override
+	public QueryBuilder<O> finishPaging()
+	{
+		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
 	}
 
 	@Override

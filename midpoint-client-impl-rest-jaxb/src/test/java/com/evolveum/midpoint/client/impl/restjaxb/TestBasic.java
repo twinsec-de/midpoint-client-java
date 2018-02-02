@@ -212,6 +212,10 @@ public class TestBasic {
 		SearchResult<UserType> result = service.users().search().queryFor(UserType.class)
 				.item(itemPath)
 					.contains("JMORR").matchingNorm()
+				.finishQuery()
+				.paging()
+					.maxSize(1)
+					.finishPaging()
 				
 //			.and()
 //				.item(givenName)
@@ -225,7 +229,6 @@ public class TestBasic {
 //					.eq("jack@example.com")
 					//.and()
 					//.item(new QName()).ref("").and().item(itemPath)
-				.finishQuery()
 				.get();
 		
 		// THEN
