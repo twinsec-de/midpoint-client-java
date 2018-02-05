@@ -115,6 +115,10 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	{
 		PagingType pagingType = new PagingType();
 
+		//TODO: Temporary provision to prevent null pointer exception if paging is called before finishQuery()
+		if(query == null) {
+			query = new QueryType();
+		}
 		query.setPaging(pagingType);
 
 		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
