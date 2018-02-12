@@ -80,7 +80,7 @@ public class JaxbXmlProvider<T> extends AbstractJAXBProvider<T>{
 			
 			
 		Marshaller marshaller = jaxbContext.createMarshaller();
-		JAXBElement<T> element = new JAXBElement(Types.findType(clazz).getTypeName(), clazz, jaxbElement);
+		JAXBElement<T> element = new JAXBElement(Types.findType(clazz).getElementName(), clazz, jaxbElement);
 		marshaller.marshal(element, outputStream);
 		} catch (JAXBException e) {
 			throw new IOException(e);

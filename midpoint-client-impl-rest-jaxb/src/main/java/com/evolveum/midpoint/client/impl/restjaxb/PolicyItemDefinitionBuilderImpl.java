@@ -53,7 +53,7 @@ public class PolicyItemDefinitionBuilderImpl implements PolicyItemDefinitionEntr
 	public PolicyItemDefinitionExitBuilder policy(String oid) {
 		ObjectReferenceType ref = new ObjectReferenceType();
 		ref.setOid(oid);
-		ref.setType(Types.VALUE_POLICIES.getTypeName());
+		ref.setType(Types.VALUE_POLICIES.getTypeQName());
 		policyItemDefinition.setValuePolicyRef(ref);
 		return this;
 	}
