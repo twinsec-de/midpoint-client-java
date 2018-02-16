@@ -70,14 +70,14 @@ import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 public class TestBasic {
 	
 	private static Server server;
-	private static final String ENDPOINT_ADDRESS = "http://localhost:8080/midpoint/ws/rest";
-//	private static final String ENDPOINT_ADDRESS = "http://mpdev1.its.uwo.pri:8080/midpoint/ws/rest";
+//	private static final String ENDPOINT_ADDRESS = "http://localhost:8080/midpoint/ws/rest";
+	private static final String ENDPOINT_ADDRESS = "http://mpdev1.its.uwo.pri:8080/midpoint/ws/rest";
 	private static final String ADMIN = "administrator";
 	private static final String ADMIN_PASS = "5ecr3t";
 
 	@BeforeClass
 	public void init() throws IOException {
-		startServer();
+//		startServer();
 	}
 	
 	@Test
@@ -211,21 +211,24 @@ public class TestBasic {
 //		cal.setActivation(activation);
 		SearchResult<UserType> result = service.users().search().queryFor(UserType.class)
 				.item(itemPath)
-					.eqPoly("jack")
+					.contains("JMORR").matchingNorm()
+				.finishQuery()
+				.paging()
+					.maxSize(1)
+					.finishPaging()
 				
-			.and()
-				.item(givenName)
-					.eqPoly("sparrow")
-				
-			.or()
-				.item(activation)
-					.eq(ActivationStatusType.ENABLED)
-			.and()
-				.item(emailAddress)
-					.eq("jack@example.com")
+//			.and()
+//				.item(givenName)
+//					.eqPoly("sparrow")
+//
+//			.or()
+//				.item(activation)
+//					.eq(ActivationStatusType.ENABLED)
+//			.and()
+//				.item(emailAddress)
+//					.eq("jack@example.com")
 					//.and()
 					//.item(new QName()).ref("").and().item(itemPath)
-				.finishQuery()
 				.get();
 		
 		// THEN

@@ -4,12 +4,9 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import com.evolveum.midpoint.client.api.*;
 import org.w3c.dom.Element;
 
-import com.evolveum.midpoint.client.api.AtomicFilterExit;
-import com.evolveum.midpoint.client.api.ConditionEntryBuilder;
-import com.evolveum.midpoint.client.api.QueryBuilder;
-import com.evolveum.midpoint.client.api.SearchService;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 import com.evolveum.prism.xml.ns._public.query_3.FilterClauseType;
 import com.evolveum.prism.xml.ns._public.query_3.NAryLogicalOperatorFilterClauseType;
@@ -104,6 +101,12 @@ public class FilterBuilder<O extends ObjectType> implements QueryBuilder<O>, Ato
 		return RestJaxbQueryBuilder.create(service, type, this).item(qnames);
 	}
 
+	//TODO: Maybe we can re-structure interfaces to exclude some of the duplicated methods like build and paging
+	@Override
+	public PagingRuleBuilder<O> paging()
+	{
+		return null;
+	}
 
 	@Override
 	public QueryBuilder<O> and() {
