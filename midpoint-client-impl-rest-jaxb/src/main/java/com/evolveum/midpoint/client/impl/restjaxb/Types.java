@@ -34,21 +34,29 @@ import com.evolveum.prism.xml.ns._public.query_3.QueryType;
  */
 public enum Types {
 
-	USERS(UserType.class, new QName(SchemaConstants.NS_COMMON, "user"), "users"),
-	QUERY(QueryType.class, new QName(SchemaConstants.NS_QUERY, "query"), null),
-	OBJECT_LIST_TYPE(ObjectListType.class, new QName(SchemaConstants.NS_API_TYPES, "objectList"), ""),
-	POLICY_ITEMS_DEFINITION(PolicyItemsDefinitionType.class, new QName(SchemaConstants.NS_API_TYPES, "policyItemsDefinition"), ""),
-	OBJECT_MODIFICATION_TYPE(ObjectModificationType.class, new QName(SchemaConstants.NS_API_TYPES, "objectModification"), ""),
-	VALUE_POLICIES(ValuePolicyType.class, new QName(SchemaConstants.NS_COMMON, "valuePolicy"), "valuePolicies");
+	USERS(UserType.class, new QName(SchemaConstants.NS_COMMON, "UserType"), new QName(SchemaConstants.NS_COMMON, "user"), "users"),
+	QUERY(QueryType.class, new QName(SchemaConstants.NS_QUERY, "QueryType"), new QName(SchemaConstants.NS_QUERY, "query"), null),
+	OBJECT_LIST_TYPE(ObjectListType.class, new QName(SchemaConstants.NS_API_TYPES, "ObjectListType"), new QName(SchemaConstants.NS_API_TYPES, "objectList"), ""),
+	POLICY_ITEMS_DEFINITION(PolicyItemsDefinitionType.class, new QName(SchemaConstants.NS_API_TYPES, "PolicyItemsDefinitionType"), new QName(SchemaConstants.NS_API_TYPES, "policyItemsDefinition"), ""),
+	OBJECT_MODIFICATION_TYPE(ObjectModificationType.class, new QName(SchemaConstants.NS_API_TYPES, "ObjectModificationType"), new QName(SchemaConstants.NS_API_TYPES, "objectModification"), ""),
+	VALUE_POLICIES(ValuePolicyType.class, new QName(SchemaConstants.NS_COMMON, "ValuePolicyType"), new QName(SchemaConstants.NS_COMMON, "valuePolicy"), "valuePolicies");
 	
 	
 	private Class<?> clazz;
-	private QName typeName;
+	/**
+	 * element name - used for XML jaxb serialization
+	 */
+	private QName elementName;
+	/**
+	 * type name as QName, e.g. c:RoleType, c:ValuePolicyType.. e.g. we need it to the reference 
+	 */
+	private QName typeQName;
 	private String restPath;
 	
-	private Types(Class<?> clazz, QName typeName, String restPath) {
+	private Types(Class<?> clazz, QName typeQName, QName elementName, String restPath) {
 		this.clazz = clazz;
-		this.typeName = typeName;
+		this.typeQName = typeQName;
+		this.elementName = elementName;
 		this.restPath = restPath;
 	}
 	
@@ -56,12 +64,16 @@ public enum Types {
 		return clazz;
 	}
 	
-	public QName getTypeName() {
-		return typeName;
+	public QName getElementName() {
+		return elementName;
 	}
 	
 	public String getRestPath() {
 		return restPath;
+	}
+	
+	public QName getTypeQName() {
+		return typeQName;
 	}
 	
 	public static Types findType(Class<?> clazz) {

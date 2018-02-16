@@ -54,6 +54,7 @@ public class DomSerializer {
 	private static final String FILTER_REF_RELATION = "relation";
 	
 	private static final String FILTER_SUBSTRING = "substring";
+	private static final String FILTER_SUBSTRING_MATCHING_RULE = "matching";
 	private static final String FILTER_SUBSTRING_ANCHOR_START = "anchorStart";
 	private static final String FILTER_SUBSTRING_ANCHOR_END = "anchorEnd";
 	private static final String FILTER_GREATER = "greater";
@@ -65,7 +66,17 @@ public class DomSerializer {
 	
 	private static final String FILTER_PATH = "path";
 	private static final String FILTER_VALUE = "value";
-	
+
+
+	private static final String MATCHING_RULE_DEFAULT = "default";
+	private static final String MATCHING_RULE_STRING_IGNORE_CASE = "stringIgnoreCase";
+	private static final String MATCHING_RULE_POLY_STRING_STRICT = "polyStringStrict";
+	private static final String MATCHING_RULE_POLY_STRING_ORIG = "polyStringOrig";
+	private static final String MATCHING_RULE_POLY_STRING_NORM = "polyStringNorm";
+	private static final String MATCHING_RULE_STRICT_IGNORE_CASE = "strictIgnoreCase";
+	private static final String MATCHING_RULE_ORIG_IGNORE_CASE = "origIgnoreCase";
+	private static final String MATCHING_RULE_NORM_IGNORE_CASE = "normIgnoreCase";
+
 	private Document document;
 	private DocumentBuilder documentBuilder;
 	private JAXBContext jaxbContext;
@@ -77,6 +88,31 @@ public class DomSerializer {
 			document = documentBuilder.newDocument();
 		} catch (ParserConfigurationException e) {
 			throw new IOException(e);
+		}
+	}
+
+	public enum MatchingRuleType
+	{
+		DEFAULT(MATCHING_RULE_DEFAULT),
+		STRING_IGNORE_CASE(MATCHING_RULE_STRING_IGNORE_CASE),
+		POLY_STRING_STRICT(MATCHING_RULE_POLY_STRING_STRICT),
+		POLY_STRING_ORIG(MATCHING_RULE_POLY_STRING_ORIG),
+		POLY_STRING_NORM(MATCHING_RULE_POLY_STRING_NORM),
+		STRICT_IGNORE_CASE(MATCHING_RULE_STRICT_IGNORE_CASE),
+		ORIG_IGNORE_CASE(MATCHING_RULE_ORIG_IGNORE_CASE),
+		NORM_IGNORE_CASE(MATCHING_RULE_NORM_IGNORE_CASE);
+
+		private final String text;
+
+		MatchingRuleType(final String text)
+		{
+			this.text = text;
+		}
+
+		@Override
+		public String toString()
+		{
+			return text;
 		}
 	}
 
@@ -193,6 +229,17 @@ public class DomSerializer {
 		}
 		return substringFilter;
 	}
+
+	public Element appendMatchingRuleElement(Element element, MatchingRuleType matchingRule){
+		element.appendChild(createMatchingRuleElement(matchingRule.toString()));
+		return element;
+	}
+
+	private Element createMatchingRuleElement(String matchingRule){
+		Element matchingRuleElement = document.createElement(FILTER_SUBSTRING_MATCHING_RULE);
+		matchingRuleElement.setTextContent(matchingRule);
+		return matchingRuleElement;
+	}
 	
 	public Element createGreaterFilter(ItemPathType itemPath, Object valueToSearch) {
 		return createPropertyValueFilter(FILTER_GREATER, itemPath, valueToSearch);
@@ -203,26 +250,23 @@ public class DomSerializer {
 	}
 	
 private Element createPropertyValueFilter(String filterType, ItemPathType itemPath, Object valueToSearch){
-	Document document = documentBuilder.newDocument();
 	Element greater = document.createElementNS(SchemaConstants.NS_QUERY, filterType);
 	Element path = document.createElement(FILTER_PATH);
 	path.setTextContent(itemPath.getValue());
 	greater.appendChild(path);
-	
-	Element value = document.createElement(FILTER_VALUE);
+
 	Marshaller marshaller;
 	try {
 		marshaller = jaxbContext.createMarshaller();
-		marshaller.marshal(new JAXBElement(new QName(SchemaConstants.NS_QUERY, "value"), valueToSearch.getClass(), valueToSearch),
-				value);
+		marshaller.marshal(new JAXBElement(new QName(SchemaConstants.NS_QUERY, FILTER_VALUE), valueToSearch.getClass(), valueToSearch),
+				greater);
 		
 	} catch (JAXBException e) {
 		//throw new SchemaException(e);
 		// TODO: how to properly handle??
 		throw new IllegalStateException(e);
 	}
-	
-	greater.appendChild(value);
+
 	return greater;
 }
 	
