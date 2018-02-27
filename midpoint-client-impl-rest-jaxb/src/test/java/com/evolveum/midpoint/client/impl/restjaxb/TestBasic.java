@@ -37,6 +37,7 @@ import javax.xml.namespace.QName;
 import com.evolveum.midpoint.client.api.ServiceUtil;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.prism.xml.ns._public.types_3.ProtectedStringType;
 import com.sun.org.apache.xerces.internal.dom.ElementNSImpl;
 import com.sun.org.apache.xerces.internal.dom.TextImpl;
@@ -57,10 +58,6 @@ import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.client.impl.restjaxb.service.AuthenticationProvider;
 import com.evolveum.midpoint.client.impl.restjaxb.service.MidpointMockRestService;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ActivationStatusType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ActivationType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultStatusType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
 /**
@@ -188,47 +185,29 @@ public class TestBasic {
 	@Test
 	public void test010UserSearch() throws Exception {
 		Service service = getService();
-		
-		// WHEN
-		ItemPathType itemPath = new ItemPathType();
-		itemPath.setValue("name");
-		
-		ItemPathType givenName = new ItemPathType();
-		givenName.setValue("givenName");
-		
-		ItemPathType activation = new ItemPathType();
-		activation.setValue("activation/administrativeStatus");
-		
-		ItemPathType emailAddress = new ItemPathType();
-		emailAddress.setValue("emailAddress");
-//		AssignmentType cal = new AssignmentType();
-//		cal.setDescription("asdasda");
-//		ObjectReferenceType ort = new ObjectReferenceType();
-//		ort.setOid("12312313");
-//		cal.setTargetRef(ort);
-//		ActivationType activation = new ActivationType();
-//		activation.setAdministrativeStatus(ActivationStatusType.ARCHIVED);
-//		cal.setActivation(activation);
-		SearchResult<UserType> result = service.users().search().queryFor(UserType.class)
-				.item(itemPath)
-					.contains("JMORR").matchingNorm()
+
+		ObjectReferenceType serviceRoleReferenceType = new ObjectReferenceType();
+		serviceRoleReferenceType.setOid("westernu-0005-0000-0000-000000000015");
+		serviceRoleReferenceType.setType(new QName("RoleType"));
+
+		ItemPathType uwoContactPathType = new ItemPathType();
+		uwoContactPathType.setValue("extension/uwoContact");
+
+		ItemPathType rolePathType = new ItemPathType();
+		rolePathType.setValue("roleMembershipRef");
+
+		String jmorr32Oid ="1bae776f-4939-4071-92e2-8efd5bd57799";
+
+		SearchResult<UserType> result =  service.users().search()
+				.queryFor(UserType.class)
+				//jmorr32's oid
+				.item(uwoContactPathType).eq(jmorr32Oid)
+				.and()
+				.item(rolePathType).ref(serviceRoleReferenceType)
 				.finishQuery()
 				.paging()
-					.maxSize(1)
-					.finishPaging()
-				
-//			.and()
-//				.item(givenName)
-//					.eqPoly("sparrow")
-//
-//			.or()
-//				.item(activation)
-//					.eq(ActivationStatusType.ENABLED)
-//			.and()
-//				.item(emailAddress)
-//					.eq("jack@example.com")
-					//.and()
-					//.item(new QName()).ref("").and().item(itemPath)
+				.maxSize(1000)
+				.finishPaging()
 				.get();
 		
 		// THEN
