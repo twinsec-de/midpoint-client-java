@@ -182,7 +182,6 @@ public class DomSerializer {
 	}
 	
 	public Element createRefFilter(ItemPathType itemPath, Collection<ObjectReferenceType> values) {
-		Document document = documentBuilder.newDocument();
 		Element ref = document.createElementNS(SchemaConstants.NS_QUERY, FILTER_REF);
 		Element path = document.createElement(FILTER_PATH);
 		path.setTextContent(itemPath.getValue());
