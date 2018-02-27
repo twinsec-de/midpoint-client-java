@@ -15,10 +15,7 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import com.evolveum.midpoint.client.api.ObjectGenerateService;
-import com.evolveum.midpoint.client.api.ObjectModifyService;
-import com.evolveum.midpoint.client.api.ObjectService;
-import com.evolveum.midpoint.client.api.ValidateGenerateRpcService;
+import com.evolveum.midpoint.client.api.*;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
@@ -51,6 +48,13 @@ public class RestJaxbObjectService<O extends ObjectType> extends AbstractObjectW
 	{
 		return new RestJaxbObjectModifyService<>(getService(), getType(), getOid());
 	}
+
+	@Override
+	public ObjectCredentialService<O> credential(){
+		return new RestJaxbObjectCredentialService<>(getService(),  getType(), getOid());
+	}
+
+
 
 	@Override
 	public ValidateGenerateRpcService generate() {

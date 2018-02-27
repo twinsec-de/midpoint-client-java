@@ -35,6 +35,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 import com.evolveum.midpoint.client.api.ServiceUtil;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredentialResetRequestType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
@@ -404,6 +405,24 @@ public class TestBasic {
 					.path("credentials/password/value")
 				.build()
 			.post();
+	}
+
+	@Test
+	public void test213UserCredentialsReset() throws Exception{
+		// SETUP
+		Service service = getService();
+
+		ExecuteCredentialResetRequestType executeCredentialResetRequest = new ExecuteCredentialResetRequestType();
+
+		executeCredentialResetRequest.setResetMethod("passwordReset");
+		executeCredentialResetRequest.setUserEntry("P4ssw0rd");
+
+		// WHEN
+		try{
+			service.users().oid("1bae776f-4939-4071-92e2-8efd5bd57799").credential().executeResetPassword(executeCredentialResetRequest).post();
+		}catch(ObjectNotFoundException e){
+			fail("Cannot delete user, user not found");
+		}
 	}
 
 	@Test
