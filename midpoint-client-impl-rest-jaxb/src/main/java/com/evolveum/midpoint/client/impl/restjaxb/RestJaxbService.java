@@ -56,6 +56,7 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
 public class RestJaxbService implements Service {
 	
 	private static final String URL_PREFIX_USERS = "users";
+	private static final String URL_PREFIX_VALUE_POLICIES = "valuePolicies";
 	private static final String IMPERSONATE_HEADER = "Switch-To-Principal";
 
 	
@@ -160,9 +161,10 @@ public class RestJaxbService implements Service {
 	}
 
 	@Override
-	public PolicyCollectionService<ValuePolicyType> valuePolicies() {
-		return new RestJaxbPolicyCollectionService<>(this, URL_PREFIX_USERS, ValuePolicyType.class);
+	public ObjectCollectionService<ValuePolicyType> valuePolicies() {
+		return new RestJaxbObjectCollectionService<>(this, URL_PREFIX_VALUE_POLICIES, ValuePolicyType.class);
 	}
+
 	@Override
 	public ServiceUtil util() {
 		return util;

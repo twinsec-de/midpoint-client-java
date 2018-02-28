@@ -32,7 +32,7 @@ public interface Service {
 
 	RpcService rpc();
 
-	PolicyCollectionService<ValuePolicyType> valuePolicies();
+	ObjectCollectionService<ValuePolicyType> valuePolicies();
 	
 	UserType self() throws AuthenticationException;
 	Service impersonate(String oid);
