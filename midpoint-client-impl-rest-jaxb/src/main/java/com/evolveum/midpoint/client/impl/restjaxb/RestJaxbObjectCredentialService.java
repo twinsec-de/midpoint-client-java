@@ -2,13 +2,11 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 
 import com.evolveum.midpoint.client.api.ObjectCredentialService;
 import com.evolveum.midpoint.client.api.TaskFuture;
-import com.evolveum.midpoint.client.api.exception.AuthenticationException;
-import com.evolveum.midpoint.client.api.exception.AuthorizationException;
-import com.evolveum.midpoint.client.api.exception.CommonException;
-import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.exception.*;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredentialResetResponseType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredentialResetRequestType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
@@ -52,7 +50,7 @@ public class RestJaxbObjectCredentialService<O extends ObjectType>  extends Abst
         Response response = getService().getClient().replacePath(restPath).post(executeCredentialResetRequest);
 
         switch (response.getStatus()) {
-            case 204:
+            case 200:
                 ExecuteCredentialResetResponseType executeCredentialResetResponse = response.readEntity(ExecuteCredentialResetResponseType.class);
 
                 return new RestJaxbCompletedFuture<>(executeCredentialResetResponse);
@@ -65,6 +63,9 @@ public class RestJaxbObjectCredentialService<O extends ObjectType>  extends Abst
                 //TODO: Do we want to return a reference? Might be useful.
             case 404:
                 throw new ObjectNotFoundException(response.getStatusInfo().getReasonPhrase());
+            case 409:
+                OperationResultType operationResultType = response.readEntity(OperationResultType.class);
+                throw new PolicyViolationException(operationResultType.getMessage());
             default:
                 throw new UnsupportedOperationException("Implement other status codes, unsupported return status: " + response.getStatus());
         }

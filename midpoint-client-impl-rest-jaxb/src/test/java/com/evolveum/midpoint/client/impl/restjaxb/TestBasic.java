@@ -355,8 +355,8 @@ public class TestBasic {
 		PolicyItemsDefinitionType defs = service.rpc().validate()
 				.items()
 					.item()
-						.policy("00000000-0000-0000-0000-p00000000001")
-						.value("asdasd")
+						.policy("00000000-0000-0000-0000-000000000003")
+						.value("as")
 					.build()
 				.post();
 
@@ -437,11 +437,11 @@ public class TestBasic {
 		ExecuteCredentialResetRequestType executeCredentialResetRequest = new ExecuteCredentialResetRequestType();
 
 		executeCredentialResetRequest.setResetMethod("passwordReset");
-		executeCredentialResetRequest.setUserEntry("P4ssw0rd");
+		executeCredentialResetRequest.setUserEntry("secret");
 
 		// WHEN
 		try{
-			service.users().oid("").credential().executeResetPassword(executeCredentialResetRequest).post();
+			service.users().oid("1bae776f-4939-4071-92e2-8efd5bd57799").credential().executeResetPassword(executeCredentialResetRequest).post();
 		}catch(ObjectNotFoundException e){
 			fail("Cannot delete user, user not found");
 		}
@@ -549,6 +549,6 @@ public class TestBasic {
 		}
 
 	}
-	
+
 
 }
