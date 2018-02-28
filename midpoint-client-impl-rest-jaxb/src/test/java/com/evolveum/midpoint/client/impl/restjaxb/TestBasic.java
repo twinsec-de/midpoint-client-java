@@ -128,6 +128,17 @@ public class TestBasic {
 	}
 
 	@Test
+	public void test012SecurityPolicyGet() throws Exception {
+		Service service = getService();
+
+		// WHEN
+		SecurityPolicyType securityPolicyType = service.securityPolicies().oid("westernu-0002-0000-0000-000000000001").get();
+
+		// THEN
+		assertNotNull("null security policy", securityPolicyType);
+	}
+
+	@Test
 	public void test003UserGetNotExist() throws Exception {
 		Service service = getService();
 

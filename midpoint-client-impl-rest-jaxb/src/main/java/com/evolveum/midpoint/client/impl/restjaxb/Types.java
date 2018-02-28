@@ -24,6 +24,7 @@ import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredential
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectListType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectModificationType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.SecurityPolicyType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
 import com.evolveum.prism.xml.ns._public.query_3.QueryType;
@@ -41,6 +42,7 @@ public enum Types {
 	POLICY_ITEMS_DEFINITION(PolicyItemsDefinitionType.class, new QName(SchemaConstants.NS_API_TYPES, "PolicyItemsDefinitionType"), new QName(SchemaConstants.NS_API_TYPES, "policyItemsDefinition"), ""),
 	OBJECT_MODIFICATION_TYPE(ObjectModificationType.class, new QName(SchemaConstants.NS_API_TYPES, "ObjectModificationType"), new QName(SchemaConstants.NS_API_TYPES, "objectModification"), ""),
 	VALUE_POLICIES(ValuePolicyType.class, new QName(SchemaConstants.NS_COMMON, "ValuePolicyType"), new QName(SchemaConstants.NS_COMMON, "valuePolicy"), "valuePolicies"),
+	SECURITY_POLICIES(SecurityPolicyType.class, new QName(SchemaConstants.NS_COMMON, "SecurityPolicyType"), new QName(SchemaConstants.NS_COMMON, "securityPolicy"), "securityPolicies"),
 	EXECUTE_CREDENTIAL_RESET_REQUEST(ExecuteCredentialResetRequestType.class, new QName(SchemaConstants.NS_API_TYPES, "ExecuteCredentialResetRequestType"), new QName(SchemaConstants.NS_API_TYPES, "executeCredentialResetRequest"), "");
 
 	
