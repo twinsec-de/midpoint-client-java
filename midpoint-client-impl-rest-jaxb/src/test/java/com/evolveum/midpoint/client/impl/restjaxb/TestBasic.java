@@ -322,6 +322,7 @@ public class TestBasic {
 	public void test202policyGenerate() throws Exception
 	{
 		Service service = getService();
+
 		PolicyItemsDefinitionType policyItemsDefinition = service.rpc().generate()
 				.items()
 					.item()

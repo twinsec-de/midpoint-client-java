@@ -12,19 +12,13 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 
 /**
- * Description
  *
- * @author Jake Morris - jake
- * @version 1.0
- * @since 1.0
+ * @author Jakmor
+ *
  */
 public class RestJaxbObjectCredentialService<O extends ObjectType>  extends AbstractObjectWebResource<O> implements ObjectCredentialService<O>
 {
-
     private ExecuteCredentialResetRequestType executeCredentialResetRequest;
-
-    private static final String RESET_METHOD = "resetPassword";
-
 
     public RestJaxbObjectCredentialService(final RestJaxbService service, final Class<O> type, final String oid)
     {

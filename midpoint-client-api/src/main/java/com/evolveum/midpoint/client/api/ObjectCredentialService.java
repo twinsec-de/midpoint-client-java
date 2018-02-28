@@ -6,11 +6,9 @@ import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredential
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
 /**
- * Description
  *
- * @author Jake Morris - jake
- * @version 1.0
- * @since 1.0
+ * @author Jakmor
+ *
  */
 public interface ObjectCredentialService<O extends ObjectType> extends Post<ExecuteCredentialResetResponseType>
 {
