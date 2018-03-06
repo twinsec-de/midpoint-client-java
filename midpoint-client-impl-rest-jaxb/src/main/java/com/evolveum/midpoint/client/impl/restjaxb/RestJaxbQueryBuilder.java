@@ -23,6 +23,12 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import com.evolveum.midpoint.client.api.*;
+import com.evolveum.midpoint.client.api.query.AtomicFilterExit;
+import com.evolveum.midpoint.client.api.query.ConditionEntry;
+import com.evolveum.midpoint.client.api.query.FilterEntry;
+import com.evolveum.midpoint.client.api.query.FilterExit;
+import com.evolveum.midpoint.client.api.query.MatchingRuleEntry;
+import com.evolveum.midpoint.client.api.query.RightHandItemEntry;
 import com.evolveum.prism.xml.ns._public.query_3.OrderDirectionType;
 import com.evolveum.prism.xml.ns._public.query_3.PagingType;
 

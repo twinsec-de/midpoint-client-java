@@ -1,4 +1,4 @@
-package com.evolveum.midpoint.client.api;
+package com.evolveum.midpoint.client.api.query;
 
 import javax.xml.namespace.QName;
 

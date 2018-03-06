@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.evolveum.midpoint.client.api;
+package com.evolveum.midpoint.client.api.query;
 
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 

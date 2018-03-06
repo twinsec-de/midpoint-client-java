@@ -18,12 +18,12 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.evolveum.midpoint.client.api.FilterEntryOrEmpty;
-import com.evolveum.midpoint.client.api.QueryBuilder;
 import com.evolveum.midpoint.client.api.SearchResult;
 import com.evolveum.midpoint.client.api.SearchService;
 import com.evolveum.midpoint.client.api.Service;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.query.FilterEntryOrEmpty;
+import com.evolveum.midpoint.client.api.query.QueryExit;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectListType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 import com.evolveum.prism.xml.ns._public.query_3.QueryType;

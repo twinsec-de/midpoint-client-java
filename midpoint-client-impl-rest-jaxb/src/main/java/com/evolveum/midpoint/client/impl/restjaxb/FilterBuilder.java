@@ -5,6 +5,12 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import com.evolveum.midpoint.client.api.*;
+import com.evolveum.midpoint.client.api.query.AtomicFilterEntry;
+import com.evolveum.midpoint.client.api.query.AtomicFilterExit;
+import com.evolveum.midpoint.client.api.query.ConditionEntry;
+import com.evolveum.midpoint.client.api.query.FilterEntry;
+import com.evolveum.midpoint.client.api.query.FilterEntryOrEmpty;
+import com.evolveum.midpoint.client.api.query.FilterExit;
 
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
