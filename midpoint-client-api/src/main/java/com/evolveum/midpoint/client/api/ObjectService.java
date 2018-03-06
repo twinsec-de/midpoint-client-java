@@ -32,7 +32,9 @@ import org.apache.commons.lang.Validate;
 public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O>
 {
     ObjectModifyService<O> modify() throws ObjectNotFoundException, AuthenticationException;
-    
+
+    ObjectCredentialService<O> credential();
+
     ValidateGenerateRpcService generate();
 //    ObjectGenerateService<O> modifyGenerate(String path) throws ObjectNotFoundException, AuthenticationException;
 }
