@@ -19,7 +19,8 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
 
-
+import com.evolveum.midpoint.client.api.AuthenticationChallenge;
+import com.evolveum.midpoint.client.api.AuthenticationManager;
 import com.evolveum.midpoint.client.api.exception.SchemaException;
 
 /**

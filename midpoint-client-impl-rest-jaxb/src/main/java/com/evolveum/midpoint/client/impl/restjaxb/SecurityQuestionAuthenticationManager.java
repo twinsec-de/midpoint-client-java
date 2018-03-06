@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.jaxrs.client.WebClient;
 
+import com.evolveum.midpoint.client.api.AuthenticationManager;
 import com.evolveum.midpoint.client.api.exception.SchemaException;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -36,12 +37,14 @@ public class SecurityQuestionAuthenticationManager implements AuthenticationMana
 	private SecurityQuestionChallenge challenge;
 	
 	private AuthenticationType authenticationType;
+	private WebClient client;
 	
-	public SecurityQuestionAuthenticationManager(String username, List<SecurityQuestionAnswer> secQ) {
+	public SecurityQuestionAuthenticationManager(String username, List<SecurityQuestionAnswer> secQ, WebClient client) {
 		this.authenticationType = AuthenticationType.SECQ;
 		challenge = new SecurityQuestionChallenge();
 		challenge.setUsername(username);
 		challenge.setAnswer(secQ);
+		this.client = client;
 	}
 	
 	public AuthenticationType getAuthenticationType() {
@@ -97,7 +100,7 @@ public class SecurityQuestionAuthenticationManager implements AuthenticationMana
 	}
 
 	@Override
-	public void createAuthorizationHeader(WebClient client) {
+	public void createAuthorizationHeader() {
 		
 		
 //		String USER_CHALLENGE = "\"user\" : \"$username\"";

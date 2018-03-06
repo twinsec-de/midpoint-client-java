@@ -41,6 +41,8 @@ import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.w3c.dom.Document;
 
+import com.evolveum.midpoint.client.api.AuthenticationChallenge;
+import com.evolveum.midpoint.client.api.AuthenticationManager;
 import com.evolveum.midpoint.client.api.ObjectCollectionService;
 import com.evolveum.midpoint.client.api.Service;
 import com.evolveum.midpoint.client.api.ServiceUtil;
@@ -111,9 +113,9 @@ public class RestJaxbService implements Service {
 		}
 		
 		if (AuthenticationType.SECQ == authentication) {
-			authenticationManager = new SecurityQuestionAuthenticationManager(username, secQ);
+			authenticationManager = new SecurityQuestionAuthenticationManager(username, secQ, client);
 		} else if (authentication != null ){
-			authenticationManager = new BasicAuthenticationManager(username, password);
+			authenticationManager = new BasicAuthenticationManager(username, password, client);
 		}
 		
 		CustomAuthNProvider authNProvider = new CustomAuthNProvider(authenticationManager, this);
@@ -125,7 +127,7 @@ public class RestJaxbService implements Service {
 		client.type(MediaType.APPLICATION_XML);
 		
 		if (authenticationManager != null) {
-			authenticationManager.createAuthorizationHeader(client);
+			authenticationManager.createAuthorizationHeader();
 		}
 		
 		

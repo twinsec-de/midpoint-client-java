@@ -27,6 +27,8 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 
+import com.evolveum.midpoint.client.api.AuthenticationChallenge;
+import com.evolveum.midpoint.client.api.AuthenticationManager;
 import com.evolveum.midpoint.client.api.exception.SchemaException;
 import com.evolveum.midpoint.client.api.exception.SystemException;
 

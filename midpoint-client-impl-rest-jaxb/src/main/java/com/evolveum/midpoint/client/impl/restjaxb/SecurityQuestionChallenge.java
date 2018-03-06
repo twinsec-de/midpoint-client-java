@@ -18,6 +18,8 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.evolveum.midpoint.client.api.AuthenticationChallenge;
+
 public class SecurityQuestionChallenge implements AuthenticationChallenge {
 
 	private String user;

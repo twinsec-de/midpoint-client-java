@@ -15,6 +15,8 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
+import com.evolveum.midpoint.client.api.AuthenticationChallenge;
+
 public class BasicChallenge implements AuthenticationChallenge{
 
 	String username;

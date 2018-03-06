@@ -13,12 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.evolveum.midpoint.client.impl.restjaxb;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.cxf.jaxrs.client.WebClient;
+package com.evolveum.midpoint.client.api;
 
 import com.evolveum.midpoint.client.api.exception.SchemaException;
 
@@ -33,7 +28,7 @@ public interface AuthenticationManager<T extends AuthenticationChallenge> {
 	
 	public void parseChallenge(String authenticationChallenge) throws SchemaException;
 	
-	public void createAuthorizationHeader(WebClient client);
+	public void createAuthorizationHeader();
 	
 	public T getChallenge();
 	
