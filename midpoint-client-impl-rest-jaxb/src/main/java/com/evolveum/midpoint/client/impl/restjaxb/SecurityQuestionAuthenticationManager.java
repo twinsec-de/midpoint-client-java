@@ -37,14 +37,12 @@ public class SecurityQuestionAuthenticationManager implements AuthenticationMana
 	private SecurityQuestionChallenge challenge;
 	
 	private AuthenticationType authenticationType;
-	private WebClient client;
 	
-	public SecurityQuestionAuthenticationManager(String username, List<SecurityQuestionAnswer> secQ, WebClient client) {
+	public SecurityQuestionAuthenticationManager(String username, List<SecurityQuestionAnswer> secQ) {
 		this.authenticationType = AuthenticationType.SECQ;
 		challenge = new SecurityQuestionChallenge();
 		challenge.setUsername(username);
 		challenge.setAnswer(secQ);
-		this.client = client;
 	}
 	
 	public AuthenticationType getAuthenticationType() {
@@ -100,7 +98,7 @@ public class SecurityQuestionAuthenticationManager implements AuthenticationMana
 	}
 
 	@Override
-	public void createAuthorizationHeader() {
+	public String createAuthorizationHeader() {
 		
 		
 //		String USER_CHALLENGE = "\"user\" : \"$username\"";
@@ -131,7 +129,7 @@ public class SecurityQuestionAuthenticationManager implements AuthenticationMana
 			
 		}
 		
-		client.header("Authorization", authorizationHeader);
+		return authorizationHeader;
 	}
 	
 	@Override

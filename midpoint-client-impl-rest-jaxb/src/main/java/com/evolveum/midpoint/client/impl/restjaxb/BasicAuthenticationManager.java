@@ -16,7 +16,6 @@
 package com.evolveum.midpoint.client.impl.restjaxb;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.jaxrs.client.WebClient;
 
 import com.evolveum.midpoint.client.api.AuthenticationManager;
 import com.evolveum.midpoint.client.api.exception.SchemaException;
@@ -25,14 +24,12 @@ public class BasicAuthenticationManager implements AuthenticationManager<BasicCh
 
 	private BasicChallenge authnCtx;
 	private AuthenticationType type;
-	private WebClient client;
 	
-	public BasicAuthenticationManager(String username, String password, WebClient client) {
+	public BasicAuthenticationManager(String username, String password) {
 		this.type = AuthenticationType.BASIC;
 		authnCtx = new BasicChallenge();
 		authnCtx.setUsername(username);
 		authnCtx.setPassword(password);
-		this.client = client;
 	}
 	
 	@Override
@@ -46,7 +43,7 @@ public class BasicAuthenticationManager implements AuthenticationManager<BasicCh
 	}
 
 	@Override
-	public void createAuthorizationHeader() {
+	public String createAuthorizationHeader() {
 		String authorizationHeader = getType();
 		
 		if (StringUtils.isNotBlank(authnCtx.getUsername())) {
@@ -54,7 +51,7 @@ public class BasicAuthenticationManager implements AuthenticationManager<BasicCh
 					(authnCtx.getUsername() + ":" + (authnCtx.getPassword() == null ? "" : authnCtx.getPassword()))
 							.getBytes());
 		}
-		client.header("Authorization", authorizationHeader);
+		return authorizationHeader;
 
 	}
 	

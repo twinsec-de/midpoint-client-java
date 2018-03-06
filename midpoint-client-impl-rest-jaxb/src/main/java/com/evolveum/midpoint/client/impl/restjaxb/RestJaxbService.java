@@ -113,12 +113,12 @@ public class RestJaxbService implements Service {
 		}
 		
 		if (AuthenticationType.SECQ == authentication) {
-			authenticationManager = new SecurityQuestionAuthenticationManager(username, secQ, client);
+			authenticationManager = new SecurityQuestionAuthenticationManager(username, secQ);
 		} else if (authentication != null ){
-			authenticationManager = new BasicAuthenticationManager(username, password, client);
+			authenticationManager = new BasicAuthenticationManager(username, password);
 		}
 		
-		CustomAuthNProvider authNProvider = new CustomAuthNProvider(authenticationManager, this);
+		CustomAuthNProvider<?> authNProvider = new CustomAuthNProvider<>(authenticationManager, this);
 		client = WebClient.create(url, Arrays.asList(new JaxbXmlProvider<>(jaxbContext)));
 		ClientConfiguration config = WebClient.getConfig(client);
 		config.getInInterceptors().add(authNProvider);
@@ -127,7 +127,7 @@ public class RestJaxbService implements Service {
 		client.type(MediaType.APPLICATION_XML);
 		
 		if (authenticationManager != null) {
-			authenticationManager.createAuthorizationHeader();
+			client.header("Authorization", authenticationManager.createAuthorizationHeader());
 		}
 		
 		

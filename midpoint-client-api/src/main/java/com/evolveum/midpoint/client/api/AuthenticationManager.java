@@ -28,7 +28,7 @@ public interface AuthenticationManager<T extends AuthenticationChallenge> {
 	
 	public void parseChallenge(String authenticationChallenge) throws SchemaException;
 	
-	public void createAuthorizationHeader();
+	public String createAuthorizationHeader();
 	
 	public T getChallenge();
 	
