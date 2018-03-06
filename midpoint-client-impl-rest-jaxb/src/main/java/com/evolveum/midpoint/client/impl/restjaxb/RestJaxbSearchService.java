@@ -18,6 +18,7 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.evolveum.midpoint.client.api.FilterEntryOrEmpty;
 import com.evolveum.midpoint.client.api.QueryBuilder;
 import com.evolveum.midpoint.client.api.SearchResult;
 import com.evolveum.midpoint.client.api.SearchService;
@@ -62,7 +63,7 @@ public class RestJaxbSearchService<O extends ObjectType> extends AbstractObjectT
 	}
 		
 	@Override
-	public QueryBuilder<O> queryFor(Class<O> type) {
+	public FilterEntryOrEmpty<O> queryFor(Class<O> type) {
 		return new FilterBuilder<O>(getService(), getType());
 	}
 

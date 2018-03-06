@@ -23,12 +23,16 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import com.evolveum.midpoint.client.api.*;
+import com.evolveum.prism.xml.ns._public.query_3.OrderDirectionType;
 import com.evolveum.prism.xml.ns._public.query_3.PagingType;
+
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectReferenceType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 import com.evolveum.prism.xml.ns._public.query_3.QueryType;
+import com.evolveum.prism.xml.ns._public.query_3.SearchFilterType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
 
@@ -37,8 +41,7 @@ import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
  * @author katkav
  *
  */
-public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<O>, ConditionEntryBuilder<O>, MatchingRuleEntryBuilder<O>, PagingRuleBuilder<O>
-{
+public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntry<O>, MatchingRuleEntry<O>, RightHandItemEntry<O> {
 
 	private ItemPathType itemPath;
 	private RestJaxbQueryBuilder<O> originalFilter;
@@ -83,101 +86,59 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	}
 	
 	
-	public static <O extends ObjectType>  RestJaxbQueryBuilder<O> create(RestJaxbService serachService, Class<O> type, FilterBuilder<O> owner){
+	public static <O extends ObjectType>  RestJaxbQueryBuilder<O> create(RestJaxbService serachService, Class<O> type, FilterBuilder<O> owner, ItemPathType itemPath){
 		RestJaxbQueryBuilder<O> restJaxbBuilder = new RestJaxbQueryBuilder<>(serachService, type, owner);
+		restJaxbBuilder.itemPath = itemPath;
 		return restJaxbBuilder;
 	}
 
 	@Override
 	public SearchService<O> build() {
-		return new RestJaxbSearchService<O>(queryForService, type, query);
+		return finish().build();
+//		SearchFilterType filter = finish().buildFilter();
+//		QueryType query = new QueryType();
+//		query.setFilter(filter);
+//		return new RestJaxbSearchService<O>(queryForService, type, query);
 	}
 
 
 	@Override
-	public MatchingRuleEntryBuilder<O> eq(Object... values) {
+	public MatchingRuleEntry<O> eq(Object... values) {
 		Element equal = queryForService.getDomSerializer().createEqualFilter(itemPath, Arrays.asList(values));
 		return new RestJaxbQueryBuilder<O>(this, equal, owner);
 	}
 
 	@Override
-	public ConditionEntryBuilder<O> item(ItemPathType itemPath) {
+	public AtomicFilterExit<O> item(ItemPathType itemPath) {
 		return new RestJaxbQueryBuilder<O>(this, itemPath, owner);
 	}
 
 	@Override
-	public ConditionEntryBuilder<O> item(QName... qnames) {
+	public AtomicFilterExit<O> item(QName... qnames) {
 		return new RestJaxbQueryBuilder<>(this, queryForService.util().createItemPathType(qnames), owner);
 	}
 
-	@Override
-	public PagingRuleBuilder<O> paging()
-	{
-		PagingType pagingType = new PagingType();
-
-		//TODO: Temporary provision to prevent null pointer exception if paging is called before finishQuery()
-		if(query == null) {
-			query = new QueryType();
-		}
-		query.setPaging(pagingType);
-
-		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
-	}
 
 	@Override
-	public PagingRuleBuilder<O> orderBy(ItemPathType itemPath)
-	{
-		query.getPaging().setOrderBy(itemPath);
-		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
-	}
-
-	@Override
-	public PagingRuleBuilder<O> groupBy(ItemPathType itemPath)
-	{
-		query.getPaging().setGroupBy(itemPath);
-		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
-	}
-
-	@Override
-	public PagingRuleBuilder<O> offSet(Integer offsetAmount)
-	{
-		query.getPaging().setOffset(offsetAmount);
-		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
-	}
-
-	@Override
-	public PagingRuleBuilder<O> maxSize(Integer maxSize)
-	{
-		query.getPaging().setMaxSize(maxSize);
-		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
-	}
-
-	@Override
-	public QueryBuilder<O> finishPaging()
-	{
-		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
-	}
-
-	@Override
-	public MatchingRuleEntryBuilder<O> eq() {
+	public MatchingRuleEntry<O> eq() {
 		Element equal = queryForService.getDomSerializer().createEqualFilter(itemPath, null);
 		return new RestJaxbQueryBuilder<O>(this, equal, owner);
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> eqPoly(String orig, String norm) {
+	public MatchingRuleEntry<O> eqPoly(String orig, String norm) {
 		Element equal = queryForService.getDomSerializer().createEqualPolyFilter(itemPath, orig, norm);
 		return new RestJaxbQueryBuilder<O>(this, equal, owner);
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> eqPoly(String orig) {
+	public MatchingRuleEntry<O> eqPoly(String orig) {
 		Element equal = queryForService.getDomSerializer().createEqualPolyFilter(itemPath, orig, null);
 		return new RestJaxbQueryBuilder<O>(this, equal, owner);
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> gt(Object value) {
+	public MatchingRuleEntry<O> gt(Object value) {
 		Element greater = queryForService.getDomSerializer().createGreaterFilter(itemPath, value);
 		return new RestJaxbQueryBuilder<O>(this, greater, owner);
 	}
@@ -189,7 +150,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> ge(Object value) {
+	public MatchingRuleEntry<O> ge(Object value) {
 		// TODO Auto-generated method stubo
 		return null;
 	}
@@ -201,7 +162,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> lt(Object value) {
+	public MatchingRuleEntry<O> lt(Object value) {
 		Element less = queryForService.getDomSerializer().createLessFilter(itemPath, value);
 		return new RestJaxbQueryBuilder<O>(this, less, owner);
 	}
@@ -213,7 +174,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> le(Object value) {
+	public MatchingRuleEntry<O> le(Object value) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -225,55 +186,55 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> startsWith(Object value) {
+	public MatchingRuleEntry<O> startsWith(Object value) {
 		Element substring = queryForService.getDomSerializer().createSubstringFilter(itemPath, value, true, false);
 		return new RestJaxbQueryBuilder<O>(this, substring, owner);
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> startsWithPoly(String orig, String norm) {
+	public MatchingRuleEntry<O> startsWithPoly(String orig, String norm) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> startsWithPoly(String orig) {
+	public MatchingRuleEntry<O> startsWithPoly(String orig) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> endsWith(Object value) {
+	public MatchingRuleEntry<O> endsWith(Object value) {
 		Element substring = queryForService.getDomSerializer().createSubstringFilter(itemPath, value, true, false);
 		return new RestJaxbQueryBuilder<O>(this, substring, owner);
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> endsWithPoly(String orig, String norm) {
+	public MatchingRuleEntry<O> endsWithPoly(String orig, String norm) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> endsWithPoly(String orig) {
+	public MatchingRuleEntry<O> endsWithPoly(String orig) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> contains(Object value) {
+	public MatchingRuleEntry<O> contains(Object value) {
 		Element substring = queryForService.getDomSerializer().createSubstringFilter(itemPath, value, false, false);
 		return new RestJaxbQueryBuilder<O>(this, substring, owner);
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> containsPoly(String orig, String norm) {
+	public MatchingRuleEntry<O> containsPoly(String orig, String norm) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public MatchingRuleEntryBuilder<O> containsPoly(String orig) {
+	public MatchingRuleEntry<O> containsPoly(String orig) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -326,12 +287,12 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 	}
 
 	@Override
-	public QueryBuilder<O> and() {
+	public FilterEntry<O> and() {
 		return finish().and();
 	}
 
 	@Override
-	public QueryBuilder<O> or() {
+	public FilterEntry<O> or() {
 		return finish().or();
 	}
 	
@@ -342,14 +303,14 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 		return owner.addSubfilter(filterClause, false);
 	}
 
-	@Override
-	public QueryBuilder<O> finishQuery() {
-		return finish().finishQuery();
+//	@Override
+//	public QueryBuilder<O> finishQuery() {
+//		return finish().finishQuery();
 //		QueryType query = new QueryType();
 //		query.setFilter(buildFilter());;
 //		
 //		return new RestJaxbQueryBuilder<>(queryForService, type, query, owner);
-	}
+//	}
 
 	public AtomicFilterExit<O> appendMatchingRuleElement(Element filterClause, DomSerializer.MatchingRuleType matchingRuleType){
 		Element appendedFilter = queryForService.getDomSerializer().appendMatchingRuleElement(filterClause, matchingRuleType);
@@ -381,5 +342,104 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements QueryBuilder<
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public AtomicFilterExit<O> endBlock() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public FilterExit<O> asc(QName... names) {
+		return finish().asc(names);
+	}
+	
+	
+
+	@Override
+	public FilterExit<O> asc(ItemPathType path) {
+		return finish().asc(path);
+	}
+
+	@Override
+	public FilterExit<O> desc(QName... names) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public FilterExit<O> desc(ItemPathType path) {
+		return finish().desc(path);
+	}
+
+	@Override
+	public FilterExit<O> group(QName... names) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public FilterExit<O> group(ItemPathType path) {
+		return finish().group(path);
+	}
+
+	@Override
+	public FilterExit<O> offset(Integer n) {
+		return finish().offset(n);
+	}
+
+	@Override
+	public FilterExit<O> maxSize(Integer n) {
+		return finish().maxSize(n);
+	}
+
+	
+//	@Override
+//	public PagingRuleBuilder<O> paging()
+//	{
+//		PagingType pagingType = new PagingType();
+//
+//		//TODO: Temporary provision to prevent null pointer exception if paging is called before finishQuery()
+//		if(query == null) {
+//			query = new QueryType();
+//		}
+//		query.setPaging(pagingType);
+//
+//		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
+//	}
+//
+//	@Override
+//	public PagingRuleBuilder<O> orderBy(ItemPathType itemPath)
+//	{
+//		query.getPaging().setOrderBy(itemPath);
+//		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
+//	}
+//
+//	@Override
+//	public PagingRuleBuilder<O> groupBy(ItemPathType itemPath)
+//	{
+//		query.getPaging().setGroupBy(itemPath);
+//		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
+//	}
+//
+//	@Override
+//	public PagingRuleBuilder<O> offSet(Integer offsetAmount)
+//	{
+//		query.getPaging().setOffset(offsetAmount);
+//		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
+//	}
+//
+//	@Override
+//	public PagingRuleBuilder<O> maxSize(Integer maxSize)
+//	{
+//		query.getPaging().setMaxSize(maxSize);
+//		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
+//	}
+//
+//	@Override
+//	public QueryBuilder<O> finishPaging()
+//	{
+//		return new RestJaxbQueryBuilder<O>(queryForService, type, query);
+//	}
 
 }

@@ -39,10 +39,10 @@ public interface QueryBuilder<O extends ObjectType> extends Get<SearchResult<O>>
 	 */
 	SearchService<O> build();
 	
-	public ConditionEntryBuilder<O> item(ItemPathType itemPath); 
-	public ConditionEntryBuilder<O> item(QName... qnames);
+//	public ConditionEntry<O> item(ItemPathType itemPath); 
+//	public ConditionEntry<O> item(QName... qnames);
 
-	public PagingRuleBuilder<O> paging();
+//	public PagingRuleBuilder<O> paging();
 	
 
 	/**

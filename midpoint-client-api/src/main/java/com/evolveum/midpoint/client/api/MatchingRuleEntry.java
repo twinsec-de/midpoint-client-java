@@ -19,9 +19,7 @@ import javax.xml.namespace.QName;
 
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
-public interface MatchingRuleEntryBuilder<O extends ObjectType> extends AtomicFilterExit<O>{
-
-	
+public interface MatchingRuleEntry<O extends ObjectType> extends AtomicFilterExit<O> {
 	 AtomicFilterExit<O> matchingOrig();
 	 AtomicFilterExit<O> matchingNorm();
 	 AtomicFilterExit<O> matchingStrict();

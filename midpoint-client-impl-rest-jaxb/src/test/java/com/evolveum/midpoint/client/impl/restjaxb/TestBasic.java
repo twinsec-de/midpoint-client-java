@@ -68,14 +68,14 @@ import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 public class TestBasic {
 	
 	private static Server server;
-//	private static final String ENDPOINT_ADDRESS = "http://localhost:8080/midpoint/ws/rest";
-	private static final String ENDPOINT_ADDRESS = "http://mpdev1.its.uwo.pri:8080/midpoint/ws/rest";
+	private static final String ENDPOINT_ADDRESS = "http://localhost:8080/midpoint/ws/rest";
+//	private static final String ENDPOINT_ADDRESS = "http://mpdev1.its.uwo.pri:8080/midpoint/ws/rest";
 	private static final String ADMIN = "administrator";
 	private static final String ADMIN_PASS = "5ecr3t";
 
 	@BeforeClass
 	public void init() throws IOException {
-//		startServer();
+		startServer();
 	}
 	
 	@Test
@@ -227,10 +227,40 @@ public class TestBasic {
 				.item(uwoContactPathType).eq(jmorr32Oid)
 				.and()
 				.item(rolePathType).ref(serviceRoleReferenceType)
-				.finishQuery()
-				.paging()
 				.maxSize(1000)
-				.finishPaging()
+				.get();
+
+		// THEN
+		assertEquals(result.size(), 0);
+	}
+	
+	@Test
+	public void test010UserSearchMock() throws Exception {
+		Service service = getService();
+
+		ObjectReferenceType serviceRoleReferenceType = new ObjectReferenceType();
+		serviceRoleReferenceType.setOid("00000000-0005-0000-0000-000000000015");
+		serviceRoleReferenceType.setType(new QName("RoleType"));
+
+		
+		ItemPathType rolePathType = new ItemPathType();
+		rolePathType.setValue("roleMembershipRef");
+
+		ItemPathType assignemtTargetRef = new ItemPathType();
+		assignemtTargetRef.setValue("asiignemnt/targetRef");
+		
+		ItemPathType namePath = new ItemPathType();
+		namePath.setValue("name");
+		
+		String jmorr32Oid ="1bae776f-4939-4071-92e2-8efd5bd57799";
+
+		SearchResult<UserType> result =  service.users().search()
+				.queryFor(UserType.class)
+				.item(namePath).eq("aaa")
+				.and()
+				.item(assignemtTargetRef).ref(serviceRoleReferenceType)
+				.maxSize(1000)
+				.asc(namePath)
 				.get();
 
 		// THEN

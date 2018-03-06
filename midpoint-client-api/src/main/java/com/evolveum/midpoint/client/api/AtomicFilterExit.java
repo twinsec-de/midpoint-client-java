@@ -17,10 +17,10 @@ package com.evolveum.midpoint.client.api;
 
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
-public interface AtomicFilterExit<O extends ObjectType> {
+public interface AtomicFilterExit<O extends ObjectType> extends FilterExit<O> {
 
-	QueryBuilder<O> and();
-	QueryBuilder<O> or();
+	FilterEntry<O> and();
+	FilterEntry<O> or();
 	
-	QueryBuilder<O> finishQuery(); 
+//	QueryBuilder<O> finishQuery(); 
 }
