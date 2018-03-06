@@ -16,10 +16,10 @@
 package com.evolveum.midpoint.client.api;
 
 import com.evolveum.midpoint.client.api.verb.Post;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 
 /**
  * @author jakmor
  */
-public interface PolicyGenerateService extends Post<String>{
+public interface PolicyGenerateService extends Post<PolicyItemsDefinitionType>{
 }

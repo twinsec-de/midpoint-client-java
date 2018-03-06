@@ -15,15 +15,15 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
+import java.util.List;
+
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.evolveum.midpoint.client.api.SearchResult;
 import com.evolveum.midpoint.client.api.SearchService;
-import com.evolveum.midpoint.client.api.Service;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.client.api.query.FilterEntryOrEmpty;
-import com.evolveum.midpoint.client.api.query.QueryExit;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectListType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 import com.evolveum.prism.xml.ns._public.query_3.QueryType;
@@ -51,8 +51,7 @@ public class RestJaxbSearchService<O extends ObjectType> extends AbstractObjectT
 		Response response = getService().getClient().replacePath("/" + Types.findType(getType()).getRestPath() + "/search").post(query);
 		
 		if (Status.OK.getStatusCode() == response.getStatus()) {
-			ObjectListType resultList = response.readEntity(ObjectListType.class);
-			return new JaxbSearchResult(resultList.getObject());
+			return new JaxbSearchResult<>(getSearchResultList(response));
 		}
 		
 		if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
@@ -67,5 +66,9 @@ public class RestJaxbSearchService<O extends ObjectType> extends AbstractObjectT
 		return new FilterBuilder<O>(getService(), getType());
 	}
 
-	
+	@SuppressWarnings("unchecked")
+	private List<O> getSearchResultList(Response response) {
+		ObjectListType resultList = response.readEntity(ObjectListType.class);
+		return (List<O>) resultList.getObject();
+	}
 }

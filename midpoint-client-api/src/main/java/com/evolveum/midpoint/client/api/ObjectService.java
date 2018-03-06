@@ -21,10 +21,6 @@ import com.evolveum.midpoint.client.api.verb.Delete;
 import com.evolveum.midpoint.client.api.verb.Get;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 /**
  * @author semancik
  *

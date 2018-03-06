@@ -15,7 +15,9 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import com.evolveum.midpoint.client.api.ObjectGenerateService;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.Response;
+
 import com.evolveum.midpoint.client.api.PolicyGenerateService;
 import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
@@ -24,27 +26,21 @@ import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.Response;
-
 /**
  * @author jakmor
  */
-public class RestJaxbPolicyGenerateService<O extends ObjectType> extends AbstractObjectWebResource<O> implements PolicyGenerateService
-{
+public class RestJaxbPolicyGenerateService<O extends ObjectType> extends AbstractObjectWebResource<O> implements PolicyGenerateService {
 
     private String path;
 
-    public RestJaxbPolicyGenerateService(RestJaxbService service, Class<O> type, String oid)
-    {
+    public RestJaxbPolicyGenerateService(RestJaxbService service, Class<O> type, String oid) {
         super(service, type, oid);
         this.path = "description";
     }
 
 
     @Override
-    public TaskFuture apost() throws AuthorizationException, ObjectNotFoundException, AuthenticationException
-    {
+    public TaskFuture<PolicyItemsDefinitionType> apost() throws AuthorizationException, ObjectNotFoundException, AuthenticationException {
         String oid = getOid();
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), oid);
         restPath += "/generate";
@@ -53,7 +49,7 @@ public class RestJaxbPolicyGenerateService<O extends ObjectType> extends Abstrac
         switch (response.getStatus()) {
             case 200:
                 PolicyItemsDefinitionType itemsDefinitionType = response.readEntity(PolicyItemsDefinitionType.class);
-                return new RestJaxbCompletedFuture<>(RestUtil.getPolicyItemsDefValue(itemsDefinitionType));
+                return new RestJaxbCompletedFuture<>(itemsDefinitionType);
             case 400:
                 throw new BadRequestException(response.getStatusInfo().getReasonPhrase());
             case 401:

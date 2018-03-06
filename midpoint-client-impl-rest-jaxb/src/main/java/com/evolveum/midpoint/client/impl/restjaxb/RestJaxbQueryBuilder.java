@@ -22,23 +22,17 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import com.evolveum.midpoint.client.api.*;
+import org.w3c.dom.Element;
+
+import com.evolveum.midpoint.client.api.SearchService;
 import com.evolveum.midpoint.client.api.query.AtomicFilterExit;
 import com.evolveum.midpoint.client.api.query.ConditionEntry;
 import com.evolveum.midpoint.client.api.query.FilterEntry;
 import com.evolveum.midpoint.client.api.query.FilterExit;
 import com.evolveum.midpoint.client.api.query.MatchingRuleEntry;
 import com.evolveum.midpoint.client.api.query.RightHandItemEntry;
-import com.evolveum.prism.xml.ns._public.query_3.OrderDirectionType;
-import com.evolveum.prism.xml.ns._public.query_3.PagingType;
-
-import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Element;
-
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectReferenceType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
-import com.evolveum.prism.xml.ns._public.query_3.QueryType;
-import com.evolveum.prism.xml.ns._public.query_3.SearchFilterType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
 
@@ -56,7 +50,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntr
 	private RestJaxbService queryForService;
 	private Class<O> type;
 	
-	private QueryType query;
+//	private QueryType query;
 
 	private FilterBuilder<O> owner;
 	
@@ -73,11 +67,11 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntr
 		this.owner = owner;
 	}
 	
-	public RestJaxbQueryBuilder(RestJaxbService searchService, Class<O> type, QueryType query) {
-		this(searchService, type);
-		this.query = query;
-//		this.owner = owner;
-	}
+//	public RestJaxbQueryBuilder(RestJaxbService searchService, Class<O> type, QueryType query) {
+//		this(searchService, type);
+//		this.query = query;
+////		this.owner = owner;
+//	}
 
 	private RestJaxbQueryBuilder(RestJaxbService searchService, Class<O> type) {
 		this.queryForService = searchService;

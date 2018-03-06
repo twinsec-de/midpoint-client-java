@@ -19,8 +19,6 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.evolveum.midpoint.client.api.AuthenticationChallenge;
-import com.evolveum.midpoint.client.api.AuthenticationManager;
 import com.evolveum.midpoint.client.api.exception.SchemaException;
 
 /**
@@ -30,16 +28,13 @@ import com.evolveum.midpoint.client.api.exception.SchemaException;
  */
 public enum AuthenticationType {
 
-	
 	BASIC("Basic"),
 	SECQ("SecQ");
 	
 	private String type;
-	private Class<AuthenticationManager<? extends AuthenticationChallenge>> clazz; 
 	
 	private AuthenticationType(String type) {
 		this.type = type;
-//		this.clazz = clazz;
 	}
 	
 	public static AuthenticationType getAuthenticationType(String type) throws SchemaException {
@@ -56,8 +51,4 @@ public enum AuthenticationType {
 		return type;
 	}
 	
-//	public <T extends AbstractAuthentication> Class<T> getClazz() {
-//		return (Class<T>) clazz;
-//	}
-//	
 }

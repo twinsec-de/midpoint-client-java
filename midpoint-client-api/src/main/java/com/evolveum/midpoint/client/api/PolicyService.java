@@ -15,16 +15,7 @@
  */
 package com.evolveum.midpoint.client.api;
 
-import com.evolveum.midpoint.client.api.exception.AuthenticationException;
-import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
-import com.evolveum.midpoint.client.api.verb.Delete;
-import com.evolveum.midpoint.client.api.verb.Get;
-import com.evolveum.midpoint.client.api.verb.Post;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
-
-import java.util.Map;
 
 /**
  * @author jakmor

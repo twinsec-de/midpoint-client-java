@@ -15,15 +15,12 @@
  */
 package com.evolveum.midpoint.client.api.query;
 
-import javax.xml.namespace.QName;
-
 import com.evolveum.midpoint.client.api.SearchResult;
 import com.evolveum.midpoint.client.api.SearchService;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.client.api.verb.Get;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
-import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
 /**
  * 

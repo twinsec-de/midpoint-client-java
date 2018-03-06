@@ -15,7 +15,6 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.evolveum.midpoint.client.api.AuthenticationChallenge;

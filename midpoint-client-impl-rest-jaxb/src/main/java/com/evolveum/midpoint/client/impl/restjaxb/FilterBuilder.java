@@ -19,22 +19,19 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import com.evolveum.midpoint.client.api.*;
+import org.apache.commons.lang.StringUtils;
+import org.w3c.dom.Element;
+
+import com.evolveum.midpoint.client.api.SearchService;
 import com.evolveum.midpoint.client.api.query.AtomicFilterEntry;
 import com.evolveum.midpoint.client.api.query.AtomicFilterExit;
 import com.evolveum.midpoint.client.api.query.ConditionEntry;
 import com.evolveum.midpoint.client.api.query.FilterEntry;
 import com.evolveum.midpoint.client.api.query.FilterEntryOrEmpty;
 import com.evolveum.midpoint.client.api.query.FilterExit;
-
-import org.apache.commons.lang.StringUtils;
-import org.w3c.dom.Element;
-
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
-import com.evolveum.prism.xml.ns._public.query_3.FilterClauseType;
 import com.evolveum.prism.xml.ns._public.query_3.NAryLogicalOperatorFilterClauseType;
 import com.evolveum.prism.xml.ns._public.query_3.OrderDirectionType;
-import com.evolveum.prism.xml.ns._public.query_3.OrgFilterClauseType;
 import com.evolveum.prism.xml.ns._public.query_3.PagingType;
 import com.evolveum.prism.xml.ns._public.query_3.QueryType;
 import com.evolveum.prism.xml.ns._public.query_3.SearchFilterType;
@@ -134,7 +131,7 @@ public class FilterBuilder<O extends ObjectType> implements FilterEntryOrEmpty<O
 	public ConditionEntry<O> item(QName... qnames) {
 		String path = "";
 		for (QName name : qnames) {
-			path += "name" + "/";
+			path += name + "/";
 		}
 		ItemPathType itemPath = new ItemPathType();
 		itemPath.setValue(StringUtils.removeEnd(path, "/"));

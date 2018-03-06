@@ -15,28 +15,27 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import com.evolveum.midpoint.client.api.ObjectGenerateService;
-import com.evolveum.midpoint.client.api.ObjectModifyService;
-import com.evolveum.midpoint.client.api.ServiceUtil;
-import com.evolveum.midpoint.client.api.TaskFuture;
-import com.evolveum.midpoint.client.api.exception.*;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
-import com.evolveum.prism.xml.ns._public.types_3.ItemDeltaType;
-import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
-import org.apache.cxf.resource.ClasspathResolver;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import com.evolveum.midpoint.client.api.ObjectModifyService;
+import com.evolveum.midpoint.client.api.ObjectReference;
+import com.evolveum.midpoint.client.api.TaskFuture;
+import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.client.api.exception.AuthorizationException;
+import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
+import com.evolveum.prism.xml.ns._public.types_3.ItemDeltaType;
+import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
 
 /**
  * @author jakmor
  */
-public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractObjectWebResource<O> implements ObjectModifyService<O>
-{
+public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractObjectWebResource<O> implements ObjectModifyService<O> {
 
     private List<ItemDeltaType> modifications;
 
@@ -93,7 +92,7 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
     }
 
     @Override
-    public TaskFuture apost() throws AuthorizationException, ObjectNotFoundException, AuthenticationException
+    public TaskFuture<ObjectReference<O>> apost() throws AuthorizationException, ObjectNotFoundException, AuthenticationException
     {
         String oid = getOid();
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), oid);

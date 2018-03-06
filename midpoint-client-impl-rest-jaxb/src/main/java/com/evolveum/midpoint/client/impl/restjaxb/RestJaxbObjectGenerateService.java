@@ -16,22 +16,17 @@
 
 package com.evolveum.midpoint.client.impl.restjaxb;
 
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.Response;
+
 import com.evolveum.midpoint.client.api.ObjectGenerateService;
-import com.evolveum.midpoint.client.api.ObjectModifyService;
+import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.PolicyItemDefinitionBuilder;
 import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.AuthorizationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
-import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
-import com.sun.org.apache.xpath.internal.functions.FuncSubstring;
-
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author jakmor
@@ -51,7 +46,7 @@ public class RestJaxbObjectGenerateService<O extends ObjectType> extends Abstrac
 
 
     @Override
-    public TaskFuture apost() throws AuthorizationException, ObjectNotFoundException, AuthenticationException
+    public TaskFuture<ObjectReference<O>> apost() throws AuthorizationException, ObjectNotFoundException, AuthenticationException
     {
         String oid = getOid();
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), oid);

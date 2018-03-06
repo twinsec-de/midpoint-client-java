@@ -30,7 +30,6 @@ import org.apache.cxf.phase.Phase;
 import com.evolveum.midpoint.client.api.AuthenticationChallenge;
 import com.evolveum.midpoint.client.api.AuthenticationManager;
 import com.evolveum.midpoint.client.api.exception.SchemaException;
-import com.evolveum.midpoint.client.api.exception.SystemException;
 
 public class CustomAuthNProvider<T extends AuthenticationChallenge> extends AbstractPhaseInterceptor<Message> {
 
@@ -54,6 +53,7 @@ public class CustomAuthNProvider<T extends AuthenticationChallenge> extends Abst
 		}
 
 		System.out.println("headers:  " + headers);
+		@SuppressWarnings("unchecked")
 		List<String> header = (List<String>) headers.get(WWW_AUTHENTICATE);
 
 		if (authenticationManager != null) {
@@ -97,7 +97,7 @@ public class CustomAuthNProvider<T extends AuthenticationChallenge> extends Abst
 
 	}
 
-	private boolean isApplicable(Map headers) {
+	private boolean isApplicable(Map<?, ?> headers) {
 		if (headers != null && headers.containsKey(WWW_AUTHENTICATE)) {
 			return true;
 		}

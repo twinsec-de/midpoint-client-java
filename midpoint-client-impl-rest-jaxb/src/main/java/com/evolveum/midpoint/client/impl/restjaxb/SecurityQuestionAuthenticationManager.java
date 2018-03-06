@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.cxf.common.util.Base64Utility;
-import org.apache.cxf.jaxrs.client.WebClient;
 
 import com.evolveum.midpoint.client.api.AuthenticationManager;
 import com.evolveum.midpoint.client.api.exception.SchemaException;

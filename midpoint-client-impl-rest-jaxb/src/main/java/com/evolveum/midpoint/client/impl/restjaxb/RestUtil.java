@@ -15,6 +15,10 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
+import java.util.List;
+
+import javax.xml.namespace.QName;
+
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectModificationType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemTargetType;
@@ -25,10 +29,6 @@ import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
 import com.sun.org.apache.xerces.internal.dom.ElementNSImpl;
 import com.sun.org.apache.xerces.internal.dom.TextImpl;
-import javax.ws.rs.core.AbstractMultivaluedMap;
-import javax.xml.namespace.QName;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author semancik

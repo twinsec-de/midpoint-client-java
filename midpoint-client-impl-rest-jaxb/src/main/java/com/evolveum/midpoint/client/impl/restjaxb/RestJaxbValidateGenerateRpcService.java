@@ -15,17 +15,17 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 
 import com.evolveum.midpoint.client.api.PolicyItemDefinitionBuilder;
 import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.ValidateGenerateRpcService;
-import com.evolveum.midpoint.client.api.exception.*;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
+import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.client.api.exception.AuthorizationException;
+import com.evolveum.midpoint.client.api.exception.CommonException;
+import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.exception.PolicyViolationException;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 

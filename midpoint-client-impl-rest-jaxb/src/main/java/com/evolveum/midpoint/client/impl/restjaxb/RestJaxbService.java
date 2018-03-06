@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
@@ -27,29 +26,22 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
-
-import com.evolveum.midpoint.client.api.PolicyCollectionService;
-import com.evolveum.midpoint.client.api.RpcService;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.SecurityPolicyType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
-import com.oracle.jrockit.jfr.UseConstantPool;
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.w3c.dom.Document;
 
 import com.evolveum.midpoint.client.api.AuthenticationChallenge;
 import com.evolveum.midpoint.client.api.AuthenticationManager;
 import com.evolveum.midpoint.client.api.ObjectCollectionService;
+import com.evolveum.midpoint.client.api.RpcService;
 import com.evolveum.midpoint.client.api.Service;
 import com.evolveum.midpoint.client.api.ServiceUtil;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.SecurityPolicyType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
 
 /**
  * @author semancik
@@ -94,6 +86,7 @@ public class RestJaxbService implements Service {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	public <T extends AuthenticationChallenge> AuthenticationManager<T> getAuthenticationManager() {
 		return (AuthenticationManager<T>) authenticationManager;
 	}
@@ -160,8 +153,8 @@ public class RestJaxbService implements Service {
 		return new RestJaxbObjectCollectionService<>(this, URL_PREFIX_USERS, UserType.class);
 	}
 	
-	public RpcService rpc() {
-		return new RestJaxbRpcService(this);
+	public <T> RpcService<T> rpc() {
+		return new RestJaxbRpcService<>(this);
 	}
 
 	@Override

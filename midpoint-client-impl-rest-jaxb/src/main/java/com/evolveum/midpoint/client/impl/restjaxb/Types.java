@@ -17,7 +17,6 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 
 import java.util.Arrays;
 
-import javax.jws.Oneway;
 import javax.xml.namespace.QName;
 
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredentialResetRequestType;
