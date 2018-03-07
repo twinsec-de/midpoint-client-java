@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Evolveum
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,6 @@ import com.evolveum.midpoint.client.api.verb.Delete;
 import com.evolveum.midpoint.client.api.verb.Get;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
-import java.util.Map;
-
-import org.apache.commons.lang.Validate;
-
 /**
  * @author semancik
  *
@@ -32,7 +28,9 @@ import org.apache.commons.lang.Validate;
 public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O>
 {
     ObjectModifyService<O> modify() throws ObjectNotFoundException, AuthenticationException;
-    
+
+    ObjectCredentialService<O> credential();
+
     ValidateGenerateRpcService generate();
 //    ObjectGenerateService<O> modifyGenerate(String path) throws ObjectNotFoundException, AuthenticationException;
 }

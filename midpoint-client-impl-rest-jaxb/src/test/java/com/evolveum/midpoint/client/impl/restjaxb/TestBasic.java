@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Evolveum
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,38 +26,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-import javax.ws.rs.core.Response;
-import javax.rmi.CORBA.Util;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
-import com.evolveum.midpoint.client.api.ServiceUtil;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
-import com.evolveum.prism.xml.ns._public.types_3.ProtectedStringType;
-import com.sun.org.apache.xerces.internal.dom.ElementNSImpl;
-import com.sun.org.apache.xerces.internal.dom.TextImpl;
-import com.sun.org.apache.xpath.internal.functions.FuncSubstring;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.transport.local.LocalConduit;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.SearchResult;
 import com.evolveum.midpoint.client.api.Service;
+import com.evolveum.midpoint.client.api.ServiceUtil;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.client.impl.restjaxb.service.AuthenticationProvider;
 import com.evolveum.midpoint.client.impl.restjaxb.service.MidpointMockRestService;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredentialResetRequestType;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.ActivationType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectReferenceType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultStatusType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.SecurityPolicyType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
 /**
@@ -67,58 +65,80 @@ import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 public class TestBasic {
 	
 	private static Server server;
-//	private static final String ENDPOINT_ADDRESS = "http://localhost:8080/midpoint/ws/rest";
-	private static final String ENDPOINT_ADDRESS = "http://mpdev1.its.uwo.pri:8080/midpoint/ws/rest";
+	private static final String ENDPOINT_ADDRESS = "http://localhost:8080/midpoint/ws/rest";
+//	private static final String ENDPOINT_ADDRESS = "http://mpdev1.its.uwo.pri:8080/midpoint/ws/rest";
 	private static final String ADMIN = "administrator";
 	private static final String ADMIN_PASS = "5ecr3t";
 
 	@BeforeClass
 	public void init() throws IOException {
-//		startServer();
+		startServer();
 	}
 	
 	@Test
 	public void test001UserAdd() throws Exception {
 		Service service = getService();
-		
+
 		UserType userBefore = new UserType();
 		userBefore.setName(service.util().createPoly("foo"));
 		userBefore.setOid("123");
-		
+
 		ActivationType activation = new ActivationType();
-		
+
 		XMLGregorianCalendar validFrom = service.util().asXMLGregorianCalendar(new Date());
 		activation.setValidFrom(validFrom);
 		userBefore.setActivation(activation);
-		
+
 		// WHEN
 		ObjectReference<UserType> ref = service.users().add(userBefore).post();
-		
+
 		// THEN
 		assertNotNull("Null oid", ref.getOid());
-		
+
 		UserType userAfter = ref.get();
 		Asserts.assertPoly(service, "Wrong name", "foo", userAfter.getName());
-		
+
 		// TODO: get user, compare
-		
+
 	}
-	
+
 	@Test
 	public void test002UserGet() throws Exception {
 		Service service = getService();
-		
+
 		// WHEN
 		UserType userType = service.users().oid("123").get();
-		
+
 		// THEN
 		assertNotNull("null user", userType);
 	}
-	
+
+	@Test
+	public void test011ValuePolicyGet() throws Exception {
+		Service service = getService();
+
+		// WHEN
+		ValuePolicyType valuePolicyType = service.valuePolicies().oid("00000000-0000-0000-0000-000000000003").get();
+
+		// THEN
+		assertNotNull("null value policy", valuePolicyType);
+	}
+
+	@Test
+	public void test012SecurityPolicyGet() throws Exception {
+		Service service = getService();
+
+		// WHEN
+		SecurityPolicyType securityPolicyType = service.securityPolicies().oid("westernu-0002-0000-0000-000000000001").get();
+
+		// THEN
+		assertNotNull("null security policy", securityPolicyType);
+	}
+
 	@Test
 	public void test003UserGetNotExist() throws Exception {
 		Service service = getService();
-		
+
 		// WHEN
 		try {
 			service.users().oid("999").get();
@@ -181,7 +201,7 @@ public class TestBasic {
 //			fail("Cannot delete user, user not found");
 //		}
 //	}
-	
+
 	@Test
 	public void test010UserSearch() throws Exception {
 		Service service = getService();
@@ -204,12 +224,42 @@ public class TestBasic {
 				.item(uwoContactPathType).eq(jmorr32Oid)
 				.and()
 				.item(rolePathType).ref(serviceRoleReferenceType)
-				.finishQuery()
-				.paging()
 				.maxSize(1000)
-				.finishPaging()
 				.get();
+
+		// THEN
+		assertEquals(result.size(), 0);
+	}
+	
+	@Test
+	public void test010UserSearchMock() throws Exception {
+		Service service = getService();
+
+		ObjectReferenceType serviceRoleReferenceType = new ObjectReferenceType();
+		serviceRoleReferenceType.setOid("00000000-0005-0000-0000-000000000015");
+		serviceRoleReferenceType.setType(new QName("RoleType"));
+
 		
+		ItemPathType rolePathType = new ItemPathType();
+		rolePathType.setValue("roleMembershipRef");
+
+		ItemPathType assignemtTargetRef = new ItemPathType();
+		assignemtTargetRef.setValue("asiignemnt/targetRef");
+		
+		ItemPathType namePath = new ItemPathType();
+		namePath.setValue("name");
+		
+		String jmorr32Oid ="1bae776f-4939-4071-92e2-8efd5bd57799";
+
+		SearchResult<UserType> result =  service.users().search()
+				.queryFor(UserType.class)
+				.item(namePath).eq("aaa")
+				.and()
+				.item(assignemtTargetRef).ref(serviceRoleReferenceType)
+				.maxSize(1000)
+				.asc(namePath)
+				.get();
+
 		// THEN
 		assertEquals(result.size(), 0);
 	}
@@ -218,13 +268,13 @@ public class TestBasic {
 	public void test100challengeRepsonse() throws Exception {
 		RestJaxbService service = (RestJaxbService) getService(ADMIN, "", AuthenticationType.SECQ);
 
-		try { 
+		try {
 			service.users().oid("123").get();
 			fail("unexpected success. should fail because of authentication");
 		} catch (AuthenticationException ex) {
-			//this is expected.. 
+			//this is expected..
 		}
-		
+
 		SecurityQuestionChallenge challenge = (SecurityQuestionChallenge) service.getAuthenticationManager().getChallenge();
 		for (SecurityQuestionAnswer qa : challenge.getAnswer()) {
 			if ("id1".equals(qa.getQid())) {
@@ -234,19 +284,19 @@ public class TestBasic {
 			}
 
 		}
-		
+
 		service = (RestJaxbService) getService(ADMIN, challenge.getAnswer());
-		
-		try { 
+
+		try {
 			service.users().oid("123").get();
-			
+
 		} catch (AuthenticationException ex) {
 			fail("should authenticate user successfully");
 		}
-		
-		
+
+
 	}
-	
+
 	@Test
 	public void test200fullChallengeRepsonse() throws Exception {
 		RestJaxbService service = (RestJaxbService) getService(null, null, null);
@@ -286,11 +336,11 @@ public class TestBasic {
 						.path("givenName")
 					.build()
 				.post();
-		
+
 		assertEquals(1, policyItemsDefinition.getPolicyItemDefinition().size());
 		PolicyItemDefinitionType policyitemDefinition = policyItemsDefinition.getPolicyItemDefinition().iterator().next();
 		assertNotNull(policyitemDefinition.getValue());
-		
+
 		UserType user = service.users().oid("876").get();
 		assertNotNull(service.util().getOrig(user.getGivenName()));
 	}
@@ -299,6 +349,7 @@ public class TestBasic {
 	public void test202policyGenerate() throws Exception
 	{
 		Service service = getService();
+
 		PolicyItemsDefinitionType policyItemsDefinition = service.rpc().generate()
 				.items()
 					.item()
@@ -308,9 +359,9 @@ public class TestBasic {
 		assertEquals(1, policyItemsDefinition.getPolicyItemDefinition().size());
 		PolicyItemDefinitionType policyitemDefinition = policyItemsDefinition.getPolicyItemDefinition().iterator().next();
 		assertNotNull(policyitemDefinition.getValue());
-		
+
 	}
-	
+
 	public void test012Self() throws Exception {
 		Service service = getService();
 
@@ -325,22 +376,22 @@ public class TestBasic {
 
 		assertEquals(service.util().getOrig(loggedInUser.getName()), ADMIN);
 	}
-	
+
 	@Test
 	public void test203rpcValidate() throws Exception {
 		Service service = getService();
 		PolicyItemsDefinitionType defs = service.rpc().validate()
 				.items()
 					.item()
-						.policy("00000000-0000-0000-0000-p00000000001")
-						.value("asdasd")
+						.policy("00000000-0000-0000-0000-000000000003")
+						.value("as")
 					.build()
 				.post();
-		
+
 		boolean allMatch = defs.getPolicyItemDefinition().stream().allMatch(def -> def.getResult().getStatus() == OperationResultStatusType.SUCCESS);
 		assertEquals(allMatch, true);
 	}
-	
+
 	@Test
 	public void test204rpcValidate() throws Exception {
 		Service service = getService();
@@ -350,7 +401,7 @@ public class TestBasic {
 					.build()
 				.post();
 	}
-	
+
 	@Test
 	public void test205rpcValidate() throws Exception {
 		Service service = getService();
@@ -366,7 +417,7 @@ public class TestBasic {
 				.build()
 			.post();
 	}
-	
+
 	@Test
 	public void test210rpcGenerate() throws Exception {
 		Service service = getService();
@@ -378,7 +429,7 @@ public class TestBasic {
 					.build()
 				.post();
 	}
-	
+
 	@Test
 	public void test211rpcGenerate() throws Exception {
 		Service service = getService();
@@ -389,7 +440,7 @@ public class TestBasic {
 				.build()
 			.post();
 	}
-	
+
 	@Test
 	public void test212rpcGenerate() throws Exception {
 		Service service = getService();
@@ -404,6 +455,24 @@ public class TestBasic {
 					.path("credentials/password/value")
 				.build()
 			.post();
+	}
+
+	@Test
+	public void test213UserCredentialsReset() throws Exception{
+		// SETUP
+		Service service = getService();
+
+		ExecuteCredentialResetRequestType executeCredentialResetRequest = new ExecuteCredentialResetRequestType();
+
+		executeCredentialResetRequest.setResetMethod("passwordReset");
+		executeCredentialResetRequest.setUserEntry("secret");
+
+		// WHEN
+		try{
+			service.users().oid("1bae776f-4939-4071-92e2-8efd5bd57799").credential().executeResetPassword(executeCredentialResetRequest).post();
+		}catch(ObjectNotFoundException e){
+			fail("Cannot delete user, user not found");
+		}
 	}
 
 	@Test
@@ -435,53 +504,53 @@ public class TestBasic {
 			fail("Cannot delete user, user not found");
 		}
 	}
-	
 
 
 
-	private Service getService() throws IOException {		
+
+	private Service getService() throws IOException {
 		return getService(ADMIN, ADMIN_PASS, AuthenticationType.BASIC);
-		
+
 	}
-	
+
 	private Service getService(String username, List<SecurityQuestionAnswer> answer) throws IOException {
-	
+
 	RestJaxbServiceBuilder serviceBuilder = new RestJaxbServiceBuilder();
 	serviceBuilder.authentication(AuthenticationType.SECQ).username(username).authenticationChallenge(answer).url(ENDPOINT_ADDRESS);
 	RestJaxbService service = serviceBuilder.build();
 	WebClient client = service.getClient();
 	WebClient.getConfig(client).getRequestContext().put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
-	
+
 	return service;
-	
+
 }
 
 	private Service getService(String username, String password, AuthenticationType authenticationType) throws IOException {
-		
+
 		RestJaxbServiceBuilder serviceBuilder = new RestJaxbServiceBuilder();
 		serviceBuilder.authentication(authenticationType).username(username).password(password).url(ENDPOINT_ADDRESS);
 		RestJaxbService service = serviceBuilder.build();
 		WebClient client = service.getClient();
 		WebClient.getConfig(client).getRequestContext().put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
-		
+
 		return service;
-		
+
 	}
-	
+
 	private void startServer() throws IOException {
 		JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
 	     sf.setResourceClasses(MidpointMockRestService.class);
-	     
+
 	     sf.setProviders(Arrays.asList(new JaxbXmlProvider<>(createJaxbContext()), new AuthenticationProvider()));
-	         
+
 	     sf.setResourceProvider(MidpointMockRestService.class,
 	                            new SingletonResourceProvider(new MidpointMockRestService(), true));
 	     sf.setAddress(ENDPOINT_ADDRESS);
-	 
-	     
+
+
 	     server = sf.create();
 	}
-	
+
 	private JAXBContext createJaxbContext() throws IOException {
 		try {
 		JAXBContext jaxbCtx = JAXBContext.newInstance("com.evolveum.midpoint.xml.ns._public.common.api_types_3:"
@@ -506,8 +575,8 @@ public class TestBasic {
 		} catch (JAXBException e) {
 			throw new IOException(e);
 		}
-		
+
 	}
-	
+
 
 }

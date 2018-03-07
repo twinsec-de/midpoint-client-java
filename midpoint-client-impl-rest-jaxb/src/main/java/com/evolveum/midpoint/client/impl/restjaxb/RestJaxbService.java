@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Evolveum
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
@@ -27,26 +26,22 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
-
-import com.evolveum.midpoint.client.api.PolicyCollectionService;
-import com.evolveum.midpoint.client.api.RpcService;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
-import com.oracle.jrockit.jfr.UseConstantPool;
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.w3c.dom.Document;
 
+import com.evolveum.midpoint.client.api.AuthenticationChallenge;
+import com.evolveum.midpoint.client.api.AuthenticationManager;
 import com.evolveum.midpoint.client.api.ObjectCollectionService;
+import com.evolveum.midpoint.client.api.RpcService;
 import com.evolveum.midpoint.client.api.Service;
 import com.evolveum.midpoint.client.api.ServiceUtil;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.SecurityPolicyType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
 
 /**
  * @author semancik
@@ -56,9 +51,11 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
 public class RestJaxbService implements Service {
 	
 	private static final String URL_PREFIX_USERS = "users";
+	private static final String URL_PREFIX_VALUE_POLICIES = "valuePolicies";
 	private static final String IMPERSONATE_HEADER = "Switch-To-Principal";
+	private static final String URL_PREFIX_SECURITY_POLICIES = "securityPolicies";
 
-	
+
 	private final ServiceUtil util;
 
 	// TODO: jaxb context
@@ -89,6 +86,7 @@ public class RestJaxbService implements Service {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	public <T extends AuthenticationChallenge> AuthenticationManager<T> getAuthenticationManager() {
 		return (AuthenticationManager<T>) authenticationManager;
 	}
@@ -113,7 +111,7 @@ public class RestJaxbService implements Service {
 			authenticationManager = new BasicAuthenticationManager(username, password);
 		}
 		
-		CustomAuthNProvider authNProvider = new CustomAuthNProvider(authenticationManager, this);
+		CustomAuthNProvider<?> authNProvider = new CustomAuthNProvider<>(authenticationManager, this);
 		client = WebClient.create(url, Arrays.asList(new JaxbXmlProvider<>(jaxbContext)));
 		ClientConfiguration config = WebClient.getConfig(client);
 		config.getInInterceptors().add(authNProvider);
@@ -122,7 +120,7 @@ public class RestJaxbService implements Service {
 		client.type(MediaType.APPLICATION_XML);
 		
 		if (authenticationManager != null) {
-			authenticationManager.createAuthorizationHeader(client);
+			client.header("Authorization", authenticationManager.createAuthorizationHeader());
 		}
 		
 		
@@ -155,14 +153,20 @@ public class RestJaxbService implements Service {
 		return new RestJaxbObjectCollectionService<>(this, URL_PREFIX_USERS, UserType.class);
 	}
 	
-	public RpcService rpc() {
-		return new RestJaxbRpcService(this);
+	public <T> RpcService<T> rpc() {
+		return new RestJaxbRpcService<>(this);
 	}
 
 	@Override
-	public PolicyCollectionService<ValuePolicyType> valuePolicies() {
-		return new RestJaxbPolicyCollectionService<>(this, URL_PREFIX_USERS, ValuePolicyType.class);
+	public ObjectCollectionService<ValuePolicyType> valuePolicies() {
+		return new RestJaxbObjectCollectionService<>(this, URL_PREFIX_VALUE_POLICIES, ValuePolicyType.class);
 	}
+
+	@Override
+	public ObjectCollectionService<SecurityPolicyType> securityPolicies() {
+		return new RestJaxbObjectCollectionService<>(this, URL_PREFIX_SECURITY_POLICIES, SecurityPolicyType.class);
+	}
+
 	@Override
 	public ServiceUtil util() {
 		return util;

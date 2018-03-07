@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Evolveum
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,13 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 
 import java.util.Arrays;
 
-import javax.jws.Oneway;
 import javax.xml.namespace.QName;
 
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredentialResetRequestType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectListType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectModificationType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.SecurityPolicyType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
 import com.evolveum.prism.xml.ns._public.query_3.QueryType;
@@ -39,8 +40,10 @@ public enum Types {
 	OBJECT_LIST_TYPE(ObjectListType.class, new QName(SchemaConstants.NS_API_TYPES, "ObjectListType"), new QName(SchemaConstants.NS_API_TYPES, "objectList"), ""),
 	POLICY_ITEMS_DEFINITION(PolicyItemsDefinitionType.class, new QName(SchemaConstants.NS_API_TYPES, "PolicyItemsDefinitionType"), new QName(SchemaConstants.NS_API_TYPES, "policyItemsDefinition"), ""),
 	OBJECT_MODIFICATION_TYPE(ObjectModificationType.class, new QName(SchemaConstants.NS_API_TYPES, "ObjectModificationType"), new QName(SchemaConstants.NS_API_TYPES, "objectModification"), ""),
-	VALUE_POLICIES(ValuePolicyType.class, new QName(SchemaConstants.NS_COMMON, "ValuePolicyType"), new QName(SchemaConstants.NS_COMMON, "valuePolicy"), "valuePolicies");
-	
+	VALUE_POLICIES(ValuePolicyType.class, new QName(SchemaConstants.NS_COMMON, "ValuePolicyType"), new QName(SchemaConstants.NS_COMMON, "valuePolicy"), "valuePolicies"),
+	SECURITY_POLICIES(SecurityPolicyType.class, new QName(SchemaConstants.NS_COMMON, "SecurityPolicyType"), new QName(SchemaConstants.NS_COMMON, "securityPolicy"), "securityPolicies"),
+	EXECUTE_CREDENTIAL_RESET_REQUEST(ExecuteCredentialResetRequestType.class, new QName(SchemaConstants.NS_API_TYPES, "ExecuteCredentialResetRequestType"), new QName(SchemaConstants.NS_API_TYPES, "executeCredentialResetRequest"), "");
+
 	
 	private Class<?> clazz;
 	/**

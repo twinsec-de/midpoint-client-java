@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Evolveum
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.StringUtils;
 
-
 import com.evolveum.midpoint.client.api.exception.SchemaException;
 
 /**
@@ -29,16 +28,13 @@ import com.evolveum.midpoint.client.api.exception.SchemaException;
  */
 public enum AuthenticationType {
 
-	
 	BASIC("Basic"),
 	SECQ("SecQ");
 	
 	private String type;
-	private Class<AuthenticationManager<? extends AuthenticationChallenge>> clazz; 
 	
 	private AuthenticationType(String type) {
 		this.type = type;
-//		this.clazz = clazz;
 	}
 	
 	public static AuthenticationType getAuthenticationType(String type) throws SchemaException {
@@ -55,8 +51,4 @@ public enum AuthenticationType {
 		return type;
 	}
 	
-//	public <T extends AbstractAuthentication> Class<T> getClazz() {
-//		return (Class<T>) clazz;
-//	}
-//	
 }

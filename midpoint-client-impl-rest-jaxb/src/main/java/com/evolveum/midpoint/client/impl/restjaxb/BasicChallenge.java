@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Evolveum
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
+
+import com.evolveum.midpoint.client.api.AuthenticationChallenge;
 
 public class BasicChallenge implements AuthenticationChallenge{
 

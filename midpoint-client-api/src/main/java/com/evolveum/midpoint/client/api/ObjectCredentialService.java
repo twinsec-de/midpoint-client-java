@@ -13,38 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.evolveum.midpoint.client.impl.restjaxb.service;
+package com.evolveum.midpoint.client.api;
 
-import org.apache.commons.lang.StringUtils;
+import com.evolveum.midpoint.client.api.verb.Post;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredentialResetRequestType;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredentialResetResponseType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
 /**
- * 
- * @author katkav
+ *
+ * @author Jakmor
  *
  */
-public enum RestAuthenticationMethod {
-
-	BASIC("Basic"),
-	SECURITY_QUESTIONS("SecQ");
-
-	private String method;
-
-	private RestAuthenticationMethod(String method) {
-		this.method = method;
-	}
-
-	public String getMethod() {
-		return method;
-	}
-
-	protected boolean equals(String authenticationType) {
-		if (StringUtils.isBlank(authenticationType)) {
-			return false;
-		}
-
-		if (getMethod().equals(authenticationType)) {
-			return true;
-		}
-		return false;
-	}
+public interface ObjectCredentialService<O extends ObjectType> extends Post<ExecuteCredentialResetResponseType>
+{
+    ObjectCredentialService<O> executeResetPassword(ExecuteCredentialResetRequestType executeCredentialResetRequest);
 }

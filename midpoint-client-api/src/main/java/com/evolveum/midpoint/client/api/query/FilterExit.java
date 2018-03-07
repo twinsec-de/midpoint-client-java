@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Evolveum
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.evolveum.midpoint.client.api;
+package com.evolveum.midpoint.client.api.query;
 
 import javax.xml.namespace.QName;
 
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
+import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
-public interface MatchingRuleEntryBuilder<O extends ObjectType> extends AtomicFilterExit<O>{
+public interface FilterExit<O extends ObjectType> extends QueryExit<O>{
 
+	AtomicFilterExit<O> endBlock();
+    FilterExit<O> asc(QName... names);
+    FilterExit<O> asc(ItemPathType path);
+    FilterExit<O> desc(QName... names);
+    FilterExit<O> desc(ItemPathType path);
+    FilterExit<O> group(QName... names);
+    FilterExit<O> group(ItemPathType path);
+    FilterExit<O> offset(Integer n);
+    FilterExit<O> maxSize(Integer n);
 	
-	 AtomicFilterExit<O> matchingOrig();
-	 AtomicFilterExit<O> matchingNorm();
-	 AtomicFilterExit<O> matchingStrict();
-	 AtomicFilterExit<O> matchingCaseIgnore();
-	 AtomicFilterExit<O> matching(QName matchingRuleName);
 }

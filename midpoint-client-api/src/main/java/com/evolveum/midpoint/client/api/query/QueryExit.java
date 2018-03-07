@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Evolveum
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.evolveum.midpoint.client.api;
+package com.evolveum.midpoint.client.api.query;
 
-import javax.xml.namespace.QName;
-
+import com.evolveum.midpoint.client.api.SearchResult;
+import com.evolveum.midpoint.client.api.SearchService;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.client.api.verb.Get;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
-import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
 /**
  * 
  * 
  * @author semancik
  */
-public interface QueryBuilder<O extends ObjectType> extends Get<SearchResult<O>> {
+public interface QueryExit<O extends ObjectType> extends Get<SearchResult<O>> {
 	
 	// TODO: do we need separate QueryBuilder and QueryBuilderService?
 	
@@ -39,10 +38,10 @@ public interface QueryBuilder<O extends ObjectType> extends Get<SearchResult<O>>
 	 */
 	SearchService<O> build();
 	
-	public ConditionEntryBuilder<O> item(ItemPathType itemPath); 
-	public ConditionEntryBuilder<O> item(QName... qnames);
+//	public ConditionEntry<O> item(ItemPathType itemPath); 
+//	public ConditionEntry<O> item(QName... qnames);
 
-	public PagingRuleBuilder<O> paging();
+//	public PagingRuleBuilder<O> paging();
 	
 
 	/**

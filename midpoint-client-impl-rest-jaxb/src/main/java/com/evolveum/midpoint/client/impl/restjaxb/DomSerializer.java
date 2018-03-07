@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Evolveum
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 package com.evolveum.midpoint.client.impl.restjaxb;
 
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -35,7 +34,6 @@ import org.apache.cxf.common.util.CollectionUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.evolveum.midpoint.client.api.exception.SchemaException;
 import com.evolveum.midpoint.client.api.exception.TunnelException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectReferenceType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
@@ -248,6 +246,7 @@ public class DomSerializer {
 		return createPropertyValueFilter(FILTER_LESS, itemPath, valueToSearch);
 	}
 	
+@SuppressWarnings({ "unchecked", "rawtypes" })
 private Element createPropertyValueFilter(String filterType, ItemPathType itemPath, Object valueToSearch){
 	Element greater = document.createElementNS(SchemaConstants.NS_QUERY, filterType);
 	Element path = document.createElement(FILTER_PATH);

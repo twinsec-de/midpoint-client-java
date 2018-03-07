@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Evolveum
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
-import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.provider.AbstractJAXBProvider;
 
 /**
@@ -53,6 +52,7 @@ public class JaxbXmlProvider<T> extends AbstractJAXBProvider<T>{
 		this.jaxbContext = jaxbContext;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public T readFrom(Class<T> clazz, Type arg1, Annotation[] arg2, MediaType arg3, MultivaluedMap<String, String> arg4,
 			InputStream inputStream) throws IOException, WebApplicationException {
@@ -65,7 +65,7 @@ public class JaxbXmlProvider<T> extends AbstractJAXBProvider<T>{
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			Object object = unmarshaller.unmarshal(inputStream);
 			if (object instanceof JAXBElement) {
-				return (T) ((JAXBElement) object).getValue();
+				return (T) ((JAXBElement<?>) object).getValue();
 			}
 			return (T) object;
 			} catch (JAXBException e) {
@@ -73,6 +73,7 @@ public class JaxbXmlProvider<T> extends AbstractJAXBProvider<T>{
 			}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void writeTo(T jaxbElement, Class<?> clazz, Type arg2, Annotation[] arg3, MediaType arg4,
 			MultivaluedMap<String, Object> arg5, OutputStream outputStream) throws IOException, WebApplicationException {
@@ -80,6 +81,7 @@ public class JaxbXmlProvider<T> extends AbstractJAXBProvider<T>{
 			
 			
 		Marshaller marshaller = jaxbContext.createMarshaller();
+		@SuppressWarnings("rawtypes")
 		JAXBElement<T> element = new JAXBElement(Types.findType(clazz).getElementName(), clazz, jaxbElement);
 		marshaller.marshal(element, outputStream);
 		} catch (JAXBException e) {

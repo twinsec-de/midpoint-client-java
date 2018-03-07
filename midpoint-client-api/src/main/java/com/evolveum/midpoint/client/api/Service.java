@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Evolveum
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.evolveum.midpoint.client.api;
 
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.SecurityPolicyType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
 
@@ -30,12 +31,15 @@ public interface Service {
 
 	ObjectCollectionService<UserType> users();
 
-	RpcService rpc();
+	<T> RpcService<T> rpc();
 
-	PolicyCollectionService<ValuePolicyType> valuePolicies();
+	ObjectCollectionService<ValuePolicyType> valuePolicies();
 	
 	UserType self() throws AuthenticationException;
 	Service impersonate(String oid);
 	Service addHeader(String header, String value);
+
+	ObjectCollectionService<SecurityPolicyType> securityPolicies();
+
 	ServiceUtil util();
 }

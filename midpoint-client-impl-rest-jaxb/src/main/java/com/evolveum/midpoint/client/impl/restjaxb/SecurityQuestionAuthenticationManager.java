@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Evolveum
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.cxf.common.util.Base64Utility;
-import org.apache.cxf.jaxrs.client.WebClient;
 
+import com.evolveum.midpoint.client.api.AuthenticationManager;
 import com.evolveum.midpoint.client.api.exception.SchemaException;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -97,7 +97,7 @@ public class SecurityQuestionAuthenticationManager implements AuthenticationMana
 	}
 
 	@Override
-	public void createAuthorizationHeader(WebClient client) {
+	public String createAuthorizationHeader() {
 		
 		
 //		String USER_CHALLENGE = "\"user\" : \"$username\"";
@@ -128,7 +128,7 @@ public class SecurityQuestionAuthenticationManager implements AuthenticationMana
 			
 		}
 		
-		client.header("Authorization", authorizationHeader);
+		return authorizationHeader;
 	}
 	
 	@Override

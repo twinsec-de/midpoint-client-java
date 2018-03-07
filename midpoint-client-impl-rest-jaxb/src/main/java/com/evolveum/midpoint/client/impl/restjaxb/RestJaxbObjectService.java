@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017 Evolveum
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,13 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import com.evolveum.midpoint.client.api.ObjectGenerateService;
+import com.evolveum.midpoint.client.api.ObjectCredentialService;
 import com.evolveum.midpoint.client.api.ObjectModifyService;
 import com.evolveum.midpoint.client.api.ObjectService;
 import com.evolveum.midpoint.client.api.ValidateGenerateRpcService;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
-
-import java.util.Map;
 
 /**
  * @author semancik
@@ -51,6 +49,13 @@ public class RestJaxbObjectService<O extends ObjectType> extends AbstractObjectW
 	{
 		return new RestJaxbObjectModifyService<>(getService(), getType(), getOid());
 	}
+
+	@Override
+	public ObjectCredentialService<O> credential(){
+		return new RestJaxbObjectCredentialService<>(getService(),  getType(), getOid());
+	}
+
+
 
 	@Override
 	public ValidateGenerateRpcService generate() {
