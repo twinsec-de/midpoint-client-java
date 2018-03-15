@@ -23,9 +23,7 @@ import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredential
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectListType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectModificationType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.SecurityPolicyType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.prism.xml.ns._public.query_3.QueryType;
 
 /**
@@ -35,13 +33,27 @@ import com.evolveum.prism.xml.ns._public.query_3.QueryType;
  */
 public enum Types {
 
+	//ObjectTypes
 	USERS(UserType.class, new QName(SchemaConstants.NS_COMMON, "UserType"), new QName(SchemaConstants.NS_COMMON, "user"), "users"),
+	VALUE_POLICIES(ValuePolicyType.class, new QName(SchemaConstants.NS_COMMON, "ValuePolicyType"), new QName(SchemaConstants.NS_COMMON, "valuePolicy"), "valuePolicies"),
+	SECURITY_POLICIES(SecurityPolicyType.class, new QName(SchemaConstants.NS_COMMON, "SecurityPolicyType"), new QName(SchemaConstants.NS_COMMON, "securityPolicy"), "securityPolicies"),
+	CONNECTORS(ConnectorType.class, new QName(SchemaConstants.NS_COMMON, "ConnectorType"), new QName(SchemaConstants.NS_COMMON, "connector"), "connectors"),
+	CONNECTOR_HOSTS(ConnectorHostType.class, new QName(SchemaConstants.NS_COMMON, "ConnectorHostType"), new QName(SchemaConstants.NS_COMMON, "connectorHost"), "connectorHosts"),
+	GENERIC_OBJECTS(GenericObjectType.class, new QName(SchemaConstants.NS_COMMON, "GenericObjectType"), new QName(SchemaConstants.NS_COMMON, "genericObject"), "genericObjects"),
+	RESOURCES(ResourceType.class, new QName(SchemaConstants.NS_COMMON, "ResourceType"), new QName(SchemaConstants.NS_COMMON, "resource"), "resources"),
+	OBJECT_TEMPLATES(ObjectTemplateType.class, new QName(SchemaConstants.NS_COMMON, "ObjectTemplateType"), new QName(SchemaConstants.NS_COMMON, "objectTemplate"), "objectTemplates"),
+	SYSTEM_CONFIGURATIONS(SystemConfigurationType.class, new QName(SchemaConstants.NS_COMMON, "SystemConfigurationType"), new QName(SchemaConstants.NS_COMMON, "systemConfiguration"), "systemConfigurations"),
+	TASKS(TaskType.class, new QName(SchemaConstants.NS_COMMON, "TaskType"), new QName(SchemaConstants.NS_COMMON, "task"), "tasks"),
+	SHADOWS(ShadowType.class, new QName(SchemaConstants.NS_COMMON, "ShadowType"), new QName(SchemaConstants.NS_COMMON, "shadow"), "shadows"),
+	ROLES(RoleType.class, new QName(SchemaConstants.NS_COMMON, "RoleType"), new QName(SchemaConstants.NS_COMMON, "role"), "roles"),
+	ORGS(OrgType.class, new QName(SchemaConstants.NS_COMMON, "OrgType"), new QName(SchemaConstants.NS_COMMON, "org"), "orgs"),
+
+
+	//Other types
 	QUERY(QueryType.class, new QName(SchemaConstants.NS_QUERY, "QueryType"), new QName(SchemaConstants.NS_QUERY, "query"), null),
 	OBJECT_LIST_TYPE(ObjectListType.class, new QName(SchemaConstants.NS_API_TYPES, "ObjectListType"), new QName(SchemaConstants.NS_API_TYPES, "objectList"), ""),
 	POLICY_ITEMS_DEFINITION(PolicyItemsDefinitionType.class, new QName(SchemaConstants.NS_API_TYPES, "PolicyItemsDefinitionType"), new QName(SchemaConstants.NS_API_TYPES, "policyItemsDefinition"), ""),
 	OBJECT_MODIFICATION_TYPE(ObjectModificationType.class, new QName(SchemaConstants.NS_API_TYPES, "ObjectModificationType"), new QName(SchemaConstants.NS_API_TYPES, "objectModification"), ""),
-	VALUE_POLICIES(ValuePolicyType.class, new QName(SchemaConstants.NS_COMMON, "ValuePolicyType"), new QName(SchemaConstants.NS_COMMON, "valuePolicy"), "valuePolicies"),
-	SECURITY_POLICIES(SecurityPolicyType.class, new QName(SchemaConstants.NS_COMMON, "SecurityPolicyType"), new QName(SchemaConstants.NS_COMMON, "securityPolicy"), "securityPolicies"),
 	EXECUTE_CREDENTIAL_RESET_REQUEST(ExecuteCredentialResetRequestType.class, new QName(SchemaConstants.NS_API_TYPES, "ExecuteCredentialResetRequestType"), new QName(SchemaConstants.NS_API_TYPES, "executeCredentialResetRequest"), "");
 
 	
