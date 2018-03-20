@@ -49,6 +49,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.*;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.text.StrBuilder;
@@ -61,20 +63,6 @@ import org.w3c.dom.Node;
 
 import com.evolveum.midpoint.client.impl.restjaxb.RestJaxbServiceUtil;
 import com.evolveum.midpoint.client.impl.restjaxb.SchemaConstants;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectListType;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectModificationType;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.CharacterClassType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.LimitationsType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectReferenceType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultStatusType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.StringLimitType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.StringPolicyType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
 import com.evolveum.prism.xml.ns._public.query_3.QueryType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemDeltaType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
@@ -94,6 +82,7 @@ public class MidpointMockRestService {
 	
 		private Map<String, UserType> userMap = new HashMap<>();
 		private Map<String, ValuePolicyType> valuePolicyMap = new HashMap<>();
+		private Map<String, SecurityPolicyType> securityPolicyMap = new HashMap<>();
 
 		private RestJaxbServiceUtil util = new RestJaxbServiceUtil();
 		private static final String IMPERSONATE_OID = "44af349b-5a0c-4f3a-9fe9-2f64d9390ed3";
@@ -113,6 +102,10 @@ public class MidpointMockRestService {
 			jackuser.setName(util.createPoly("jack"));
 			jackuser.setFamilyName(util.createPoly("jack"));
 			userMap.put("876", jackuser);
+
+			UserType jimuser = new UserType();
+			jimuser.setNickName(util.createPoly("jim"));
+			userMap.put("1bae776f-4939-4071-92e2-8efd5bd57799", jimuser);
 			
 			objectMap.put("users", userMap);
 
@@ -146,6 +139,9 @@ public class MidpointMockRestService {
 			
 			stringPolicyType.setLimitations(limitations);
 			systemValuePolicy.setStringPolicy(stringPolicyType);
+
+			securityPolicyMap.put("westernu-0002-0000-0000-000000000001", new SecurityPolicyType());
+			objectMap.put("securityPolicies", securityPolicyMap);
 		}
 	
 		
@@ -517,7 +513,28 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 		}
 		return RestMockServiceUtil.createResponse(Status.OK, userType, result);
 	}
-	
+
+	@POST
+	@Path("/users/{oid}/credential")
+	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/yaml"})
+	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/yaml"})
+	public Response executeCredentialReset(@PathParam("oid") String oid, ExecuteCredentialResetRequestType executeCredentialResetRequest, @Context MessageContext mc) {
+		OperationResultType result = new OperationResultType();
+		result.setOperation("credentialReset");
+
+		UserType user = userMap.get(oid);
+
+		if (user == null) {
+			result.setStatus(OperationResultStatusType.FATAL_ERROR);
+			result.setMessage("User with oid " + oid + " not found");
+			return RestMockServiceUtil.createResponse(Status.NOT_FOUND, result);
+		}
+
+		// TODO
+		return Response.status(Status.OK).header("Content-Type", MediaType.APPLICATION_XML).build();
+	}
+
+
 	private JAXBContext createJaxbContext() throws IOException {
 		try {
 		JAXBContext jaxbCtx = JAXBContext.newInstance("com.evolveum.midpoint.xml.ns._public.common.api_types_3:"
