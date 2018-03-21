@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,12 +42,10 @@ public class PolicyItemDefinitionBuilderImpl implements PolicyItemDefinitionEntr
 	
 	private List<PolicyItemDefinitionType> allItemDefinitions;
 	
-
 	public PolicyItemDefinitionBuilderImpl(RestJaxbService service, String restPath) {
 		this.service  = service;
 		this.restPath = restPath;
 		this.allItemDefinitions = new ArrayList<>();
-
 	}
 	
 	public PolicyItemDefinitionExitBuilder policy(String oid) {
@@ -77,7 +75,6 @@ public class PolicyItemDefinitionBuilderImpl implements PolicyItemDefinitionEntr
 		return this;
 	}
 
-
 	public ValidateGenerateRpcService build() {
 		PolicyItemsDefinitionType policyItemsDefinition = new PolicyItemsDefinitionType();
 		policyItemsDefinition.getPolicyItemDefinition().addAll(allItemDefinitions);
@@ -91,8 +88,4 @@ public class PolicyItemDefinitionBuilderImpl implements PolicyItemDefinitionEntr
 		return this;
 	}
 
-	
-	
-	
-	
 }

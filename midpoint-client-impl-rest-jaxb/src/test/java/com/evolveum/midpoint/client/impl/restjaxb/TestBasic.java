@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertNotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
@@ -27,15 +28,23 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
+import com.evolveum.midpoint.client.api.scripting.ObjectProcessingOutput;
+import com.evolveum.midpoint.client.api.scripting.OperationSpecificData;
+import com.evolveum.midpoint.client.api.scripting.ValueGenerationData;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
+import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
+import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.transport.local.LocalConduit;
+import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -69,6 +78,9 @@ public class TestBasic {
 //	private static final String ENDPOINT_ADDRESS = "http://mpdev1.its.uwo.pri:8080/midpoint/ws/rest";
 	private static final String ADMIN = "administrator";
 	private static final String ADMIN_PASS = "5ecr3t";
+
+	private static final String USER_JACK_OID = "229487cb-59b6-490b-879d-7a6d925dd08c";
+	private static final String REQUEST_DIR = "src/test/resources/request";
 
 	@BeforeClass
 	public void init() throws IOException {
@@ -505,8 +517,69 @@ public class TestBasic {
 		}
 	}
 
+	// see analogous test 520 in midPoint TestAbstractRestService
+	@Test
+	public void test220GeneratePasswordsUsingScripting() throws Exception {
+		// GIVEN
+		Service service = getService();
 
+		// WHEN
+		//noinspection unchecked
+		ExecuteScriptType request = ((JAXBElement<ExecuteScriptType>) createJaxbContext().createUnmarshaller()
+				.unmarshal(new File(REQUEST_DIR, "request-script-generate-passwords.xml"))).getValue();
+		ExecuteScriptResponseType response = service.rpc().executeScript(request).post();
 
+		// THEN
+		List<ObjectProcessingOutput<ValueGenerationData<String>>> outputs = service.scriptingUtil()
+				.extractPasswordGenerationResults(response);
+		System.out.println("extracted outputs:\n" + outputs);
+		AssertJUnit.assertEquals("Wrong # of extracted outputs", 2, outputs.size());
+
+		ObjectProcessingOutput<ValueGenerationData<String>> first = outputs.get(0);
+		AssertJUnit.assertEquals("Wrong OID in first output", "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", first.getOid());
+		AssertJUnit.assertEquals("Wrong status in first output", OperationResultStatusType.FATAL_ERROR, first.getStatus());
+		AssertJUnit.assertNull("Object present in first output", first.getObject());
+		AssertJUnit.assertNotNull("Operation result missing in first output", first.getResult());
+
+		ObjectProcessingOutput<ValueGenerationData<String>> second = outputs.get(1);
+		AssertJUnit.assertEquals("Wrong OID in second output", USER_JACK_OID, second.getOid());
+		AssertJUnit.assertEquals("Wrong name in second output", "jack", second.getName());
+		AssertJUnit.assertTrue("Missing password in second output", StringUtils.isNotBlank(second.getData().getValue()));
+		AssertJUnit.assertEquals("Wrong status in second output", OperationResultStatusType.SUCCESS, second.getStatus());
+		AssertJUnit.assertNotNull("Object missing in second output", second.getObject());
+		AssertJUnit.assertNotNull("Operation result missing in second output", second.getResult());
+	}
+
+	// see analogous test 530 in midPoint TestAbstractRestService
+	@Test
+	public void test230ModifyValidToUsingScripting() throws Exception {
+		// GIVEN
+		Service service = getService();
+
+		// WHEN
+		//noinspection unchecked
+		ExecuteScriptType request = ((JAXBElement<ExecuteScriptType>) createJaxbContext().createUnmarshaller()
+				.unmarshal(new File(REQUEST_DIR, "request-script-modify-validTo.xml"))).getValue();
+		ExecuteScriptResponseType response = service.rpc().executeScript(request).post();
+
+		// THEN
+		List<ObjectProcessingOutput<OperationSpecificData>> outputs = service.scriptingUtil().extractObjectProcessingOutput(response);
+		System.out.println("extracted outputs:\n" + outputs);
+		AssertJUnit.assertEquals("Wrong # of extracted outputs", 2, outputs.size());
+
+		ObjectProcessingOutput<OperationSpecificData> first = outputs.get(0);
+		AssertJUnit.assertEquals("Wrong OID in first output", "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", first.getOid());
+		AssertJUnit.assertEquals("Wrong status in first output", OperationResultStatusType.FATAL_ERROR, first.getStatus());
+		AssertJUnit.assertNull("Object present in first output", first.getObject());
+		AssertJUnit.assertNotNull("Operation result missing in first output", first.getResult());
+
+		ObjectProcessingOutput<OperationSpecificData> second = outputs.get(1);
+		AssertJUnit.assertEquals("Wrong OID in second output", USER_JACK_OID, second.getOid());
+		AssertJUnit.assertEquals("Wrong name in second output", "jack", second.getName());
+		AssertJUnit.assertEquals("Wrong status in second output", OperationResultStatusType.SUCCESS, second.getStatus());
+		AssertJUnit.assertNotNull("Object missing in second output", second.getObject());
+		AssertJUnit.assertNotNull("Operation result missing in second output", second.getResult());
+	}
 
 	private Service getService() throws IOException {
 		return getService(ADMIN, ADMIN_PASS, AuthenticationType.BASIC);
@@ -553,25 +626,24 @@ public class TestBasic {
 
 	private JAXBContext createJaxbContext() throws IOException {
 		try {
-		JAXBContext jaxbCtx = JAXBContext.newInstance("com.evolveum.midpoint.xml.ns._public.common.api_types_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.common.audit_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.common.common_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_extension_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_schema_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.resource_schema_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.gui.admin_1:"
-				+ "com.evolveum.midpoint.xml.ns._public.model.extension_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.model.scripting_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.model.scripting.extension_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.report.extension_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.resource.capabilities_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.task.extension_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.task.jdbc_ping.handler_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.task.noop.handler_3:"
-				+ "com.evolveum.prism.xml.ns._public.annotation_3:"
-				+ "com.evolveum.prism.xml.ns._public.query_3:"
-				+ "com.evolveum.prism.xml.ns._public.types_3");
-		return jaxbCtx;
+			return JAXBContext.newInstance("com.evolveum.midpoint.xml.ns._public.common.api_types_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.common.audit_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.common.common_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_extension_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_schema_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.resource_schema_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.gui.admin_1:"
+					+ "com.evolveum.midpoint.xml.ns._public.model.extension_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.model.scripting_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.model.scripting.extension_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.report.extension_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.resource.capabilities_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.task.extension_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.task.jdbc_ping.handler_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.task.noop.handler_3:"
+					+ "com.evolveum.prism.xml.ns._public.annotation_3:"
+					+ "com.evolveum.prism.xml.ns._public.query_3:"
+					+ "com.evolveum.prism.xml.ns._public.types_3");
 		} catch (JAXBException e) {
 			throw new IOException(e);
 		}
