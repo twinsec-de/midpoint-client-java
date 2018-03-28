@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,13 +15,10 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb.service;
 
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.nio.file.Files;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -46,41 +43,22 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
 
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.*;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
+import com.evolveum.midpoint.xml.ns._public.model.scripting_3.*;
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.text.StrBuilder;
-import org.apache.cxf.databinding.source.XMLStreamDataWriter;
 import org.apache.cxf.jaxrs.ext.MessageContext;
-import org.apache.cxf.staxutils.PrettyPrintXMLStreamWriter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.evolveum.midpoint.client.impl.restjaxb.RestJaxbServiceUtil;
 import com.evolveum.midpoint.client.impl.restjaxb.SchemaConstants;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectListType;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectModificationType;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.CharacterClassType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.LimitationsType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectReferenceType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultStatusType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.StringLimitType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.StringPolicyType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
 import com.evolveum.prism.xml.ns._public.query_3.QueryType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemDeltaType;
-import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
 import com.evolveum.prism.xml.ns._public.types_3.PolyStringType;
-
 
 /**
  * 
@@ -90,81 +68,87 @@ import com.evolveum.prism.xml.ns._public.types_3.PolyStringType;
 @Produces({"application/xml"})
 public class MidpointMockRestService {
 	
-		private  Map<String, Map<String, ? extends ObjectType>> objectMap = new HashMap<>();
+	private  Map<String, Map<String, ? extends ObjectType>> objectMap = new HashMap<>();
 	
-		private Map<String, UserType> userMap = new HashMap<>();
-		private Map<String, ValuePolicyType> valuePolicyMap = new HashMap<>();
+	private Map<String, UserType> userMap = new HashMap<>();
+	private Map<String, ValuePolicyType> valuePolicyMap = new HashMap<>();
+	private Map<String, SecurityPolicyType> securityPolicyMap = new HashMap<>();
 
-		private RestJaxbServiceUtil util = new RestJaxbServiceUtil();
-		private static final String IMPERSONATE_OID = "44af349b-5a0c-4f3a-9fe9-2f64d9390ed3";
-		
-		private ValuePolicyType systemValuePolicy=null;
-		
-		public MidpointMockRestService() {
-			UserType impersonate = new UserType();
-			impersonate.setName(util.createPoly("impersonate"));
-			impersonate.setOid(IMPERSONATE_OID);
+	private RestJaxbServiceUtil util = new RestJaxbServiceUtil();
+	private static final String IMPERSONATE_OID = "44af349b-5a0c-4f3a-9fe9-2f64d9390ed3";
 
-			userMap.put(IMPERSONATE_OID, impersonate);
-			
-			UserType jackuser = new UserType();
-			
-			jackuser.setGivenName(util.createPoly("jack"));
-			jackuser.setName(util.createPoly("jack"));
-			jackuser.setFamilyName(util.createPoly("jack"));
-			userMap.put("876", jackuser);
-			
-			objectMap.put("users", userMap);
-
-			valuePolicyMap.put("00000000-0000-0000-0000-000000000003", new ValuePolicyType());
-			
-			ValuePolicyType valuePolicy1 = new ValuePolicyType();
-			StringPolicyType stringPolicyType = new StringPolicyType();
-			LimitationsType limitations = new LimitationsType();
-			limitations.setMaxLength(6);
-			limitations.setMinUniqueChars(3);
-			
-			
-			limitations.getLimit().add(createStringLimitType("abcdefghijklmnopqrstuvwxyz", null, 1, null));
-			
-			stringPolicyType.setLimitations(limitations);
-			valuePolicy1.setStringPolicy(stringPolicyType);
-			valuePolicyMap.put("00000000-0000-0000-0000-p00000000001", valuePolicy1);
-			objectMap.put("valuePolicies", valuePolicyMap);
-			
-			systemValuePolicy = new ValuePolicyType();
-			stringPolicyType = new StringPolicyType();
-			limitations = new LimitationsType();
-			limitations.setMaxLength(6);
-			limitations.setMinUniqueChars(3);
-			
-			
-			limitations.getLimit().add(createStringLimitType("abcdefghijklmnopqrstuvwxyz", Boolean.TRUE, 1, null));
-			limitations.getLimit().add(createStringLimitType("1234567890", null, 1, null));
-			limitations.getLimit().add(createStringLimitType("!@#$%^&*()_", null, 1, null));
-			
-			
-			stringPolicyType.setLimitations(limitations);
-			systemValuePolicy.setStringPolicy(stringPolicyType);
-		}
-	
+	private static final String RESPONSE_DIR = "src/test/resources/response";
 		
-		private StringLimitType createStringLimitType(String allowedChars, Boolean mustBeFirst, Integer minOccurs, Integer maxOccurs){
-			StringLimitType stringLimitType = new StringLimitType();
-			CharacterClassType characterClasss = new CharacterClassType();
-			characterClasss.setValue(allowedChars);
-			stringLimitType.setCharacterClass(characterClasss);
-			stringLimitType.setMustBeFirst(mustBeFirst);
-			stringLimitType.setMinOccurs(minOccurs);
-			stringLimitType.setMaxOccurs(maxOccurs);
-			return stringLimitType;
-		}
+	private ValuePolicyType systemValuePolicy;
+		
+	public MidpointMockRestService() {
+		UserType impersonate = new UserType();
+		impersonate.setName(util.createPoly("impersonate"));
+		impersonate.setOid(IMPERSONATE_OID);
+
+		userMap.put(IMPERSONATE_OID, impersonate);
+			
+		UserType jackuser = new UserType();
+			
+		jackuser.setGivenName(util.createPoly("jack"));
+		jackuser.setName(util.createPoly("jack"));
+		jackuser.setFamilyName(util.createPoly("jack"));
+		userMap.put("876", jackuser);
+
+		UserType jimuser = new UserType();
+		jimuser.setNickName(util.createPoly("jim"));
+		userMap.put("1bae776f-4939-4071-92e2-8efd5bd57799", jimuser);
+			
+		objectMap.put("users", userMap);
+
+		valuePolicyMap.put("00000000-0000-0000-0000-000000000003", new ValuePolicyType());
+			
+		ValuePolicyType valuePolicy1 = new ValuePolicyType();
+		StringPolicyType stringPolicyType = new StringPolicyType();
+		LimitationsType limitations = new LimitationsType();
+		limitations.setMaxLength(6);
+		limitations.setMinUniqueChars(3);
+
+		limitations.getLimit().add(createStringLimitType("abcdefghijklmnopqrstuvwxyz", null, 1, null));
+			
+		stringPolicyType.setLimitations(limitations);
+		valuePolicy1.setStringPolicy(stringPolicyType);
+		valuePolicyMap.put("00000000-0000-0000-0000-p00000000001", valuePolicy1);
+		objectMap.put("valuePolicies", valuePolicyMap);
+			
+		systemValuePolicy = new ValuePolicyType();
+		stringPolicyType = new StringPolicyType();
+		limitations = new LimitationsType();
+		limitations.setMaxLength(6);
+		limitations.setMinUniqueChars(3);
+
+		limitations.getLimit().add(createStringLimitType("abcdefghijklmnopqrstuvwxyz", Boolean.TRUE, 1, null));
+		limitations.getLimit().add(createStringLimitType("1234567890", null, 1, null));
+		limitations.getLimit().add(createStringLimitType("!@#$%^&*()_", null, 1, null));
+
+		stringPolicyType.setLimitations(limitations);
+		systemValuePolicy.setStringPolicy(stringPolicyType);
+
+		securityPolicyMap.put("westernu-0002-0000-0000-000000000001", new SecurityPolicyType());
+		objectMap.put("securityPolicies", securityPolicyMap);
+	}
+
+	private StringLimitType createStringLimitType(String allowedChars, Boolean mustBeFirst, Integer minOccurs, Integer maxOccurs){
+		StringLimitType stringLimitType = new StringLimitType();
+		CharacterClassType characterClasss = new CharacterClassType();
+		characterClasss.setValue(allowedChars);
+		stringLimitType.setCharacterClass(characterClasss);
+		stringLimitType.setMustBeFirst(mustBeFirst);
+		stringLimitType.setMinOccurs(minOccurs);
+		stringLimitType.setMaxOccurs(maxOccurs);
+		return stringLimitType;
+	}
 			
 	@POST
 	@Path("/{type}")
 	@Consumes({MediaType.APPLICATION_XML})
 	public <O extends ObjectType> Response addObject(@PathParam("type") String type, O object,
-													 @QueryParam("options") List<String> options,
+			@QueryParam("options") List<String> options,
 			@Context UriInfo uriInfo, @Context MessageContext mc) {
 			
 		String oid = object.getOid();
@@ -517,28 +501,83 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 		}
 		return RestMockServiceUtil.createResponse(Status.OK, userType, result);
 	}
-	
+
+	@POST
+	@Path("/users/{oid}/credential")
+	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/yaml"})
+	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, "application/yaml"})
+	public Response executeCredentialReset(@PathParam("oid") String oid, ExecuteCredentialResetRequestType executeCredentialResetRequest, @Context MessageContext mc) {
+		OperationResultType result = new OperationResultType();
+		result.setOperation("credentialReset");
+
+		UserType user = userMap.get(oid);
+
+		if (user == null) {
+			result.setStatus(OperationResultStatusType.FATAL_ERROR);
+			result.setMessage("User with oid " + oid + " not found");
+			return RestMockServiceUtil.createResponse(Status.NOT_FOUND, result);
+		}
+
+		// TODO
+		return Response.status(Status.OK).header("Content-Type", MediaType.APPLICATION_XML).build();
+	}
+
+	@POST
+	@Path("/rpc/executeScript")
+	@Consumes({"application/xml", MediaType.APPLICATION_JSON, "application/yaml" })
+	public Response executeScript(ExecuteScriptType command,
+			@QueryParam("asynchronous") Boolean asynchronous, @Context UriInfo uriInfo, @Context MessageContext mc) {
+
+		// we support only two predefined requests
+
+		if (command.getScriptingExpression().getValue() instanceof ExpressionPipelineType) {
+			ExpressionPipelineType pipeline = (ExpressionPipelineType) command.getScriptingExpression().getValue();
+			if (pipeline.getScriptingExpression().size() >= 2) {
+				ScriptingExpressionType second = pipeline.getScriptingExpression().get(1).getValue();
+				if (second instanceof ActionExpressionType) {
+					String type = ((ActionExpressionType) second).getType();
+					if ("generate-value".equals(type)) {
+						return buildResponseFromFile(new File(RESPONSE_DIR, "/response-generate-passwords.xml"));
+					} else if ("modify".equals(type)) {
+						return buildResponseFromFile(new File(RESPONSE_DIR, "/response-modify-validTo.xml"));
+					}
+				}
+			}
+		}
+		throw new UnsupportedOperationException("Unsupported executeScript call");
+	}
+
+	private Response buildResponseFromFile(File file) {
+		try {
+			return Response.status(Status.OK)
+					.header("Content-Type", MediaType.APPLICATION_XML)
+					.entity(Files.readAllBytes(file.toPath()))
+					.build();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
 	private JAXBContext createJaxbContext() throws IOException {
 		try {
-		JAXBContext jaxbCtx = JAXBContext.newInstance("com.evolveum.midpoint.xml.ns._public.common.api_types_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.common.audit_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.common.common_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_extension_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_schema_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.resource_schema_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.gui.admin_1:"
-				+ "com.evolveum.midpoint.xml.ns._public.model.extension_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.model.scripting_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.model.scripting.extension_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.report.extension_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.resource.capabilities_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.task.extension_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.task.jdbc_ping.handler_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.task.noop.handler_3:"
-				+ "com.evolveum.prism.xml.ns._public.annotation_3:"
-				+ "com.evolveum.prism.xml.ns._public.query_3:"
-				+ "com.evolveum.prism.xml.ns._public.types_3");
-		return jaxbCtx;
+			return JAXBContext.newInstance("com.evolveum.midpoint.xml.ns._public.common.api_types_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.common.audit_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.common.common_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_extension_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_schema_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.resource_schema_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.gui.admin_1:"
+					+ "com.evolveum.midpoint.xml.ns._public.model.extension_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.model.scripting_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.model.scripting.extension_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.report.extension_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.resource.capabilities_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.task.extension_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.task.jdbc_ping.handler_3:"
+					+ "com.evolveum.midpoint.xml.ns._public.task.noop.handler_3:"
+					+ "com.evolveum.prism.xml.ns._public.annotation_3:"
+					+ "com.evolveum.prism.xml.ns._public.query_3:"
+					+ "com.evolveum.prism.xml.ns._public.types_3");
 		} catch (JAXBException e) {
 			throw new IOException(e);
 		}

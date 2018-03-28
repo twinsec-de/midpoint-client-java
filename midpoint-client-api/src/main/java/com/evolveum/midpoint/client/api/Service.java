@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 package com.evolveum.midpoint.client.api;
 
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.SecurityPolicyType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
@@ -42,4 +43,6 @@ public interface Service {
 	ObjectCollectionService<SecurityPolicyType> securityPolicies();
 
 	ServiceUtil util();
+
+	ScriptingUtil scriptingUtil();
 }

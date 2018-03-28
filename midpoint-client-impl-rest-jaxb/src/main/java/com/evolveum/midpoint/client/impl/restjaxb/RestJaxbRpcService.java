@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,17 +19,21 @@ import com.evolveum.midpoint.client.api.RpcService;
 import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.ValidateGenerateRpcService;
 import com.evolveum.midpoint.client.api.exception.CommonException;
+import com.evolveum.midpoint.client.api.verb.Post;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
+import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 
 /**
  * 
  * @author katkav
  *
  */
-public class RestJaxbRpcService<T> implements RpcService<T>{
+public class RestJaxbRpcService<T> implements RpcService<T> {
 
 	private static final String GENERATE_PATH = "/rpc/generate";
 	private static final String VALIDATE_PATH = "/rpc/validate";
-	
+	private static final String EXECUTE_SCRIPT_PATH = "/rpc/executeScript";
+
 	private RestJaxbService service;
 	
 	public RestJaxbRpcService(RestJaxbService service) {
@@ -44,18 +48,15 @@ public class RestJaxbRpcService<T> implements RpcService<T>{
 	public ValidateGenerateRpcService validate() {
 		return new RestJaxbValidateGenerateRpcService(getService(), VALIDATE_PATH);
 	}
-	
-	
+
 	@Override
 	public void compare() {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
-	public void executeScript() {
-		// TODO Auto-generated method stub
-		
+	public Post<ExecuteScriptResponseType> executeScript(ExecuteScriptType script) {
+		return new RestJaxbExecuteScriptRpcService(getService(), EXECUTE_SCRIPT_PATH, script);
 	}
 
 	@Override
@@ -67,8 +68,6 @@ public class RestJaxbRpcService<T> implements RpcService<T>{
 	@Override
 	public ValidateGenerateRpcService generate() {
 		return new RestJaxbValidateGenerateRpcService(getService(), GENERATE_PATH);
-		
 	}
 
-	
 }

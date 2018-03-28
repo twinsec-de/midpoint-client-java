@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 20172-2018 Evolveum
+/*
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.evolveum.midpoint.client.api;
+package com.evolveum.midpoint.client.api.scripting;
 
-import com.evolveum.midpoint.client.api.verb.Post;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
+import java.io.Serializable;
 
 /**
- * 
- * @author katkav
- *
+ * @author mederly
  */
-public interface ValidateGenerateRpcService extends Post<PolicyItemsDefinitionType> {
+public class ValueGenerationData<T extends Serializable> extends OperationSpecificData {
 
-	PolicyItemDefinitionBuilder items();
-	
+	private T value;
+
+	public T getValue() {
+		return value;
+	}
+
+	public void setValue(T value) {
+		this.value = value;
+	}
+
+	@Override
+	public String toString() {
+		return "{value='" + value + '\'' + '}';
+	}
 }

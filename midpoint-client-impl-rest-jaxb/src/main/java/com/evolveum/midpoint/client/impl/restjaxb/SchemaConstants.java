@@ -31,4 +31,5 @@ public class SchemaConstants {
 	public static final String NS_API_TYPES = "http://midpoint.evolveum.com/xml/ns/public/common/api-types-3";
 	public static final String NS_QUERY = "http://prism.evolveum.com/xml/ns/public/query-3";
 	public static final String NS_TYPES = "http://prism.evolveum.com/xml/ns/public/types-3";
+	public static final String NS_SCRIPTING = "http://midpoint.evolveum.com/xml/ns/public/model/scripting-3";
 }
