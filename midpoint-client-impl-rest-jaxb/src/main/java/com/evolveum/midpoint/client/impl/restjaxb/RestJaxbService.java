@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +30,9 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
+import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
+import com.evolveum.midpoint.client.impl.restjaxb.scripting.ScriptingUtilImpl;
+
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
 
@@ -51,6 +54,7 @@ public class RestJaxbService implements Service {
 
 	private static final String IMPERSONATE_HEADER = "Switch-To-Principal";
 	private final ServiceUtil util;
+	private final ScriptingUtil scriptingUtil;
 
 	// TODO: jaxb context
 	
@@ -89,6 +93,7 @@ public class RestJaxbService implements Service {
 		super();
 		client = WebClient.create("");
 		util = new RestJaxbServiceUtil();
+		scriptingUtil = new ScriptingUtilImpl(util);
 	}
 	
 	RestJaxbService(String url, String username, String password, AuthenticationType authentication, List<SecurityQuestionAnswer> secQ) throws IOException {
@@ -128,8 +133,10 @@ public class RestJaxbService implements Service {
 //		}
 		
 		util = new RestJaxbServiceUtil();
+		scriptingUtil = new ScriptingUtilImpl(util);
 		domSerializer = new DomSerializer(jaxbContext);
 	}
+
 	@Override
 	public Service impersonate(String oid){
 		client.header(IMPERSONATE_HEADER, oid);
@@ -216,7 +223,12 @@ public class RestJaxbService implements Service {
 	public ServiceUtil util() {
 		return util;
 	}
-	
+
+	@Override
+	public ScriptingUtil scriptingUtil() {
+		return scriptingUtil;
+	}
+
 	/**
 	 * Used frequently at several places. Therefore unified here.
 	 * @throws ObjectNotFoundException 
@@ -289,7 +301,7 @@ public class RestJaxbService implements Service {
 	}
 
 	private JAXBContext createJaxbContext() throws JAXBException {
-		JAXBContext jaxbCtx = JAXBContext.newInstance("com.evolveum.midpoint.xml.ns._public.common.api_types_3:"
+		return JAXBContext.newInstance("com.evolveum.midpoint.xml.ns._public.common.api_types_3:"
 				+ "com.evolveum.midpoint.xml.ns._public.common.audit_3:"
 				+ "com.evolveum.midpoint.xml.ns._public.common.common_3:"
 				+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_extension_3:"
@@ -307,6 +319,5 @@ public class RestJaxbService implements Service {
 				+ "com.evolveum.prism.xml.ns._public.annotation_3:"
 				+ "com.evolveum.prism.xml.ns._public.query_3:"
 				+ "com.evolveum.prism.xml.ns._public.types_3");
-		return jaxbCtx;
 	}
 }

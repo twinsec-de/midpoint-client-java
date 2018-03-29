@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@ import javax.xml.namespace.QName;
 
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 import com.evolveum.prism.xml.ns._public.types_3.PolyStringType;
+import com.evolveum.prism.xml.ns._public.types_3.ProtectedStringType;
 
 /**
  * @author semancik
@@ -33,9 +34,10 @@ public interface ServiceUtil {
 
 	String getOrig(PolyStringType poly);
 	
-	public ItemPathType createItemPathType(QName... qname);
+	ItemPathType createItemPathType(QName... qname);
 	// TODO: util methods for object extension
 	
-	public XMLGregorianCalendar asXMLGregorianCalendar(Date date);
+	XMLGregorianCalendar asXMLGregorianCalendar(Date date);
 
+	String getClearValue(ProtectedStringType protectedString);
 }

@@ -24,6 +24,7 @@ import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectListType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectModificationType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
+import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 import com.evolveum.prism.xml.ns._public.query_3.QueryType;
 
 /**
@@ -48,15 +49,14 @@ public enum Types {
 	ROLES(RoleType.class, new QName(SchemaConstants.NS_COMMON, "RoleType"), new QName(SchemaConstants.NS_COMMON, "role"), "roles"),
 	ORGS(OrgType.class, new QName(SchemaConstants.NS_COMMON, "OrgType"), new QName(SchemaConstants.NS_COMMON, "org"), "orgs"),
 
-
 	//Other types
 	QUERY(QueryType.class, new QName(SchemaConstants.NS_QUERY, "QueryType"), new QName(SchemaConstants.NS_QUERY, "query"), null),
 	OBJECT_LIST_TYPE(ObjectListType.class, new QName(SchemaConstants.NS_API_TYPES, "ObjectListType"), new QName(SchemaConstants.NS_API_TYPES, "objectList"), ""),
 	POLICY_ITEMS_DEFINITION(PolicyItemsDefinitionType.class, new QName(SchemaConstants.NS_API_TYPES, "PolicyItemsDefinitionType"), new QName(SchemaConstants.NS_API_TYPES, "policyItemsDefinition"), ""),
 	OBJECT_MODIFICATION_TYPE(ObjectModificationType.class, new QName(SchemaConstants.NS_API_TYPES, "ObjectModificationType"), new QName(SchemaConstants.NS_API_TYPES, "objectModification"), ""),
 	EXECUTE_CREDENTIAL_RESET_REQUEST(ExecuteCredentialResetRequestType.class, new QName(SchemaConstants.NS_API_TYPES, "ExecuteCredentialResetRequestType"), new QName(SchemaConstants.NS_API_TYPES, "executeCredentialResetRequest"), "");
+	EXECUTE_SCRIPT(ExecuteScriptType.class, new QName(SchemaConstants.NS_SCRIPTING, "ExecuteScriptType"), new QName(SchemaConstants.NS_SCRIPTING, "executeScript"), "");
 
-	
 	private Class<?> clazz;
 	/**
 	 * element name - used for XML jaxb serialization
