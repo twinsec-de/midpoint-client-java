@@ -16,6 +16,7 @@
 package com.evolveum.midpoint.client.impl.restjaxb;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +27,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
 import com.evolveum.midpoint.client.impl.restjaxb.scripting.ScriptingUtilImpl;
@@ -97,7 +99,7 @@ public class RestJaxbService implements Service {
 	public RestJaxbService() {
 		super();
 		client = WebClient.create("");
-		util = new RestJaxbServiceUtil();
+		util = new RestJaxbServiceUtil(null);
 		scriptingUtil = new ScriptingUtilImpl(util);
 	}
 	
@@ -126,18 +128,8 @@ public class RestJaxbService implements Service {
 		if (authenticationManager != null) {
 			client.header("Authorization", authenticationManager.createAuthorizationHeader());
 		}
-		
-		
-//		if (authentication != null) {
-//			String authorizationHeader = authentication.getType();
-//			if (StringUtils.isNotBlank(username)) {
-//			 authorizationHeader += " " + org.apache.cxf.common.util.Base64Utility
-//					.encode((username + ":" + (password == null ? "" : password)).getBytes());
-//			}
-//			client.header("Authorization", authorizationHeader);
-//		}
-		
-		util = new RestJaxbServiceUtil();
+				
+		util = new RestJaxbServiceUtil(jaxbContext);
 		scriptingUtil = new ScriptingUtilImpl(util);
 		domSerializer = new DomSerializer(jaxbContext);
 	}
@@ -153,6 +145,7 @@ public class RestJaxbService implements Service {
 		client.header(header, value);
 		return this;
 	}
+	
 
 	@Override
 	public ObjectCollectionService<UserType> users() {
@@ -182,8 +175,8 @@ public class RestJaxbService implements Service {
 	public ScriptingUtil scriptingUtil() {
 		return scriptingUtil;
 	}
-
-	/**
+	
+		/**
 	 * Used frequently at several places. Therefore unified here.
 	 * @throws ObjectNotFoundException 
 	 */
