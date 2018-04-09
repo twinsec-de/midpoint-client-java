@@ -74,7 +74,7 @@ public class MidpointMockRestService {
 	private Map<String, ValuePolicyType> valuePolicyMap = new HashMap<>();
 	private Map<String, SecurityPolicyType> securityPolicyMap = new HashMap<>();
 
-	private RestJaxbServiceUtil util = new RestJaxbServiceUtil();
+//	private RestJaxbServiceUtil util = new RestJaxbServiceUtil();
 	private static final String IMPERSONATE_OID = "44af349b-5a0c-4f3a-9fe9-2f64d9390ed3";
 
 	private static final String RESPONSE_DIR = "src/test/resources/response";
@@ -82,6 +82,11 @@ public class MidpointMockRestService {
 	private ValuePolicyType systemValuePolicy;
 		
 	public MidpointMockRestService() {
+		RestJaxbServiceUtil util = null;
+		try {
+			util = new RestJaxbServiceUtil(createJaxbContext());
+		} catch (IOException e) {
+		}
 		UserType impersonate = new UserType();
 		impersonate.setName(util.createPoly("impersonate"));
 		impersonate.setOid(IMPERSONATE_OID);
@@ -345,7 +350,7 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 	                                                      @QueryParam("options") List<String> options,
 	                                                      @QueryParam("include") List<String> include,
 	                                                      @QueryParam("exclude") List<String> exclude,
-	                                                      @Context MessageContext mc){
+	                                                      @Context MessageContext mc) throws Exception {
 
 		OperationResultType result = new OperationResultType();
 		result.setOperation("Modify generate object");
@@ -379,7 +384,7 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 //			return RestMockServiceUtil.createResponse(Status.INTERNAL_SERVER_ERROR, result);
 //		}
 
-		RestJaxbServiceUtil util = new RestJaxbServiceUtil();
+		RestJaxbServiceUtil util = new RestJaxbServiceUtil(createJaxbContext());
 
 		user.setGivenName(util.createPoly((String) object.getPolicyItemDefinition().iterator().next().getValue()));
 
@@ -392,11 +397,11 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 	public <T extends ObjectType> Response modifyObjectPost(@PathParam("type") String type, @PathParam("id") String id,
 	                                                        ObjectModificationType object,
 	                                                        @QueryParam("options") List<String> options,
-	                                                        @Context UriInfo uriInfo, @Context MessageContext mc) {
+	                                                        @Context UriInfo uriInfo, @Context MessageContext mc) throws Exception {
 
 		//TODO: Should we make this generic or does this satisfy our needs for the test case?
 
-		RestJaxbServiceUtil util = new RestJaxbServiceUtil();
+		RestJaxbServiceUtil util = new RestJaxbServiceUtil(createJaxbContext());
 		OperationResultType result = new OperationResultType();
 		result.setOperation("Modify object");
 
@@ -484,7 +489,7 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 	@GET
 	@Path("/self")
 	@Produces({MediaType.APPLICATION_XML})
-	public Response self(@Context MessageContext mc){
+	public Response self(@Context MessageContext mc) throws Exception {
 		OperationResultType result = new OperationResultType();
 		result.setOperation("Self");
 
@@ -496,7 +501,7 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 		}else
 		{
 			userType = new UserType();
-			RestJaxbServiceUtil util = new RestJaxbServiceUtil();
+			RestJaxbServiceUtil util = new RestJaxbServiceUtil(createJaxbContext());
 			userType.setName(util.createPoly("administrator"));
 		}
 		return RestMockServiceUtil.createResponse(Status.OK, userType, result);
