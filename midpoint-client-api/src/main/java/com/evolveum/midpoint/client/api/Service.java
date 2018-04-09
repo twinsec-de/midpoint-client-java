@@ -16,10 +16,8 @@
 package com.evolveum.midpoint.client.api;
 
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.SecurityPolicyType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
 
 /**
  * @author semancik
@@ -41,6 +39,26 @@ public interface Service {
 	Service addHeader(String header, String value);
 
 	ObjectCollectionService<SecurityPolicyType> securityPolicies();
+
+    ObjectCollectionService<ConnectorType> connectors();
+
+	ObjectCollectionService<ConnectorHostType> connectorHosts();
+
+	ObjectCollectionService<GenericObjectType> genericObjects();
+
+	ObjectCollectionService<ResourceType> resources();
+
+	ObjectCollectionService<ObjectTemplateType> objectTemplates();
+
+	ObjectCollectionService<SystemConfigurationType> systemConfigurations();
+
+	ObjectCollectionService<TaskType> tasks();
+
+	ObjectCollectionService<ShadowType> shadows();
+
+	ObjectCollectionService<RoleType> roles();
+
+	ObjectCollectionService<OrgType> orgs();
 
 	ServiceUtil util();
 
