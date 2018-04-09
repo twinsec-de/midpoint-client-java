@@ -56,8 +56,6 @@ public enum Types {
 	OBJECT_LIST_TYPE(ObjectListType.class, new QName(SchemaConstants.NS_API_TYPES, "ObjectListType"), new QName(SchemaConstants.NS_API_TYPES, "objectList"), ""),
 	POLICY_ITEMS_DEFINITION(PolicyItemsDefinitionType.class, new QName(SchemaConstants.NS_API_TYPES, "PolicyItemsDefinitionType"), new QName(SchemaConstants.NS_API_TYPES, "policyItemsDefinition"), ""),
 	OBJECT_MODIFICATION_TYPE(ObjectModificationType.class, new QName(SchemaConstants.NS_API_TYPES, "ObjectModificationType"), new QName(SchemaConstants.NS_API_TYPES, "objectModification"), ""),
-	VALUE_POLICIES(ValuePolicyType.class, new QName(SchemaConstants.NS_COMMON, "ValuePolicyType"), new QName(SchemaConstants.NS_COMMON, "valuePolicy"), "valuePolicies"),
-	SECURITY_POLICIES(SecurityPolicyType.class, new QName(SchemaConstants.NS_COMMON, "SecurityPolicyType"), new QName(SchemaConstants.NS_COMMON, "securityPolicy"), "securityPolicies"),
 	EXECUTE_CREDENTIAL_RESET_REQUEST(ExecuteCredentialResetRequestType.class, new QName(SchemaConstants.NS_API_TYPES, "ExecuteCredentialResetRequestType"), new QName(SchemaConstants.NS_API_TYPES, "executeCredentialResetRequest"), ""),
 	EXECUTE_SCRIPT(ExecuteScriptType.class, new QName(SchemaConstants.NS_SCRIPTING, "ExecuteScriptType"), new QName(SchemaConstants.NS_SCRIPTING, "executeScript"), ""),
 	ASSIGNMENT(AssignmentType.class, new QName(SchemaConstants.NS_COMMON, "AssignmentType"), new QName(SchemaConstants.NS_COMMON, "assignment"), "");
