@@ -15,11 +15,13 @@
  */
 package com.evolveum.midpoint.client.api;
 
+import java.io.InputStream;
 import java.util.Date;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
+import com.evolveum.midpoint.client.api.exception.SchemaException;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 import com.evolveum.prism.xml.ns._public.types_3.PolyStringType;
 import com.evolveum.prism.xml.ns._public.types_3.ProtectedStringType;
@@ -40,4 +42,6 @@ public interface ServiceUtil {
 	XMLGregorianCalendar asXMLGregorianCalendar(Date date);
 
 	String getClearValue(ProtectedStringType protectedString);
+	
+	<T> T parse(Class<T> type, String xml) throws SchemaException;
 }
