@@ -28,6 +28,7 @@ import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.AuthorizationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.exception.PartialErrorException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemDeltaType;
 import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
@@ -103,6 +104,8 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
             case 204:
                 RestJaxbObjectReference<O> ref = new RestJaxbObjectReference<>(getService(), getType(), oid);
                 return new RestJaxbCompletedFuture<>(ref);
+            case 250:
+                throw new PartialErrorException(response.getStatusInfo().getReasonPhrase());
             case 400:
                 throw new BadRequestException(response.getStatusInfo().getReasonPhrase());
             case 401:

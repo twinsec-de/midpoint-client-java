@@ -53,6 +53,8 @@ public class RestJaxbExecuteScriptRpcService implements ExecuteScriptRpcService 
 				ExecuteScriptResponseType executeScriptResponse = response.readEntity(ExecuteScriptResponseType.class);
 				return new RestJaxbCompletedFuture<>(executeScriptResponse);
 			// TODO deduplicate the following error responses
+			case 250:
+				throw new PartialErrorException(response.getStatusInfo().getReasonPhrase());
 			case 400:
 				throw new BadRequestException(response.getStatusInfo().getReasonPhrase());
 			case 401:
