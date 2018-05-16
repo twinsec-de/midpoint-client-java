@@ -15,6 +15,7 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -23,7 +24,7 @@ import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectModificatio
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemTargetType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectReferenceType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.prism.xml.ns._public.types_3.ItemDeltaType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
@@ -36,13 +37,13 @@ import com.sun.org.apache.xerces.internal.dom.TextImpl;
  */
 public class RestUtil {
 
-	private static final String NS_COMMON = "http://midpoint.evolveum.com/xml/ns/public/common/common-3";
-	
+	private static final String VALIDATION_OPERATION_PATH = "com.evolveum.midpoint.model.api.ModelInteractionService.validateValue.value";
+	private static final String VALUE_POLICY_EVALUATOR_VALIDATE_VALUE_PATH = "class com.evolveum.midpoint.model.common.stringpolicy.ObjectValuePolicyEvaluator.validateValue";
+
 	public static String subUrl(final String urlPrefix, final String pathSegment) {
 		// TODO: better code (e.g. escaping)
 		return "/" + urlPrefix + "/" + pathSegment;
 	}
-
 
 	public static ObjectModificationType buildModifyObject(List<ItemDeltaType> itemDeltas)
 	{
@@ -100,7 +101,7 @@ public class RestUtil {
 	{
 		ObjectReferenceType objectReferenceType = new ObjectReferenceType();
 		objectReferenceType.setOid(policyOid);
-		QName qname = new QName(NS_COMMON, "ValuePolicyType");
+		QName qname = new QName(SchemaConstants.NS_COMMON, "ValuePolicyType");
 		objectReferenceType.setType(qname);
 		return objectReferenceType;
 	}
@@ -112,6 +113,41 @@ public class RestUtil {
 		ElementNSImpl elementNSImpl = (ElementNSImpl) policyItemDefinitionType.getValue();
 		TextImpl textImpl = (TextImpl) elementNSImpl.getFirstChild();
 		return textImpl.getData();
+	}
+
+	public static String getFailedValidationMessage(OperationResultType operationResultType){
+
+		List<LocalizableMessageType> messages = new ArrayList<>();
+
+		List<OperationResultType> partialResults = operationResultType.getPartialResults();
+
+		OperationResultType validationResult = new OperationResultType();
+
+		for(OperationResultType operationResult : partialResults){
+
+			if(VALIDATION_OPERATION_PATH.equals(operationResult.getOperation())){
+				validationResult = operationResult;
+			}
+		}
+
+		for(OperationResultType operationResult : validationResult.getPartialResults()){
+			if(VALUE_POLICY_EVALUATOR_VALIDATE_VALUE_PATH.equals(operationResult.getOperation()))
+			{
+				LocalizableMessageListType localizableMessage = (LocalizableMessageListType)operationResult.getUserFriendlyMessage();
+				messages = localizableMessage.getMessage();
+			}
+		}
+
+		StringBuilder fullMessage = new StringBuilder();
+		fullMessage.append("Validation Failed: ");
+
+		for(LocalizableMessageType messageType : messages){
+			SingleLocalizableMessageType singleLocalizableMessageType = (SingleLocalizableMessageType) messageType;
+			fullMessage.append(singleLocalizableMessageType.getFallbackMessage());
+			fullMessage.append(" ");
+		}
+
+		return fullMessage.toString();
 	}
 	
 
