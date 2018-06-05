@@ -72,7 +72,7 @@ public class RestJaxbValidateGenerateRpcService implements ValidateGenerateRpcSe
             throw new ObjectNotFoundException(response.getStatusInfo().getReasonPhrase());
 		case 409:
 			OperationResultType operationResultType = response.readEntity(OperationResultType.class);
-	        throw new PolicyViolationException(operationResultType.getMessage());
+	        throw new PolicyViolationException(RestUtil.getFailedValidationMessage(operationResultType));
         default:
             throw new UnsupportedOperationException("Implement other status codes, unsupported return status: " + response.getStatus());
     }
