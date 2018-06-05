@@ -23,6 +23,7 @@ import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.AuthorizationException;
 import com.evolveum.midpoint.client.api.exception.ObjectAlreadyExistsException;
+import com.evolveum.midpoint.client.api.exception.PartialErrorException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
 /**
@@ -51,6 +52,8 @@ public class RestJaxbObjectAddService<O extends ObjectType> extends AbstractObje
 		switch (response.getStatus()) {
 			case 400:
 				throw new BadRequestException(response.getStatusInfo().getReasonPhrase());
+			case 250:
+				throw new PartialErrorException(response.getStatusInfo().getReasonPhrase());
 			case 401:
 			case 403:
 				throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());

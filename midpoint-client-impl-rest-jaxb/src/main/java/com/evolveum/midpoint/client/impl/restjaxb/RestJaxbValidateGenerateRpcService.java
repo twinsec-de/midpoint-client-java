@@ -21,11 +21,7 @@ import javax.ws.rs.core.Response;
 import com.evolveum.midpoint.client.api.PolicyItemDefinitionBuilder;
 import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.ValidateGenerateRpcService;
-import com.evolveum.midpoint.client.api.exception.AuthenticationException;
-import com.evolveum.midpoint.client.api.exception.AuthorizationException;
-import com.evolveum.midpoint.client.api.exception.CommonException;
-import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
-import com.evolveum.midpoint.client.api.exception.PolicyViolationException;
+import com.evolveum.midpoint.client.api.exception.*;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 
@@ -62,6 +58,8 @@ public class RestJaxbValidateGenerateRpcService implements ValidateGenerateRpcSe
         case 200:
             PolicyItemsDefinitionType itemsDefinitionType = response.readEntity(PolicyItemsDefinitionType.class);
             return new RestJaxbCompletedFuture<>(itemsDefinitionType);
+		case 250:
+			throw new PartialErrorException(response.getStatusInfo().getReasonPhrase());
         case 400:
             throw new BadRequestException(response.getStatusInfo().getReasonPhrase());
         case 401:
