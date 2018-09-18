@@ -84,7 +84,7 @@ public class TestBasic {
 
 	@BeforeClass
 	public void init() throws IOException {
-		startServer();
+//		startServer();
 	}
 	
 	@Test
@@ -420,9 +420,11 @@ public class TestBasic {
 		service.rpc().validate()
 			.items()
 				.item()
-					.value("asdasd123@#")
+					.policy("00000000-0000-0000-0000-p00000000001")
+					.value("asdasd123")
 				.item()
-					.value("asdasdasd345345!!!")
+					.policy("00000000-0000-0000-0000-p00000000001")
+					.value("asdasdasd")
 				.item()
 					.policy("00000000-0000-0000-0000-p00000000001")
 					.value("dfgsdf")

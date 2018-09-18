@@ -33,7 +33,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.source.version>1.8</project.source.version>
-        <midpoint.version>3.8-SNAPSHOT</midpoint.version>
+        <midpoint.version>3.8</midpoint.version>
         <testng.version>6.8.8</testng.version>
     </properties>
 

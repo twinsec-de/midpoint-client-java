@@ -116,38 +116,93 @@ public class RestUtil {
 	}
 
 	public static String getFailedValidationMessage(OperationResultType operationResultType){
+		
+		System.out.println("Operation: " + operationResultType.getOperation());
+		
+		if (operationResultType.getMessage() != null) {
+			return operationResultType.getMessage();
+		}
+		
+		if (operationResultType.getUserFriendlyMessage() != null) {
+			LocalizableMessageType localizableMessage = operationResultType.getUserFriendlyMessage();
+			return getStringMessage(localizableMessage);
+		}
+		
+		LocalizableMessageType validationResult = getValidationOperationResult(operationResultType);
+		return getStringMessage(validationResult);
+		
+		
 
-		List<LocalizableMessageType> messages = new ArrayList<>();
-
+//		List<LocalizableMessageType> messages = new ArrayList<>();
+//
+//		List<OperationResultType> partialResults = operationResultType.getPartialResults();
+//
+//		OperationResultType validationResult = new OperationResultType();
+//
+//		for(OperationResultType operationResult : partialResults){
+//
+//			if(VALIDATION_OPERATION_PATH.equals(operationResult.getOperation())){
+//				validationResult = operationResult;
+//			}
+//		}
+//
+//		for(OperationResultType operationResult : validationResult.getPartialResults()){
+//			if(VALUE_POLICY_EVALUATOR_VALIDATE_VALUE_PATH.equals(operationResult.getOperation()))
+//			{
+//				LocalizableMessageListType localizableMessage = (LocalizableMessageListType)operationResult.getUserFriendlyMessage();
+//				messages = localizableMessage.getMessage();
+//			}
+//		}
+//
+//		StringBuilder fullMessage = new StringBuilder();
+//		fullMessage.append("Validation Failed: ");
+//
+//		for(LocalizableMessageType messageType : messages){
+//			SingleLocalizableMessageType singleLocalizableMessageType = (SingleLocalizableMessageType) messageType;
+//			fullMessage.append(singleLocalizableMessageType.getFallbackMessage());
+//			fullMessage.append(" ");
+//		}
+//
+//		return fullMessage.toString();
+	}
+	
+	private static LocalizableMessageType getValidationOperationResult(OperationResultType operationResultType) {
 		List<OperationResultType> partialResults = operationResultType.getPartialResults();
-
-		OperationResultType validationResult = new OperationResultType();
-
 		for(OperationResultType operationResult : partialResults){
 
-			if(VALIDATION_OPERATION_PATH.equals(operationResult.getOperation())){
-				validationResult = operationResult;
+			if (VALIDATION_OPERATION_PATH.equals(operationResult.getOperation())) {
+				return getValidationDetialsOperationResult(operationResult);
 			}
 		}
-
+		
+		return null;
+	}
+	
+	private static LocalizableMessageType getValidationDetialsOperationResult(OperationResultType validationResult) {
 		for(OperationResultType operationResult : validationResult.getPartialResults()){
 			if(VALUE_POLICY_EVALUATOR_VALIDATE_VALUE_PATH.equals(operationResult.getOperation()))
 			{
-				LocalizableMessageListType localizableMessage = (LocalizableMessageListType)operationResult.getUserFriendlyMessage();
-				messages = localizableMessage.getMessage();
+				return operationResult.getUserFriendlyMessage();
 			}
 		}
-
-		StringBuilder fullMessage = new StringBuilder();
-		fullMessage.append("Validation Failed: ");
-
-		for(LocalizableMessageType messageType : messages){
-			SingleLocalizableMessageType singleLocalizableMessageType = (SingleLocalizableMessageType) messageType;
-			fullMessage.append(singleLocalizableMessageType.getFallbackMessage());
-			fullMessage.append(" ");
+		return null;
+	}
+	
+	private static String getStringMessage(LocalizableMessageType localizableMessage) {
+		if (localizableMessage instanceof SingleLocalizableMessageType) {
+			return ((SingleLocalizableMessageType) localizableMessage).getFallbackMessage();
 		}
-
-		return fullMessage.toString();
+		
+		if (localizableMessage instanceof LocalizableMessageListType) {
+			List<LocalizableMessageType> messageList = ((LocalizableMessageListType) localizableMessage).getMessage();
+			String fallbackMsg = "";
+			for (LocalizableMessageType msg : messageList) {
+				fallbackMsg += getStringMessage(msg);
+			}
+			return fallbackMsg;
+		}
+		
+		throw new UnsupportedOperationException("Unknown localizable message type: " + ((localizableMessage != null) ? localizableMessage.getClass() : null));
 	}
 	
 

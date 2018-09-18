@@ -62,6 +62,10 @@ public class CustomAuthNProvider<T extends AuthenticationChallenge> extends Abst
 				return authenticationManager.getType().equals(challenge[0]);
 			}).findFirst().orElse(null);
 
+			if (authenticationType == null) {
+				return;
+			}
+			
 			String[] authNConfig = authenticationType.split(" ");
 			if (authNConfig.length > 1) {
 				String challenge = authNConfig[1];
