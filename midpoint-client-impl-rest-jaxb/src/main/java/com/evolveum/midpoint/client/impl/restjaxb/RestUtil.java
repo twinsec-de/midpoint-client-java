@@ -130,40 +130,7 @@ public class RestUtil {
 		
 		LocalizableMessageType validationResult = getValidationOperationResult(operationResultType);
 		return getStringMessage(validationResult);
-		
-		
 
-//		List<LocalizableMessageType> messages = new ArrayList<>();
-//
-//		List<OperationResultType> partialResults = operationResultType.getPartialResults();
-//
-//		OperationResultType validationResult = new OperationResultType();
-//
-//		for(OperationResultType operationResult : partialResults){
-//
-//			if(VALIDATION_OPERATION_PATH.equals(operationResult.getOperation())){
-//				validationResult = operationResult;
-//			}
-//		}
-//
-//		for(OperationResultType operationResult : validationResult.getPartialResults()){
-//			if(VALUE_POLICY_EVALUATOR_VALIDATE_VALUE_PATH.equals(operationResult.getOperation()))
-//			{
-//				LocalizableMessageListType localizableMessage = (LocalizableMessageListType)operationResult.getUserFriendlyMessage();
-//				messages = localizableMessage.getMessage();
-//			}
-//		}
-//
-//		StringBuilder fullMessage = new StringBuilder();
-//		fullMessage.append("Validation Failed: ");
-//
-//		for(LocalizableMessageType messageType : messages){
-//			SingleLocalizableMessageType singleLocalizableMessageType = (SingleLocalizableMessageType) messageType;
-//			fullMessage.append(singleLocalizableMessageType.getFallbackMessage());
-//			fullMessage.append(" ");
-//		}
-//
-//		return fullMessage.toString();
 	}
 	
 	private static LocalizableMessageType getValidationOperationResult(OperationResultType operationResultType) {
