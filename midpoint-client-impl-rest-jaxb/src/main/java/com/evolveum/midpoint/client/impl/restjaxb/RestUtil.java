@@ -117,8 +117,6 @@ public class RestUtil {
 
 	public static String getFailedValidationMessage(OperationResultType operationResultType){
 		
-		System.out.println("Operation: " + operationResultType.getOperation());
-		
 		if (operationResultType.getMessage() != null) {
 			return operationResultType.getMessage();
 		}
