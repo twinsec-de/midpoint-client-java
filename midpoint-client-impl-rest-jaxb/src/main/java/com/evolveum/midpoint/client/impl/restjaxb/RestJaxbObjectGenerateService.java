@@ -21,7 +21,7 @@ import javax.ws.rs.core.Response;
 
 import com.evolveum.midpoint.client.api.ObjectGenerateService;
 import com.evolveum.midpoint.client.api.ObjectReference;
-import com.evolveum.midpoint.client.api.PolicyItemDefinitionBuilder;
+import com.evolveum.midpoint.client.api.PolicyItemsDefinitionBuilder;
 import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.AuthorizationException;
@@ -73,7 +73,7 @@ public class RestJaxbObjectGenerateService<O extends ObjectType> extends Abstrac
 
 
 	@Override
-	public PolicyItemDefinitionBuilder item() {
+	public PolicyItemsDefinitionBuilder item() {
 		// TODO Auto-generated method stub
 		return null;
 	}

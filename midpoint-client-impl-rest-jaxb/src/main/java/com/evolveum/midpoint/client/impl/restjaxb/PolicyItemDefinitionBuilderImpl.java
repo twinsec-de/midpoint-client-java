@@ -18,10 +18,11 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.evolveum.midpoint.client.api.PolicyItemDefinitionBuilder;
+import com.evolveum.midpoint.client.api.PolicyItemsDefinitionBuilder;
 import com.evolveum.midpoint.client.api.PolicyItemDefinitionEntryBuilder;
 import com.evolveum.midpoint.client.api.PolicyItemDefinitionEntryOrExitBuilder;
 import com.evolveum.midpoint.client.api.PolicyItemDefinitionExitBuilder;
+import com.evolveum.midpoint.client.api.PolicyItemDefinitionBuilder;
 import com.evolveum.midpoint.client.api.ValidateGenerateRpcService;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemTargetType;
@@ -34,7 +35,7 @@ import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
  * @author katkav
  *
  */
-public class PolicyItemDefinitionBuilderImpl implements PolicyItemDefinitionEntryOrExitBuilder, PolicyItemDefinitionBuilder, PolicyItemDefinitionEntryBuilder, PolicyItemDefinitionExitBuilder {
+public class PolicyItemDefinitionBuilderImpl implements PolicyItemDefinitionEntryOrExitBuilder, PolicyItemsDefinitionBuilder, PolicyItemDefinitionEntryBuilder, PolicyItemDefinitionExitBuilder, PolicyItemDefinitionBuilder {
 	
 	private PolicyItemDefinitionType policyItemDefinition;
 	private RestJaxbService service;
@@ -56,12 +57,12 @@ public class PolicyItemDefinitionBuilderImpl implements PolicyItemDefinitionEntr
 		return this;
 	}
 
-	public PolicyItemDefinitionExitBuilder execute() {
+	public PolicyItemsDefinitionBuilder execute() {
 		policyItemDefinition.setExecute(Boolean.TRUE);
 		return this;
 	}
 	
-	public PolicyItemDefinitionBuilder value(Object value) {
+	public PolicyItemsDefinitionBuilder value(Object value) {
 		policyItemDefinition.setValue(value);
 		return this;
 	}

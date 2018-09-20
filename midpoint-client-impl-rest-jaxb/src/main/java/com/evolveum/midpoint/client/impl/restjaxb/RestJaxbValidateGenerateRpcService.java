@@ -18,7 +18,7 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 
-import com.evolveum.midpoint.client.api.PolicyItemDefinitionBuilder;
+import com.evolveum.midpoint.client.api.PolicyItemsDefinitionBuilder;
 import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.ValidateGenerateRpcService;
 import com.evolveum.midpoint.client.api.exception.*;
@@ -77,7 +77,7 @@ public class RestJaxbValidateGenerateRpcService implements ValidateGenerateRpcSe
 	}
 
 	@Override
-	public PolicyItemDefinitionBuilder items() {
+	public PolicyItemsDefinitionBuilder items() {
 		return new PolicyItemDefinitionBuilderImpl(service, path);
 	}
 }

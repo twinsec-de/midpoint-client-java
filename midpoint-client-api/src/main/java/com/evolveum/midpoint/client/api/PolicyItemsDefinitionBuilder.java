@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 20172-2018 Evolveum
+ * Copyright (c) 2017-2018 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,14 @@
  */
 package com.evolveum.midpoint.client.api;
 
-import com.evolveum.midpoint.client.api.verb.Post;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
-
 /**
  * 
  * @author katkav
  *
  */
-public interface ValidateGenerateRpcService extends Post<PolicyItemsDefinitionType> {
+public interface PolicyItemsDefinitionBuilder extends PolicyItemDefinitionEntryBuilder {
 
-	PolicyItemsDefinitionBuilder items();
+	PolicyItemDefinitionEntryOrExitBuilder item();
+	
 	
 }

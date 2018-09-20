@@ -18,7 +18,7 @@ package com.evolveum.midpoint.client.api;
 public interface PolicyItemDefinitionEntryBuilder {
 
 	PolicyItemDefinitionExitBuilder policy(String oid);
-	PolicyItemDefinitionExitBuilder execute();
+//	PolicyItemDefinitionExitBuilder execute();
 	
 	ValidateGenerateRpcService build();
 }

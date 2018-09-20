@@ -54,6 +54,7 @@ import com.evolveum.midpoint.client.api.Service;
 import com.evolveum.midpoint.client.api.ServiceUtil;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.exception.PolicyViolationException;
 import com.evolveum.midpoint.client.impl.restjaxb.service.AuthenticationProvider;
 import com.evolveum.midpoint.client.impl.restjaxb.service.MidpointMockRestService;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredentialResetRequestType;
@@ -346,6 +347,7 @@ public class TestBasic {
 				.items()
 					.item()
 						.path("givenName")
+						.execute()
 					.build()
 				.post();
 
@@ -428,6 +430,24 @@ public class TestBasic {
 					.value("dfgsdf")
 				.build()
 			.post();
+	}
+	
+	@Test
+	public void test207userValidatePwdHistory() throws Exception {
+		
+		try {
+			Service service = getService();
+			service.users().oid("0b26b7cb-8086-4cf3-9a2e-692c5c2fbc38").validate()
+				.items()
+					.item()
+						.path("credentials/password/value")
+						.value("asd123")
+					.build()
+				.post();
+			AssertJUnit.fail("Expected Policy violation exception, but didn't get one");
+		} catch (PolicyViolationException e) {
+			//this is expected
+		}
 	}
 
 	@Test

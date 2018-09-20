@@ -32,5 +32,6 @@ public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O>
     ObjectCredentialService<O> credential();
 
     ValidateGenerateRpcService generate();
+    ValidateGenerateRpcService validate();
 //    ObjectGenerateService<O> modifyGenerate(String path) throws ObjectNotFoundException, AuthenticationException;
 }
