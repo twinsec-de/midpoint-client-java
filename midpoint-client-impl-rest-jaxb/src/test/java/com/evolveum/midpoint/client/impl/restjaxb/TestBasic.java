@@ -449,6 +449,20 @@ public class TestBasic {
 			//this is expected
 		}
 	}
+	
+	@Test
+	public void test208userValidatePwdHistory() throws Exception {
+		
+			Service service = getService();
+			service.users().oid("c27e5ef1-4181-47ef-942c-00103caa4dd3").validate()
+				.items()
+					.item()
+						.path("credentials/password/value")
+						.value("asdASD123*")
+					.build()
+				.post();
+		
+	}
 
 	@Test
 	public void test210rpcGenerate() throws Exception {
