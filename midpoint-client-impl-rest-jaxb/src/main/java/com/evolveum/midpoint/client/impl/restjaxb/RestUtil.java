@@ -30,6 +30,7 @@ import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
 import com.sun.org.apache.xerces.internal.dom.ElementNSImpl;
 import com.sun.org.apache.xerces.internal.dom.TextImpl;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author semancik
@@ -39,6 +40,10 @@ public class RestUtil {
 
 	private static final String VALIDATION_OPERATION_PATH = "com.evolveum.midpoint.model.api.ModelInteractionService.validateValue.value";
 	private static final String VALUE_POLICY_EVALUATOR_VALIDATE_VALUE_PATH = "class com.evolveum.midpoint.model.common.stringpolicy.ObjectValuePolicyEvaluator.validateValue";
+
+	public static String subUrl(String... segments) {
+		return "/" + StringUtils.join(segments, "/");
+	}
 
 	public static String subUrl(final String urlPrefix, final String pathSegment) {
 		// TODO: better code (e.g. escaping)
