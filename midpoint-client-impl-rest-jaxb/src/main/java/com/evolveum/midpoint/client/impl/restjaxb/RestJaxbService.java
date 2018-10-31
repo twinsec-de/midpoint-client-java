@@ -216,16 +216,28 @@ public class RestJaxbService implements Service {
 	public ScriptingUtil scriptingUtil() {
 		return scriptingUtil;
 	}
-	
-		/**
+
+	<O extends ObjectType> O getObject(final Class<O> type, final String oid)
+			throws ObjectNotFoundException, AuthenticationException {
+		return getObject(type, oid, null, null, null);
+	}
+
+	/**
 	 * Used frequently at several places. Therefore unified here.
 	 * @throws ObjectNotFoundException 
 	 */
-	<O extends ObjectType> O getObject(final Class<O> type, final String oid) throws ObjectNotFoundException, AuthenticationException {
-		// TODO
+	<O extends ObjectType> O getObject(final Class<O> type, final String oid, List<String> options,
+									   List<String> include, List<String> exclude)
+			throws ObjectNotFoundException, AuthenticationException {
+
 		String urlPrefix = RestUtil.subUrl(Types.findType(type).getRestPath(), oid);
-		Response response = client.replacePath(urlPrefix).get();
-		
+		WebClient cli = client.replacePath(urlPrefix);
+		addQueryParameter(cli, "options", options);
+		addQueryParameter(cli, "include", include);
+		addQueryParameter(cli, "exclude", exclude);
+
+		Response response = cli.get();
+
 		if (Status.OK.getStatusCode() == response.getStatus() ) {
 			return response.readEntity(type);
 		}
@@ -239,6 +251,16 @@ public class RestJaxbService implements Service {
 		}
 		
 		return null;
+	}
+
+	private void addQueryParameter(WebClient client, String name, List<String> values) {
+		if (values == null || values.isEmpty()) {
+			return;
+		}
+
+		for (String value : values) {
+			client.query(name, value);
+		}
 	}
 
 	<O extends ObjectType> void deleteObject(final Class<O> type, final String oid) throws ObjectNotFoundException, AuthenticationException {

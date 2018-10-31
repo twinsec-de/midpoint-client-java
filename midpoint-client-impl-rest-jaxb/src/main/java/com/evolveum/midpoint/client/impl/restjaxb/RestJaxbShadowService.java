@@ -19,6 +19,7 @@ import com.evolveum.midpoint.client.api.PolicyService;
 import com.evolveum.midpoint.client.api.ShadowService;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.FocusType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ShadowType;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -48,6 +49,13 @@ public class RestJaxbShadowService extends RestJaxbObjectService<ShadowType> imp
 		if (Response.Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
 			throw new ObjectNotFoundException("Cannot import shadow. No such object");
 		}
+
+		return null;
+	}
+
+	@Override
+	public FocusType owner() throws ObjectNotFoundException, AuthenticationException {
+		// todo implement
 		return null;
 	}
 }
