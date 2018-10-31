@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2017 Evolveum
+  ~ Copyright (c) 2017-2018 Evolveum
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 
     <groupId>com.evolveum.midpoint.client</groupId>
     <artifactId>parent</artifactId>
-    <version>3.8-SNAPSHOT</version>
+    <version>3.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -35,6 +35,9 @@
         <project.source.version>1.8</project.source.version>
         <midpoint.version>3.8</midpoint.version>
         <testng.version>6.8.8</testng.version>
+        <cxf.version>3.1.6</cxf.version>
+        <jackson.version>2.9.7</jackson.version>
+        <jaxb.version>2.3.0</jaxb.version>
     </properties>
 
     <scm>
@@ -88,6 +91,51 @@
 	            <groupId>org.testng</groupId>
 	            <artifactId>testng</artifactId>
 	            <version>${testng.version}</version>
+	        </dependency>
+	         <dependency>
+			   <groupId>org.apache.cxf</groupId>
+			   <artifactId>cxf-core</artifactId>
+			   <version>${cxf.version}</version>
+			</dependency>
+			<dependency>
+			   <groupId>org.apache.cxf</groupId>
+			   <artifactId>cxf-rt-rs-client</artifactId>
+			   <version>${cxf.version}</version>
+			</dependency>
+			<dependency>
+			   <groupId>org.apache.cxf</groupId>
+			   <artifactId>cxf-rt-transports-local</artifactId>
+			   <version>${cxf.version}</version>
+			</dependency>
+			<dependency>
+		        <groupId>org.apache.cxf</groupId>
+		        <artifactId>cxf-rt-transports-http-jetty</artifactId>
+		        <version>${cxf.version}</version>
+		    </dependency>
+		    <dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+	        <dependency>
+			    <groupId>javax.xml.bind</groupId>
+			    <artifactId>jaxb-api</artifactId>
+			    <version>${jaxb.version}</version>
+			</dependency>
+			<dependency>
+			    <groupId>com.sun.xml.bind</groupId>
+			    <artifactId>jaxb-impl</artifactId>
+			    <version>${jaxb.version}</version>
+			</dependency>
+			 <dependency>
+	            <groupId>com.sun.xml.bind</groupId>
+	            <artifactId>jaxb-core</artifactId>
+	            <version>${jaxb.version}</version>
 	        </dependency>
 	    </dependencies>
     </dependencyManagement>
