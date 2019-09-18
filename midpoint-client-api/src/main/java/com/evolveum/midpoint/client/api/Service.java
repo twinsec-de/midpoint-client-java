@@ -21,10 +21,9 @@ import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
 
 /**
  * @author semancik
- *
  */
 public interface Service {
-	
+
 	// TODO
 //	ProxyService proxy();
 
@@ -33,20 +32,22 @@ public interface Service {
 	<T> RpcService<T> rpc();
 
 	ObjectCollectionService<ValuePolicyType> valuePolicies();
-	
+
 	UserType self() throws AuthenticationException;
+
 	Service impersonate(String oid);
+
 	Service addHeader(String header, String value);
 
 	ObjectCollectionService<SecurityPolicyType> securityPolicies();
 
-    ObjectCollectionService<ConnectorType> connectors();
+	ObjectCollectionService<ConnectorType> connectors();
 
 	ObjectCollectionService<ConnectorHostType> connectorHosts();
 
 	ObjectCollectionService<GenericObjectType> genericObjects();
 
-	ObjectCollectionService<ResourceType> resources();
+	ResourceCollectionService resources();
 
 	ObjectCollectionService<ObjectTemplateType> objectTemplates();
 
@@ -54,7 +55,7 @@ public interface Service {
 
 	ObjectCollectionService<TaskType> tasks();
 
-	ObjectCollectionService<ShadowType> shadows();
+	ShadowCollectionService shadows();
 
 	ObjectCollectionService<RoleType> roles();
 

@@ -31,6 +31,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 import javax.xml.bind.Unmarshaller;
 
+import com.evolveum.midpoint.client.api.*;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
 import com.evolveum.midpoint.client.impl.restjaxb.scripting.ScriptingUtilImpl;
@@ -38,12 +39,6 @@ import com.evolveum.midpoint.client.impl.restjaxb.scripting.ScriptingUtilImpl;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
 
-import com.evolveum.midpoint.client.api.AuthenticationChallenge;
-import com.evolveum.midpoint.client.api.AuthenticationManager;
-import com.evolveum.midpoint.client.api.ObjectCollectionService;
-import com.evolveum.midpoint.client.api.RpcService;
-import com.evolveum.midpoint.client.api.Service;
-import com.evolveum.midpoint.client.api.ServiceUtil;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 
@@ -173,8 +168,8 @@ public class RestJaxbService implements Service {
 	}
 
 	@Override
-	public ObjectCollectionService<ResourceType> resources() {
-		return new RestJaxbObjectCollectionService<>(this, Types.RESOURCES.getRestPath(), ResourceType.class);
+	public ResourceCollectionService resources() {
+		return new RestJaxbResourceCollectionService(this);
 	}
 
 	@Override
@@ -193,8 +188,8 @@ public class RestJaxbService implements Service {
 	}
 
 	@Override
-	public ObjectCollectionService<ShadowType> shadows() {
-		return new RestJaxbObjectCollectionService<>(this, Types.SHADOWS.getRestPath(), ShadowType.class);
+	public ShadowCollectionService shadows() {
+		return new RestJaxbShadowCollectionService(this);
 	}
 
 	@Override
@@ -221,16 +216,28 @@ public class RestJaxbService implements Service {
 	public ScriptingUtil scriptingUtil() {
 		return scriptingUtil;
 	}
-	
-		/**
+
+	<O extends ObjectType> O getObject(final Class<O> type, final String oid)
+			throws ObjectNotFoundException, AuthenticationException {
+		return getObject(type, oid, null, null, null);
+	}
+
+	/**
 	 * Used frequently at several places. Therefore unified here.
 	 * @throws ObjectNotFoundException 
 	 */
-	<O extends ObjectType> O getObject(final Class<O> type, final String oid) throws ObjectNotFoundException, AuthenticationException {
-		// TODO
+	<O extends ObjectType> O getObject(final Class<O> type, final String oid, List<String> options,
+									   List<String> include, List<String> exclude)
+			throws ObjectNotFoundException, AuthenticationException {
+
 		String urlPrefix = RestUtil.subUrl(Types.findType(type).getRestPath(), oid);
-		Response response = client.replacePath(urlPrefix).get();
-		
+		WebClient cli = client.replacePath(urlPrefix);
+		addQueryParameter(cli, "options", options);
+		addQueryParameter(cli, "include", include);
+		addQueryParameter(cli, "exclude", exclude);
+
+		Response response = cli.get();
+
 		if (Status.OK.getStatusCode() == response.getStatus() ) {
 			return response.readEntity(type);
 		}
@@ -244,6 +251,16 @@ public class RestJaxbService implements Service {
 		}
 		
 		return null;
+	}
+
+	private void addQueryParameter(WebClient client, String name, List<String> values) {
+		if (values == null || values.isEmpty()) {
+			return;
+		}
+
+		for (String value : values) {
+			client.query(name, value);
+		}
 	}
 
 	<O extends ObjectType> void deleteObject(final Class<O> type, final String oid) throws ObjectNotFoundException, AuthenticationException {

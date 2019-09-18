@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2017-2018 Evolveum
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,17 +21,25 @@ import com.evolveum.midpoint.client.api.verb.Delete;
 import com.evolveum.midpoint.client.api.verb.Get;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
+import java.util.List;
+
 /**
  * @author semancik
  *
  */
-public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O>
-{
-    ObjectModifyService<O> modify() throws ObjectNotFoundException, AuthenticationException;
+public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O> {
 
-    ObjectCredentialService<O> credential();
+	O get(List<String> options) throws ObjectNotFoundException, AuthenticationException;
 
-    ValidateGenerateRpcService generate();
-    ValidateGenerateRpcService validate();
+	O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException, AuthenticationException;
+
+	ObjectModifyService<O> modify() throws ObjectNotFoundException, AuthenticationException;
+
+	// todo this doesn't make much sense, it's not usable for all objects, only users, and maybe shadows?
+	ObjectCredentialService<O> credential();
+
+	ValidateGenerateRpcService generate();
+
+	ValidateGenerateRpcService validate();
 //    ObjectGenerateService<O> modifyGenerate(String path) throws ObjectNotFoundException, AuthenticationException;
 }
