@@ -19,6 +19,8 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectReferenceType;
+import com.evolveum.prism.xml.ns._public.query_3.*;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Element;
 
@@ -30,11 +32,6 @@ import com.evolveum.midpoint.client.api.query.FilterEntry;
 import com.evolveum.midpoint.client.api.query.FilterEntryOrEmpty;
 import com.evolveum.midpoint.client.api.query.FilterExit;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
-import com.evolveum.prism.xml.ns._public.query_3.NAryLogicalOperatorFilterClauseType;
-import com.evolveum.prism.xml.ns._public.query_3.OrderDirectionType;
-import com.evolveum.prism.xml.ns._public.query_3.PagingType;
-import com.evolveum.prism.xml.ns._public.query_3.QueryType;
-import com.evolveum.prism.xml.ns._public.query_3.SearchFilterType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
 public class FilterBuilder<O extends ObjectType> implements FilterEntryOrEmpty<O>, AtomicFilterExit<O> {
@@ -144,6 +141,41 @@ public class FilterBuilder<O extends ObjectType> implements FilterEntryOrEmpty<O
 //	{
 //		return null;
 //	}
+
+	@Override
+	public AtomicFilterExit<O> isDirectChildOf(String oid) {
+		ObjectReferenceType refValue = new ObjectReferenceType();
+		refValue.setOid(oid);
+		return isDirectChildOf(refValue);
+	}
+
+	@Override
+	public AtomicFilterExit<O> isDirectChildOf(ObjectReferenceType refValue) {
+		RestJaxbQueryBuilder<O> builder = RestJaxbQueryBuilder.create(service, type, this, null);
+		Element orgFilter = service.getDomSerializer().createOrgFilterRef(refValue, OrgFilterScopeType.ONE_LEVEL);
+		return new RestJaxbQueryBuilder<>(builder, orgFilter, this);
+	}
+
+	@Override
+	public AtomicFilterExit<O> isChildOf(String oid) {
+		ObjectReferenceType refValue = new ObjectReferenceType();
+		refValue.setOid(oid);
+		return isChildOf(refValue);
+	}
+
+	@Override
+	public AtomicFilterExit<O> isChildOf(ObjectReferenceType refValue) {
+		RestJaxbQueryBuilder<O> builder = RestJaxbQueryBuilder.create(service, type, this, null);
+		Element orgFilter = service.getDomSerializer().createOrgFilterRef(refValue, OrgFilterScopeType.SUBTREE);
+		return new RestJaxbQueryBuilder<>(builder, orgFilter, this);
+	}
+
+	@Override
+	public AtomicFilterExit<O> isRoot() {
+		RestJaxbQueryBuilder<O> builder = RestJaxbQueryBuilder.create(service, type, this, null);
+		Element orgFilter = service.getDomSerializer().createOrgFilterRoot(true);
+		return new RestJaxbQueryBuilder<>(builder, orgFilter, this);
+	}
 
 	@Override
 	public FilterEntry<O> and() {

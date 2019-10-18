@@ -29,6 +29,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.evolveum.prism.xml.ns._public.query_3.OrgFilterScopeType;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.common.util.CollectionUtils;
 import org.w3c.dom.Document;
@@ -50,7 +51,12 @@ public class DomSerializer {
 	private static final String FILTER_REF_OID = "oid";
 	private static final String FILTER_REF_TYPE = "type";
 	private static final String FILTER_REF_RELATION = "relation";
-	
+
+	private static final String FILTER_ORG = "org";
+	private static final String FILTER_ORG_IS_ROOT = "isRoot";
+	private static final String FILTER_ORG_ORG_REF = "orgRef";
+	private static final String FILTER_ORG_SCOPE = "scope";
+
 	private static final String FILTER_SUBSTRING = "substring";
 	private static final String FILTER_SUBSTRING_MATCHING_RULE = "matching";
 	private static final String FILTER_SUBSTRING_ANCHOR_START = "anchorStart";
@@ -187,30 +193,60 @@ public class DomSerializer {
 		
 		Element value = document.createElement(FILTER_VALUE);
 		if (!CollectionUtils.isEmpty(values)) {
+			// This is a bit suspicious - what if there are more values?
+			// Will they land under one "value" element?
 			values.forEach(v -> {
-				if (StringUtils.isNotBlank(v.getOid())) {
-					Element refOid = document.createElement(FILTER_REF_OID);
-					refOid.setTextContent(v.getOid());
-					value.appendChild(refOid);
-				}
-				if (v.getType() != null) {
-					Element refType = document.createElement(FILTER_REF_TYPE);
-					refType.setTextContent(v.getType().getLocalPart());
-					value.appendChild(refType);
-				}
-				if (v.getRelation() != null) {
-					Element refRelation = document.createElement(FILTER_REF_RELATION);
-					//TODO: namespaces??
-					refRelation.setTextContent(v.getRelation().getLocalPart());
-					value.appendChild(refRelation);
-				}
-
+				setRefValue(value, v);
 			});
 		}
 		ref.appendChild(value);
 		return ref;
 	}
-	
+
+	private void setRefValue(Element refElement, ObjectReferenceType refValue) {
+		if (StringUtils.isNotBlank(refValue.getOid())) {
+			Element refOid = document.createElement(FILTER_REF_OID);
+			refOid.setTextContent(refValue.getOid());
+			refElement.appendChild(refOid);
+		}
+		if (refValue.getType() != null) {
+			Element refType = document.createElement(FILTER_REF_TYPE);
+			refType.setTextContent(refValue.getType().getLocalPart());
+			refElement.appendChild(refType);
+		}
+		if (refValue.getRelation() != null) {
+			Element refRelation = document.createElement(FILTER_REF_RELATION);
+			//TODO: namespaces??
+			refRelation.setTextContent(refValue.getRelation().getLocalPart());
+			refElement.appendChild(refRelation);
+		}
+	}
+
+	public Element createOrgFilterRoot(boolean value) {
+		Element orgElement = document.createElementNS(SchemaConstants.NS_QUERY, FILTER_ORG);
+		Element isRootElement = document.createElement(FILTER_ORG_IS_ROOT);
+		isRootElement.setTextContent(String.valueOf(value));
+		orgElement.appendChild(isRootElement);
+		return orgElement;
+	}
+
+	public Element createOrgFilterRef(ObjectReferenceType refValue, OrgFilterScopeType scopeValue) {
+		Element orgElement = document.createElementNS(SchemaConstants.NS_QUERY, FILTER_ORG);
+		if (refValue != null) {
+			Element refElement = document.createElement(FILTER_ORG_ORG_REF);
+			setRefValue(refElement, refValue);
+			orgElement.appendChild(refElement);
+		} else {
+			// suspicious (no value)
+		}
+		if (scopeValue != null) {
+			Element scopeElement = document.createElement(FILTER_ORG_SCOPE);
+			scopeElement.setTextContent(scopeValue.value());
+			orgElement.appendChild(scopeElement);
+		}
+		return orgElement;
+	}
+
 	public Element createSubstringFilter(ItemPathType itemPath, Object valueToSearch, boolean anchorStart, boolean anchorEnd) {
 		Element substringFilter = createPropertyValueFilter(FILTER_SUBSTRING, itemPath, valueToSearch);
 		if (anchorStart) {
