@@ -60,7 +60,8 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntr
 		this.owner = owner;
 	}
 
-	private RestJaxbQueryBuilder(RestJaxbQueryBuilder<O> originalFilter, Element filterClause, FilterBuilder<O> owner) {
+	// TODO reconsider the visibility
+	RestJaxbQueryBuilder(RestJaxbQueryBuilder<O> originalFilter, Element filterClause, FilterBuilder<O> owner) {
 		this(originalFilter.queryForService, originalFilter.type);
 		this.originalFilter = originalFilter;
 		this.filterClause = filterClause;
