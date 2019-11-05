@@ -74,12 +74,12 @@ public class ValuePolicyProcessor {
 		result.setParams(params);
 		normalize(pp);
 
-		if (newValue == null && 
-				(pp.getMinOccurs() == null)) {
-			// No password is allowed
-			result.setStatus(OperationResultStatusType.SUCCESS);
-			return true;
-		}
+//		if (newValue == null &&
+//				(pp.getStringPolicy().getLimitations().getgetMinOccurs() == null)) {
+//			// No password is allowed
+//			result.setStatus(OperationResultStatusType.SUCCESS);
+//			return true;
+//		}
 
 		if (newValue == null) {
 			newValue = "";
@@ -169,14 +169,14 @@ public class ValuePolicyProcessor {
 			pp.setStringPolicy(normalize(pp.getStringPolicy()));
 		}
 
-		if (null == pp.getLifetime()) {
-			PasswordLifeTimeType lt = new PasswordLifeTimeType();
-			lt.setExpiration(-1);
-			lt.setWarnBeforeExpiration(0);
-			lt.setLockAfterExpiration(0);
-			lt.setMinPasswordAge(0);
-			lt.setPasswordHistoryLength(0);
-		}
+//		if (null == pp.getLifetime()) {
+//			PasswordLifeTimeType lt = new PasswordLifeTimeType();
+//			lt.setExpiration(-1);
+//			lt.setWarnBeforeExpiration(0);
+//			lt.setLockAfterExpiration(0);
+//			lt.setMinPasswordAge(0);
+//			lt.setPasswordHistoryLength(0);
+//		}
 		return;
 	}
 	

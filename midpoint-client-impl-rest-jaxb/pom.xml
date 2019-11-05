@@ -22,12 +22,12 @@
     <parent>
         <groupId>com.evolveum.midpoint.client</groupId>
 	<artifactId>parent</artifactId>
-	<version>3.9-SNAPSHOT</version>
+	<version>4.0.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>midpoint-client-impl-rest-jaxb</artifactId>
 
-    <dependencies>
+	<dependencies>
         <dependency>
             <groupId>com.evolveum.midpoint.client</groupId>
             <artifactId>midpoint-client-api</artifactId>

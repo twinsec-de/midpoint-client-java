@@ -22,18 +22,19 @@
 
     <groupId>com.evolveum.midpoint.client</groupId>
     <artifactId>parent</artifactId>
-    <version>3.9-SNAPSHOT</version>
+    <version>4.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
         <module>midpoint-client-api</module>
         <module>midpoint-client-impl-rest-jaxb</module>
-    </modules>
+		<module>midpoint-client-impl-prism</module>
+	</modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.source.version>1.8</project.source.version>
-        <midpoint.version>3.8</midpoint.version>
+        <midpoint.version>4.0.2-SNAPSHOT</midpoint.version>
         <testng.version>6.8.8</testng.version>
         <cxf.version>3.1.6</cxf.version>
         <jackson.version>2.9.8</jackson.version>
@@ -86,6 +87,7 @@
 	            <groupId>com.evolveum.midpoint.infra</groupId>
 	            <artifactId>schema-pure-jaxb</artifactId>
 	            <version>${midpoint.version}</version>
+				<scope>compile</scope>
 	        </dependency>
 	        <dependency>
 	            <groupId>org.testng</groupId>
@@ -146,7 +148,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.1</version>
+                    <version>3.8.0</version>
                     <configuration>
                         <source>${project.source.version}</source>
                         <target>${project.source.version}</target>
