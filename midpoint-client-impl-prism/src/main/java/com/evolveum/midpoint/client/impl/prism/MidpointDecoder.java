@@ -34,23 +34,7 @@ public class MidpointDecoder<T> extends AbstractDataBufferDecoder<T> {
     public boolean canDecode(ResolvableType elementType, MimeType mimeType) {
         return true;
     }
-
-//    @Override
-//    public Flux<T> decode(Publisher<DataBuffer> publisher, ResolvableType resolvableType, MimeType mimeType, Map<String, Object> map) {
-//
-//        return DataBufferUtils.join(publisher).flatMapIterable((dataBuffer) -> {
-//            InputStream strean = dataBuffer.asInputStream();
-//            try {
-//                return prismContext.parserFor(strean).parseRealValue();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } catch (SchemaException e) {
-//                e.printStackTrace();
-//            }
-//            return null;
-//        });
-//    }
-
+    
     @Override
     protected T decodeDataBuffer(DataBuffer dataBuffer, ResolvableType resolvableType, MimeType mimeType, Map<String, Object> map) {
         InputStream is = dataBuffer.asInputStream();
