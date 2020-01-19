@@ -177,17 +177,4 @@ public class TestEducation extends AbstractTest {
         assertEquals(service.util().getOrig(loggedInUser.getName()), "impersonate");
     }
 
-
-    @Test
-    public void test203UserDelete() throws Exception{
-        // SETUP
-        Service service = getService();
-
-        // WHEN
-        try{
-            service.users().oid("123").delete();
-        }catch(ObjectNotFoundException e){
-            fail("Cannot delete user, user not found");
-        }
-    }
 }

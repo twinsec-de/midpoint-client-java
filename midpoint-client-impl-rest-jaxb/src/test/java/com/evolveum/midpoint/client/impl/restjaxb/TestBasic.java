@@ -163,23 +163,6 @@ public class TestBasic extends AbstractTest {
 		assertEquals(ref.get().getGivenName(), null);
 	}
 
-
-
-//	@Test
-//	public void test900UserDelete() throws Exception{
-//		// SETUP
-//		Service service = getService();
-//
-//		// WHEN
-//		try{
-//			service.users().oid("123").delete();
-//		}catch(ObjectNotFoundException e){
-//			fail("Cannot delete user, user not found");
-//		}
-//	}
-
-
-	
 	@Test
 	public void test010UserSearchMock() throws Exception {
 		Service service = getService();
@@ -446,6 +429,32 @@ public class TestBasic extends AbstractTest {
 		AssertJUnit.assertNotNull("Operation result missing in second output", second.getResult());
 	}
 
+	@Test
+	public void test300UserDelete() throws Exception{
+		// SETUP
+		Service service = getService();
+
+		// WHEN
+		try{
+			service.users().oid("123").delete();
+		}catch(ObjectNotFoundException e){
+			fail("Cannot delete user, user not found");
+		}
+	}
+
+	@Test
+	public void test301getDeletedUser() throws Exception{
+		// SETUP
+		Service service = getService();
+
+		// WHEN
+		try{
+			service.users().oid("123").get();
+			fail("Unexpected user found");
+		}catch(ObjectNotFoundException e){
+			//expected
+		}
+	}
 
 
 	private Service getService() throws IOException {
