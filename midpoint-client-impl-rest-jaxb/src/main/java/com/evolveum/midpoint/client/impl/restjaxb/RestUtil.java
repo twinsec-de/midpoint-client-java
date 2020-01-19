@@ -15,11 +15,6 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.namespace.QName;
-
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectModificationType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemTargetType;
@@ -28,9 +23,11 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.prism.xml.ns._public.types_3.ItemDeltaType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
-import com.sun.org.apache.xerces.internal.dom.ElementNSImpl;
-import com.sun.org.apache.xerces.internal.dom.TextImpl;
 import org.apache.commons.lang.StringUtils;
+import org.w3c.dom.Element;
+
+import javax.xml.namespace.QName;
+import java.util.List;
 
 /**
  * @author semancik
@@ -109,15 +106,6 @@ public class RestUtil {
 		QName qname = new QName(SchemaConstants.NS_COMMON, "ValuePolicyType");
 		objectReferenceType.setType(qname);
 		return objectReferenceType;
-	}
-
-	public static String getPolicyItemsDefValue(PolicyItemsDefinitionType policyItems){
-		List<PolicyItemDefinitionType> resultList = policyItems.getPolicyItemDefinition();
-		PolicyItemDefinitionType policyItemDefinitionType = resultList.get(0);
-		//Why cant getValue just return the string value? :(
-		ElementNSImpl elementNSImpl = (ElementNSImpl) policyItemDefinitionType.getValue();
-		TextImpl textImpl = (TextImpl) elementNSImpl.getFirstChild();
-		return textImpl.getData();
 	}
 
 	public static String getFailedValidationMessage(OperationResultType operationResultType){

@@ -44,6 +44,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import com.evolveum.midpoint.client.impl.restjaxb.RestJaxbService;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.*;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.midpoint.xml.ns._public.model.scripting_3.*;
@@ -80,13 +81,12 @@ public class MidpointMockRestService {
 	private static final String RESPONSE_DIR = "src/test/resources/response";
 		
 	private ValuePolicyType systemValuePolicy;
+	private RestJaxbServiceUtil util;
+	private JAXBContext jaxbCtx;
 		
-	public MidpointMockRestService() {
-		RestJaxbServiceUtil util = null;
-		try {
-			util = new RestJaxbServiceUtil(createJaxbContext());
-		} catch (IOException e) {
-		}
+	public MidpointMockRestService(JAXBContext jaxbCtx) {
+		this.jaxbCtx = jaxbCtx;
+		util = new RestJaxbServiceUtil(jaxbCtx);
 		UserType impersonate = new UserType();
 		impersonate.setName(util.createPoly("impersonate"));
 		impersonate.setOid(IMPERSONATE_OID);
@@ -384,8 +384,6 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 //			return RestMockServiceUtil.createResponse(Status.INTERNAL_SERVER_ERROR, result);
 //		}
 
-		RestJaxbServiceUtil util = new RestJaxbServiceUtil(createJaxbContext());
-
 		user.setGivenName(util.createPoly((String) object.getPolicyItemDefinition().iterator().next().getValue()));
 
 		return Response.status(Status.OK).header("Content-Type", MediaType.APPLICATION_XML).entity(object).build();
@@ -401,7 +399,6 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 
 		//TODO: Should we make this generic or does this satisfy our needs for the test case?
 
-		RestJaxbServiceUtil util = new RestJaxbServiceUtil(createJaxbContext());
 		OperationResultType result = new OperationResultType();
 		result.setOperation("Modify object");
 
@@ -469,16 +466,13 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 		
 		ObjectListType resultList = new ObjectListType();
 		
-		JAXBContext jaxbCtx;
 		try {
-			jaxbCtx = createJaxbContext();
-		
-		Marshaller marshaller = jaxbCtx.createMarshaller();
-		StringWriter writer = new StringWriter();
-		marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-		marshaller.marshal(new JAXBElement<QueryType>(new QName(SchemaConstants.NS_QUERY, "query"), QueryType.class, queryType), writer);
-		System.out.println("Query received on the service: " + writer);
-		} catch (IOException | JAXBException e) {
+			Marshaller marshaller = jaxbCtx.createMarshaller();
+			StringWriter writer = new StringWriter();
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			marshaller.marshal(new JAXBElement<QueryType>(new QName(SchemaConstants.NS_QUERY, "query"), QueryType.class, queryType), writer);
+			System.out.println("Query received on the service: " + writer);
+		} catch (JAXBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -501,7 +495,6 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 		}else
 		{
 			userType = new UserType();
-			RestJaxbServiceUtil util = new RestJaxbServiceUtil(createJaxbContext());
 			userType.setName(util.createPoly("administrator"));
 		}
 		return RestMockServiceUtil.createResponse(Status.OK, userType, result);
@@ -561,32 +554,6 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}
-	}
-
-	private JAXBContext createJaxbContext() throws IOException {
-		try {
-			return JAXBContext.newInstance("com.evolveum.midpoint.xml.ns._public.common.api_types_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.common.audit_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.common.common_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_schema_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.resource_schema_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.gui.admin_1:"
-					+ "com.evolveum.midpoint.xml.ns._public.model.extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.model.scripting_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.model.scripting.extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.report.extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.resource.capabilities_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.task.extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.task.jdbc_ping.handler_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.task.noop.handler_3:"
-					+ "com.evolveum.prism.xml.ns._public.annotation_3:"
-					+ "com.evolveum.prism.xml.ns._public.query_3:"
-					+ "com.evolveum.prism.xml.ns._public.types_3");
-		} catch (JAXBException e) {
-			throw new IOException(e);
-		}
-		
 	}
 	
 }

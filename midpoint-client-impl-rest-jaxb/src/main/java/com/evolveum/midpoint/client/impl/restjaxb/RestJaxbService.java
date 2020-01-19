@@ -317,7 +317,6 @@ public class RestJaxbService implements Service {
 				+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_extension_3:"
 				+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_schema_3:"
 				+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.resource_schema_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.gui.admin_1:"
 				+ "com.evolveum.midpoint.xml.ns._public.model.extension_3:"
 				+ "com.evolveum.midpoint.xml.ns._public.model.scripting_3:"
 				+ "com.evolveum.midpoint.xml.ns._public.model.scripting.extension_3:"

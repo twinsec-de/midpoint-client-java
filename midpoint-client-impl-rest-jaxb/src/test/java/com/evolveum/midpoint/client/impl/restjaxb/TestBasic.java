@@ -15,70 +15,60 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-
-import com.evolveum.midpoint.client.api.scripting.ObjectProcessingOutput;
-import com.evolveum.midpoint.client.api.scripting.OperationSpecificData;
-import com.evolveum.midpoint.client.api.scripting.ValueGenerationData;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
-import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
-import org.apache.commons.lang.StringUtils;
-import org.apache.cxf.endpoint.Server;
-import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
-import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
-import org.apache.cxf.transport.local.LocalConduit;
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-
 import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.SearchResult;
 import com.evolveum.midpoint.client.api.Service;
 import com.evolveum.midpoint.client.api.ServiceUtil;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
-import com.evolveum.midpoint.client.api.exception.PolicyViolationException;
-import com.evolveum.midpoint.client.impl.restjaxb.service.AuthenticationProvider;
-import com.evolveum.midpoint.client.impl.restjaxb.service.MidpointMockRestService;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredentialResetRequestType;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
+import com.evolveum.midpoint.client.api.scripting.ObjectProcessingOutput;
+import com.evolveum.midpoint.client.api.scripting.OperationSpecificData;
+import com.evolveum.midpoint.client.api.scripting.ValueGenerationData;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
+import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
+import org.apache.commons.lang.StringUtils;
+import org.apache.cxf.endpoint.Server;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.namespace.QName;
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
+import static org.testng.AssertJUnit.assertNotNull;
 
 /**
  * @author semancik
  *
  */
-public class TestBasic {
+public class TestBasic extends AbstractTest {
 	
 	private static Server server;
 	private static final String ENDPOINT_ADDRESS = "http://localhost:8080/midpoint/ws/rest";
-//	private static final String ENDPOINT_ADDRESS = "http://mpdev1.its.uwo.pri:8080/midpoint/ws/rest";
+
 	private static final String ADMIN = "administrator";
 	private static final String ADMIN_PASS = "5ecr3t";
 
 	private static final String USER_JACK_OID = "229487cb-59b6-490b-879d-7a6d925dd08c";
 	private static final String REQUEST_DIR = "src/test/resources/request";
 
+	private static final File SCRIPT_GENERATE_PASSWORD = new File(REQUEST_DIR, "request-script-generate-passwords.xml");
+	private static final File SCRIPT_MODIFY_VALID_TO= new File(REQUEST_DIR, "request-script-modify-validTo.xml");
+
 	@BeforeClass
 	public void init() throws IOException {
-//		startServer();
+		server = startServer(ENDPOINT_ADDRESS);
 	}
 
 	@Test
@@ -117,28 +107,6 @@ public class TestBasic {
 
 		// THEN
 		assertNotNull("null user", userType);
-	}
-
-	@Test
-	public void test011ValuePolicyGet() throws Exception {
-		Service service = getService();
-
-		// WHEN
-		ValuePolicyType valuePolicyType = service.valuePolicies().oid("00000000-0000-0000-0000-000000000003").get();
-
-		// THEN
-		assertNotNull("null value policy", valuePolicyType);
-	}
-
-	@Test
-	public void test012SecurityPolicyGet() throws Exception {
-		Service service = getService();
-
-		// WHEN
-		SecurityPolicyType securityPolicyType = service.securityPolicies().oid("westernu-0002-0000-0000-000000000001").get();
-
-		// THEN
-		assertNotNull("null security policy", securityPolicyType);
 	}
 
 	@Test
@@ -195,6 +163,8 @@ public class TestBasic {
 		assertEquals(ref.get().getGivenName(), null);
 	}
 
+
+
 //	@Test
 //	public void test900UserDelete() throws Exception{
 //		// SETUP
@@ -208,34 +178,7 @@ public class TestBasic {
 //		}
 //	}
 
-	@Test
-	public void test010UserSearch() throws Exception {
-		Service service = getService();
 
-		ObjectReferenceType serviceRoleReferenceType = new ObjectReferenceType();
-		serviceRoleReferenceType.setOid("westernu-0005-0000-0000-000000000015");
-		serviceRoleReferenceType.setType(new QName("RoleType"));
-
-		ItemPathType uwoContactPathType = new ItemPathType();
-		uwoContactPathType.setValue("extension/uwoContact");
-
-		ItemPathType rolePathType = new ItemPathType();
-		rolePathType.setValue("roleMembershipRef");
-
-		String jmorr32Oid ="1bae776f-4939-4071-92e2-8efd5bd57799";
-
-		SearchResult<UserType> result =  service.users().search()
-				.queryFor(UserType.class)
-				//jmorr32's oid
-				.item(uwoContactPathType).eq(jmorr32Oid)
-				.and()
-				.item(rolePathType).ref(serviceRoleReferenceType)
-				.maxSize(1000)
-				.get();
-
-		// THEN
-		assertEquals(result.size(), 0);
-	}
 	
 	@Test
 	public void test010UserSearchMock() throws Exception {
@@ -271,8 +214,30 @@ public class TestBasic {
 	}
 
 	@Test
+	public void test011ValuePolicyGet() throws Exception {
+		Service service = getService();
+
+		// WHEN
+		ValuePolicyType valuePolicyType = service.valuePolicies().oid("00000000-0000-0000-0000-000000000003").get();
+
+		// THEN
+		assertNotNull("null value policy", valuePolicyType);
+	}
+
+	@Test
+	public void test012SecurityPolicyGet() throws Exception {
+		Service service = getService();
+
+		// WHEN
+		SecurityPolicyType securityPolicyType = service.securityPolicies().oid("westernu-0002-0000-0000-000000000001").get();
+
+		// THEN
+		assertNotNull("null security policy", securityPolicyType);
+	}
+
+	@Test
 	public void test100challengeRepsonse() throws Exception {
-		RestJaxbService service = (RestJaxbService) getService(ADMIN, "", AuthenticationType.SECQ);
+		RestJaxbService service = (RestJaxbService) getService(ADMIN, "", ENDPOINT_ADDRESS, AuthenticationType.SECQ);
 
 		try {
 			service.users().oid("123").get();
@@ -291,7 +256,7 @@ public class TestBasic {
 
 		}
 
-		service = (RestJaxbService) getService(ADMIN, challenge.getAnswer());
+		service = (RestJaxbService) getService(ADMIN, ENDPOINT_ADDRESS, challenge.getAnswer());
 
 		try {
 			service.users().oid("123").get();
@@ -305,7 +270,7 @@ public class TestBasic {
 
 	@Test
 	public void test200fullChallengeRepsonse() throws Exception {
-		RestJaxbService service = (RestJaxbService) getService(null, null, null);
+		RestJaxbService service = (RestJaxbService) getService(null, null, ENDPOINT_ADDRESS, null);
 
 		try {
 			service.users().oid("123").get();
@@ -320,7 +285,7 @@ public class TestBasic {
 		assertEquals(basicAtuh.getType(), AuthenticationType.BASIC.getType(), "expected basic authentication, but got" + basicAtuh);
 
 
-		service = (RestJaxbService) getService(ADMIN, ADMIN_PASS, basicAtuh);
+		service = (RestJaxbService) getService(ADMIN, ADMIN_PASS, ENDPOINT_ADDRESS, basicAtuh);
 
 		try {
 			service.users().oid("123").get();
@@ -332,43 +297,8 @@ public class TestBasic {
 
 	}
 
-	@Test
-	public void test201modifyGenerate() throws Exception
-	{
-		Service service = getService();
-		PolicyItemsDefinitionType policyItemsDefinition = service.users().oid("876").generate()
-				.items()
-					.item()
-						.path("givenName")
-						.execute()
-					.build()
-				.post();
-
-		assertEquals(1, policyItemsDefinition.getPolicyItemDefinition().size());
-		PolicyItemDefinitionType policyitemDefinition = policyItemsDefinition.getPolicyItemDefinition().iterator().next();
-		assertNotNull(policyitemDefinition.getValue());
-
-		UserType user = service.users().oid("876").get();
-		assertNotNull(service.util().getOrig(user.getGivenName()));
-	}
 
 	@Test
-	public void test202policyGenerate() throws Exception
-	{
-		Service service = getService();
-
-		PolicyItemsDefinitionType policyItemsDefinition = service.rpc().generate()
-				.items()
-					.item()
-						.policy("00000000-0000-0000-0000-000000000003")
-					.build()
-				.post();
-		assertEquals(1, policyItemsDefinition.getPolicyItemDefinition().size());
-		PolicyItemDefinitionType policyitemDefinition = policyItemsDefinition.getPolicyItemDefinition().iterator().next();
-		assertNotNull(policyitemDefinition.getValue());
-
-	}
-
 	public void test012Self() throws Exception {
 		Service service = getService();
 
@@ -424,50 +354,6 @@ public class TestBasic {
 				.build()
 			.post();
 	}
-	
-	@Test
-	public void test207userValidatePwdHistory() throws Exception {
-		
-		try {
-			Service service = getService();
-			service.users().oid("0b26b7cb-8086-4cf3-9a2e-692c5c2fbc38").validate()
-				.items()
-					.item()
-						.path("credentials/password/value")
-						.value("asd123")
-					.build()
-				.post();
-			AssertJUnit.fail("Expected Policy violation exception, but didn't get one");
-		} catch (PolicyViolationException e) {
-			//this is expected
-		}
-	}
-	
-	@Test
-	public void test208userValidatePwdHistory() throws Exception {
-		
-			Service service = getService();
-			service.users().oid("c27e5ef1-4181-47ef-942c-00103caa4dd3").validate()
-				.items()
-					.item()
-						.path("credentials/password/value")
-						.value("asdASD123*")
-					.build()
-				.post();
-		
-	}
-
-	@Test
-	public void test210rpcGenerate() throws Exception {
-		Service service = getService();
-		service.rpc().generate()
-			.items()
-				.item()
-					.policy("00000000-0000-0000-0000-p00000000001")
-						.path("name")
-					.build()
-				.post();
-	}
 
 	@Test
 	public void test211rpcGenerate() throws Exception {
@@ -496,53 +382,7 @@ public class TestBasic {
 			.post();
 	}
 
-	@Test
-	public void test213UserCredentialsReset() throws Exception{
-		// SETUP
-		Service service = getService();
 
-		ExecuteCredentialResetRequestType executeCredentialResetRequest = new ExecuteCredentialResetRequestType();
-
-		executeCredentialResetRequest.setResetMethod("passwordReset");
-		executeCredentialResetRequest.setUserEntry("secret");
-
-		// WHEN
-		try{
-			service.users().oid("1bae776f-4939-4071-92e2-8efd5bd57799").credential().executeResetPassword(executeCredentialResetRequest).post();
-		}catch(ObjectNotFoundException e){
-			fail("Cannot delete user, user not found");
-		}
-	}
-
-	@Test
-	public void test013SelfImpersonate() throws Exception {
-		Service service = getService();
-
-		UserType loggedInUser = null;
-
-		try {
-			loggedInUser = service.impersonate("44af349b-5a0c-4f3a-9fe9-2f64d9390ed3").self();
-
-		} catch (AuthenticationException ex) {
-			fail("should authenticate user successfully");
-		}
-
-		assertEquals(service.util().getOrig(loggedInUser.getName()), "impersonate");
-	}
-
-
-	@Test
-	public void test203UserDelete() throws Exception{
-		// SETUP
-		Service service = getService();
-
-		// WHEN
-		try{
-			service.users().oid("123").delete();
-		}catch(ObjectNotFoundException e){
-			fail("Cannot delete user, user not found");
-		}
-	}
 
 	// see analogous test 520 in midPoint TestAbstractRestService
 	@Test
@@ -552,8 +392,7 @@ public class TestBasic {
 
 		// WHEN
 		//noinspection unchecked
-		ExecuteScriptType request = ((JAXBElement<ExecuteScriptType>) createJaxbContext().createUnmarshaller()
-				.unmarshal(new File(REQUEST_DIR, "request-script-generate-passwords.xml"))).getValue();
+		ExecuteScriptType request = unmarshallFromFile(ExecuteScriptType.class, SCRIPT_GENERATE_PASSWORD);
 		ExecuteScriptResponseType response = service.rpc().executeScript(request).post();
 
 		// THEN
@@ -585,8 +424,7 @@ public class TestBasic {
 
 		// WHEN
 		//noinspection unchecked
-		ExecuteScriptType request = ((JAXBElement<ExecuteScriptType>) createJaxbContext().createUnmarshaller()
-				.unmarshal(new File(REQUEST_DIR, "request-script-modify-validTo.xml"))).getValue();
+		ExecuteScriptType request = unmarshallFromFile(ExecuteScriptType.class, SCRIPT_MODIFY_VALID_TO);
 		ExecuteScriptResponseType response = service.rpc().executeScript(request).post();
 
 		// THEN
@@ -608,195 +446,10 @@ public class TestBasic {
 		AssertJUnit.assertNotNull("Operation result missing in second output", second.getResult());
 	}
 
-	private String test300oid;
 
-	@Test
-	public void test300OrgAdd() throws Exception {
-		Service service = getService();
-
-		OrgType orgBefore = new OrgType();
-		orgBefore.setName(service.util().createPoly("test300"));
-
-		// WHEN
-		ObjectReference<OrgType> ref = service.orgs().add(orgBefore).post();
-
-		// THEN
-		test300oid = ref.getOid();
-		assertNotNull("Null oid", test300oid);
-
-		OrgType orgAfter = ref.get();
-		Asserts.assertPoly(service, "Wrong name", "test300", orgAfter.getName());
-	}
-
-	private String test310oid;
-
-	@Test
-	public void test310SubOrgAdd() throws Exception {
-		Service service = getService();
-
-		OrgType orgBefore = new OrgType();
-		orgBefore.setName(service.util().createPoly("test310"));
-		ObjectReferenceType parentRef = new ObjectReferenceType();
-		parentRef.setOid(test300oid);
-		parentRef.setType(new QName("OrgType"));
-		AssignmentType assignment = new AssignmentType();
-		assignment.setTargetRef(parentRef);
-		orgBefore.getAssignment().add(assignment);
-
-		// WHEN
-		ObjectReference<OrgType> ref = service.orgs().add(orgBefore).post();
-
-		// THEN
-		test310oid = ref.getOid();
-		assertNotNull("Null oid", test310oid);
-
-		OrgType orgAfter = ref.get();
-		Asserts.assertPoly(service, "Wrong name", "test310", orgAfter.getName());
-	}
-
-	private String test320oid;
-
-	@Test
-	public void test320SubOrgAdd() throws Exception {
-		Service service = getService();
-
-		OrgType orgBefore = new OrgType();
-		orgBefore.setName(service.util().createPoly("test320"));
-		ObjectReferenceType parentRef = new ObjectReferenceType();
-		parentRef.setOid(test310oid);
-		parentRef.setType(new QName("OrgType"));
-		AssignmentType assignment = new AssignmentType();
-		assignment.setTargetRef(parentRef);
-		orgBefore.getAssignment().add(assignment);
-
-		// WHEN
-		ObjectReference<OrgType> ref = service.orgs().add(orgBefore).post();
-
-		// THEN
-		test320oid = ref.getOid();
-		assertNotNull("Null oid", test320oid);
-
-		OrgType orgAfter = ref.get();
-		Asserts.assertPoly(service, "Wrong name", "test320", orgAfter.getName());
-	}
-
-	@Test
-	public void test330OrgDirectChildSearch() throws Exception {
-		Service service = getService();
-
-		// WHEN
-		SearchResult<OrgType> result = service.orgs().search()
-				.queryFor(OrgType.class)
-				.isDirectChildOf(test300oid)
-				.get();
-
-		// THEN
-		assertEquals(result.size(), 1);
-		Asserts.assertPoly(service, "Wrong name", "test310", result.get(0).getName());
-	}
-
-	@Test
-	public void test340OrgChildSearch() throws Exception {
-		Service service = getService();
-
-		// WHEN
-		SearchResult<OrgType> result = service.orgs().search()
-				.queryFor(OrgType.class)
-				.isChildOf(test300oid)
-				.get();
-
-		// THEN
-		assertEquals(result.size(), 2);
-		Set<String> names = result.stream()
-				.map(org -> service.util().getOrig(org.getName()))
-				.collect(Collectors.toSet());
-		assertEquals(new HashSet<>(Arrays.asList("test310", "test320")), names);
-	}
-
-	@Test
-	public void test350RootSearch() throws Exception {
-		Service service = getService();
-
-		// WHEN
-		SearchResult<OrgType> result = service.orgs().search()
-				.queryFor(OrgType.class)
-				.isRoot()
-				.get();
-
-		// THEN
-		Set<String> names = result.stream()
-				.map(org -> service.util().getOrig(org.getName()))
-				.collect(Collectors.toSet());
-		assertTrue("test300 is not among roots", names.contains("test300"));
-	}
 
 	private Service getService() throws IOException {
-		return getService(ADMIN, ADMIN_PASS, AuthenticationType.BASIC);
+		return getService(ADMIN, ADMIN_PASS, ENDPOINT_ADDRESS, AuthenticationType.BASIC);
 	}
-
-	private Service getService(String username, List<SecurityQuestionAnswer> answer) throws IOException {
-
-	RestJaxbServiceBuilder serviceBuilder = new RestJaxbServiceBuilder();
-	serviceBuilder.authentication(AuthenticationType.SECQ).username(username).authenticationChallenge(answer).url(ENDPOINT_ADDRESS);
-	RestJaxbService service = serviceBuilder.build();
-	WebClient client = service.getClient();
-	WebClient.getConfig(client).getRequestContext().put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
-
-	return service;
-
-}
-
-	private Service getService(String username, String password, AuthenticationType authenticationType) throws IOException {
-
-		RestJaxbServiceBuilder serviceBuilder = new RestJaxbServiceBuilder();
-		serviceBuilder.authentication(authenticationType).username(username).password(password).url(ENDPOINT_ADDRESS);
-		RestJaxbService service = serviceBuilder.build();
-		WebClient client = service.getClient();
-		WebClient.getConfig(client).getRequestContext().put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
-
-		return service;
-
-	}
-
-	private void startServer() throws IOException {
-		JAXRSServerFactoryBean sf = new JAXRSServerFactoryBean();
-	     sf.setResourceClasses(MidpointMockRestService.class);
-
-	     sf.setProviders(Arrays.asList(new JaxbXmlProvider<>(createJaxbContext()), new AuthenticationProvider()));
-
-	     sf.setResourceProvider(MidpointMockRestService.class,
-	                            new SingletonResourceProvider(new MidpointMockRestService(), true));
-	     sf.setAddress(ENDPOINT_ADDRESS);
-
-
-	     server = sf.create();
-	}
-
-	private JAXBContext createJaxbContext() throws IOException {
-		try {
-			return JAXBContext.newInstance("com.evolveum.midpoint.xml.ns._public.common.api_types_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.common.audit_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.common.common_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_schema_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.resource_schema_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.gui.admin_1:"
-					+ "com.evolveum.midpoint.xml.ns._public.model.extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.model.scripting_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.model.scripting.extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.report.extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.resource.capabilities_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.task.extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.task.jdbc_ping.handler_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.task.noop.handler_3:"
-					+ "com.evolveum.prism.xml.ns._public.annotation_3:"
-					+ "com.evolveum.prism.xml.ns._public.query_3:"
-					+ "com.evolveum.prism.xml.ns._public.types_3");
-		} catch (JAXBException e) {
-			throw new IOException(e);
-		}
-
-	}
-
 
 }
