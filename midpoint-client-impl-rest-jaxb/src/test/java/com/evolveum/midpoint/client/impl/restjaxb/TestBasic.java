@@ -20,18 +20,14 @@ import com.evolveum.midpoint.client.api.SearchResult;
 import com.evolveum.midpoint.client.api.Service;
 import com.evolveum.midpoint.client.api.ServiceUtil;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.client.api.exception.CommonException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
-import com.evolveum.midpoint.client.api.scripting.ObjectProcessingOutput;
-import com.evolveum.midpoint.client.api.scripting.OperationSpecificData;
-import com.evolveum.midpoint.client.api.scripting.ValueGenerationData;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
+import com.evolveum.midpoint.client.api.exception.PolicyViolationException;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
-import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
-import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.endpoint.Server;
-import org.testng.AssertJUnit;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -55,20 +51,19 @@ import static org.testng.AssertJUnit.assertNotNull;
 public class TestBasic extends AbstractTest {
 	
 	private static Server server;
-	private static final String ENDPOINT_ADDRESS = "http://localhost:8080/midpoint/ws/rest";
+	private static final String ENDPOINT_ADDRESS = "http://localhost:18080/midpoint/ws/rest";
 
 	private static final String ADMIN = "administrator";
 	private static final String ADMIN_PASS = "5ecr3t";
 
-	private static final String USER_JACK_OID = "229487cb-59b6-490b-879d-7a6d925dd08c";
-	private static final String REQUEST_DIR = "src/test/resources/request";
-
-	private static final File SCRIPT_GENERATE_PASSWORD = new File(REQUEST_DIR, "request-script-generate-passwords.xml");
-	private static final File SCRIPT_MODIFY_VALID_TO= new File(REQUEST_DIR, "request-script-modify-validTo.xml");
-
 	@BeforeClass
 	public void init() throws IOException {
 		server = startServer(ENDPOINT_ADDRESS);
+	}
+
+	@AfterClass
+	public void destroy() {
+		server.stop();
 	}
 
 	@Test
@@ -151,7 +146,7 @@ public class TestBasic extends AbstractTest {
 					.replace(modifications)
 					.add("givenName", util.createPoly("Charlie"))
 					.post();
-		}catch(ObjectNotFoundException e){
+		} catch(ObjectNotFoundException e){
 			fail("Cannot modify user, user not found");
 		}
 
@@ -323,19 +318,20 @@ public class TestBasic extends AbstractTest {
 	}
 
 	@Test
-	public void test205rpcValidate() throws Exception {
+	public void test205rpcValidateBad() throws Exception {
 		Service service = getService();
+
 		service.rpc().validate()
-			.items()
-				.item()
-					.value("asdasd123@#")
-				.item()
-					.value("asdasdasd345345!!!")
-				.item()
-					.policy("00000000-0000-0000-0000-p00000000001")
-					.value("dfgsdf")
-				.build()
-			.post();
+				.items()
+					.item()
+						.value("asdasd123@#")
+					.item()
+						.value("asdasdasd345345!!!")
+					.item()
+						.policy("00000000-0000-0000-0000-p00000000001")
+						.value("dfgsdf")
+					.build()
+				.post();
 	}
 
 	@Test
@@ -363,70 +359,6 @@ public class TestBasic extends AbstractTest {
 					.path("credentials/password/value")
 				.build()
 			.post();
-	}
-
-
-
-	// see analogous test 520 in midPoint TestAbstractRestService
-	@Test
-	public void test220GeneratePasswordsUsingScripting() throws Exception {
-		// GIVEN
-		Service service = getService();
-
-		// WHEN
-		//noinspection unchecked
-		ExecuteScriptType request = unmarshallFromFile(ExecuteScriptType.class, SCRIPT_GENERATE_PASSWORD);
-		ExecuteScriptResponseType response = service.rpc().executeScript(request).post();
-
-		// THEN
-		List<ObjectProcessingOutput<ValueGenerationData<String>>> outputs = service.scriptingUtil()
-				.extractPasswordGenerationResults(response);
-		System.out.println("extracted outputs:\n" + outputs);
-		AssertJUnit.assertEquals("Wrong # of extracted outputs", 2, outputs.size());
-
-		ObjectProcessingOutput<ValueGenerationData<String>> first = outputs.get(0);
-		AssertJUnit.assertEquals("Wrong OID in first output", "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", first.getOid());
-		AssertJUnit.assertEquals("Wrong status in first output", OperationResultStatusType.FATAL_ERROR, first.getStatus());
-		AssertJUnit.assertNull("Object present in first output", first.getObject());
-		AssertJUnit.assertNotNull("Operation result missing in first output", first.getResult());
-
-		ObjectProcessingOutput<ValueGenerationData<String>> second = outputs.get(1);
-		AssertJUnit.assertEquals("Wrong OID in second output", USER_JACK_OID, second.getOid());
-		AssertJUnit.assertEquals("Wrong name in second output", "jack", second.getName());
-		AssertJUnit.assertTrue("Missing password in second output", StringUtils.isNotBlank(second.getData().getValue()));
-		AssertJUnit.assertEquals("Wrong status in second output", OperationResultStatusType.SUCCESS, second.getStatus());
-		AssertJUnit.assertNotNull("Object missing in second output", second.getObject());
-		AssertJUnit.assertNotNull("Operation result missing in second output", second.getResult());
-	}
-
-	// see analogous test 530 in midPoint TestAbstractRestService
-	@Test
-	public void test230ModifyValidToUsingScripting() throws Exception {
-		// GIVEN
-		Service service = getService();
-
-		// WHEN
-		//noinspection unchecked
-		ExecuteScriptType request = unmarshallFromFile(ExecuteScriptType.class, SCRIPT_MODIFY_VALID_TO);
-		ExecuteScriptResponseType response = service.rpc().executeScript(request).post();
-
-		// THEN
-		List<ObjectProcessingOutput<OperationSpecificData>> outputs = service.scriptingUtil().extractObjectProcessingOutput(response);
-		System.out.println("extracted outputs:\n" + outputs);
-		AssertJUnit.assertEquals("Wrong # of extracted outputs", 2, outputs.size());
-
-		ObjectProcessingOutput<OperationSpecificData> first = outputs.get(0);
-		AssertJUnit.assertEquals("Wrong OID in first output", "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX", first.getOid());
-		AssertJUnit.assertEquals("Wrong status in first output", OperationResultStatusType.FATAL_ERROR, first.getStatus());
-		AssertJUnit.assertNull("Object present in first output", first.getObject());
-		AssertJUnit.assertNotNull("Operation result missing in first output", first.getResult());
-
-		ObjectProcessingOutput<OperationSpecificData> second = outputs.get(1);
-		AssertJUnit.assertEquals("Wrong OID in second output", USER_JACK_OID, second.getOid());
-		AssertJUnit.assertEquals("Wrong name in second output", "jack", second.getName());
-		AssertJUnit.assertEquals("Wrong status in second output", OperationResultStatusType.SUCCESS, second.getStatus());
-		AssertJUnit.assertNotNull("Object missing in second output", second.getObject());
-		AssertJUnit.assertNotNull("Operation result missing in second output", second.getResult());
 	}
 
 	@Test
