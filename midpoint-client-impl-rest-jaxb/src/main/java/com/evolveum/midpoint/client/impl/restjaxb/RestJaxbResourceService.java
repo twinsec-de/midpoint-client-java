@@ -38,7 +38,7 @@ public class RestJaxbResourceService extends RestJaxbObjectService<ResourceType>
 		String urlPrefix = RestUtil.subUrl(Types.findType(ResourceType.class).getRestPath(), getOid(), "test");
 
 		WebClient client = getService().getClient();
-		Response response = client.replacePath(urlPrefix).post(null);
+		Response response = client.path(urlPrefix).post(null);
 
 		if (Response.Status.OK.getStatusCode() == response.getStatus()) {
 			return response.readEntity(OperationResultType.class);

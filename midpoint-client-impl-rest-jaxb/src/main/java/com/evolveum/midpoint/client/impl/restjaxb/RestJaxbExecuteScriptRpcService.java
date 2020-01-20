@@ -46,7 +46,7 @@ public class RestJaxbExecuteScriptRpcService implements ExecuteScriptRpcService 
 	@Override
 	public TaskFuture<ExecuteScriptResponseType> apost() throws CommonException {
 		
-		Response response = service.getClient().replacePath(path).post(script);
+		Response response = service.getClient().path(path).post(script);
 
 		switch (response.getStatus()) {
 			case 200:

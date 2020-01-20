@@ -53,15 +53,29 @@ public class RestJaxbService implements Service {
 	private final ServiceUtil util;
 	private final ScriptingUtil scriptingUtil;
 
+	private String endpoint;
+
 	// TODO: jaxb context
 	
-	private WebClient client;
+//	private WebClient client;
 	private DomSerializer domSerializer;
 	private JAXBContext jaxbContext;
 	private AuthenticationManager<?> authenticationManager;
 	private List<AuthenticationType> supportedAuthenticationsByServer;
 	
 	public WebClient getClient() {
+		CustomAuthNProvider<?> authNProvider = new CustomAuthNProvider<>(authenticationManager, this);
+		WebClient client = WebClient.create(endpoint, Arrays.asList(new JaxbXmlProvider<>(jaxbContext)));
+		ClientConfiguration config = WebClient.getConfig(client);
+		config.getInInterceptors().add(authNProvider);
+		config.getInFaultInterceptors().add(authNProvider);
+		client.accept(MediaType.APPLICATION_XML);
+		client.type(MediaType.APPLICATION_XML);
+
+		if (authenticationManager != null) {
+			client.header("Authorization", authenticationManager.createAuthorizationHeader());
+		}
+
 		return client;
 	}
 	
@@ -88,37 +102,26 @@ public class RestJaxbService implements Service {
 	
 	public RestJaxbService() {
 		super();
-		client = WebClient.create("");
+//		client = WebClient.create("");
 		util = new RestJaxbServiceUtil(null);
 		scriptingUtil = new ScriptingUtilImpl(util);
 	}
 	
-	RestJaxbService(String url, String username, String password, AuthenticationType authentication, List<SecurityQuestionAnswer> secQ) throws IOException {
+	RestJaxbService(String endpoint, String username, String password, AuthenticationType authentication, List<SecurityQuestionAnswer> secQ) throws IOException {
 		super();
 		try {
 			jaxbContext = createJaxbContext();
 		} catch (JAXBException e) {
 			throw new IOException(e);
 		}
+		this.endpoint = endpoint;
 		
 		if (AuthenticationType.SECQ == authentication) {
 			authenticationManager = new SecurityQuestionAuthenticationManager(username, secQ);
 		} else if (authentication != null ){
 			authenticationManager = new BasicAuthenticationManager(username, password);
 		}
-		
-		CustomAuthNProvider<?> authNProvider = new CustomAuthNProvider<>(authenticationManager, this);
-		client = WebClient.create(url, Arrays.asList(new JaxbXmlProvider<>(jaxbContext)));
-		ClientConfiguration config = WebClient.getConfig(client);
-		config.getInInterceptors().add(authNProvider);
-		config.getInFaultInterceptors().add(authNProvider);
-		client.accept(MediaType.APPLICATION_XML);
-		client.type(MediaType.APPLICATION_XML);
-		
-		if (authenticationManager != null) {
-			client.header("Authorization", authenticationManager.createAuthorizationHeader());
-		}
-				
+
 		util = new RestJaxbServiceUtil(jaxbContext);
 		scriptingUtil = new ScriptingUtilImpl(util);
 		domSerializer = new DomSerializer(jaxbContext);
@@ -126,13 +129,13 @@ public class RestJaxbService implements Service {
 
 	@Override
 	public Service impersonate(String oid){
-		client.header(IMPERSONATE_HEADER, oid);
+		getClient().header(IMPERSONATE_HEADER, oid);
 		return this;
 	}
 
 	@Override
 	public Service addHeader(String header, String value){
-		client.header(header, value);
+		getClient().header(header, value);
 		return this;
 	}
 	
@@ -231,7 +234,7 @@ public class RestJaxbService implements Service {
 			throws ObjectNotFoundException, AuthenticationException {
 
 		String urlPrefix = RestUtil.subUrl(Types.findType(type).getRestPath(), oid);
-		WebClient cli = client.replacePath(urlPrefix);
+		WebClient cli = getClient().path(urlPrefix);
 		addQueryParameter(cli, "options", options);
 		addQueryParameter(cli, "include", include);
 		addQueryParameter(cli, "exclude", exclude);
@@ -265,7 +268,7 @@ public class RestJaxbService implements Service {
 
 	<O extends ObjectType> void deleteObject(final Class<O> type, final String oid) throws ObjectNotFoundException, AuthenticationException {
 		String urlPrefix = RestUtil.subUrl(Types.findType(type).getRestPath(), oid);
-		Response response = client.replacePath(urlPrefix).delete();
+		Response response = getClient().path(urlPrefix).delete();
 
 		//TODO: Looks like midPoint returns a 204 and not a 200 on success
 		if (Status.OK.getStatusCode() == response.getStatus() ) {
@@ -293,7 +296,7 @@ public class RestJaxbService implements Service {
 	@Override
 	public UserType self() throws AuthenticationException{
 		String urlPrefix = "/self";
-		Response response = client.replacePath(urlPrefix).get();
+		Response response = getClient().path(urlPrefix).get();
 
 
 		if (Status.OK.getStatusCode() == response.getStatus() ) {

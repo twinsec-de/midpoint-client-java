@@ -52,7 +52,7 @@ public class RestJaxbValidateGenerateRpcService implements ValidateGenerateRpcSe
 	@Override
 	public TaskFuture<PolicyItemsDefinitionType> apost() throws CommonException {
 		
-		Response response = service.getClient().replacePath(path).post(policyItemDefinition);
+		Response response = service.getClient().path(path).post(policyItemDefinition);
 		
 		switch (response.getStatus()) {
         case 200:

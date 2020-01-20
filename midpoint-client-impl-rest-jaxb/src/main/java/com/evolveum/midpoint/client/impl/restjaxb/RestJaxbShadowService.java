@@ -40,7 +40,7 @@ public class RestJaxbShadowService extends RestJaxbObjectService<ShadowType> imp
 		String urlPrefix = RestUtil.subUrl(Types.findType(ShadowType.class).getRestPath(), getOid(), "import");
 
 		WebClient client = getService().getClient();
-		Response response = client.replacePath(urlPrefix).post(null);
+		Response response = client.path(urlPrefix).post(null);
 
 		if (Response.Status.OK.getStatusCode() == response.getStatus()) {
 			return response.readEntity(OperationResultType.class);

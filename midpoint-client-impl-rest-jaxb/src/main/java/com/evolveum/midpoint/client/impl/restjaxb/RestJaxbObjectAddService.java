@@ -47,7 +47,7 @@ public class RestJaxbObjectAddService<O extends ObjectType> extends AbstractObje
 		// if object created (sync):
 		String oid = null;
 		String restPath = Types.findType(getType()).getRestPath();
-		Response response = getService().getClient().replacePath("/" + restPath).post(object);
+		Response response = getService().getClient().path("/" + restPath).post(object);
 		
 		switch (response.getStatus()) {
 			case 400:

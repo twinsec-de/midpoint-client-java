@@ -56,7 +56,7 @@ public class RestJaxbObjectCredentialService<O extends ObjectType>  extends Abst
 
         restPath = restPath.concat("/credential");
 
-        Response response = getService().getClient().replacePath(restPath).post(executeCredentialResetRequest);
+        Response response = getService().getClient().path(restPath).post(executeCredentialResetRequest);
 
         switch (response.getStatus()) {
             case 200:

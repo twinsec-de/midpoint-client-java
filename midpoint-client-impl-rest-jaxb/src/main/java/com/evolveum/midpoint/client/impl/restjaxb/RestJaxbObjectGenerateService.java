@@ -51,7 +51,7 @@ public class RestJaxbObjectGenerateService<O extends ObjectType> extends Abstrac
         String oid = getOid();
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), oid);
         restPath += "/generate";
-        Response response = getService().getClient().replacePath(restPath).post(RestUtil.buildGenerateObject(this.path, true));
+        Response response = getService().getClient().path(restPath).post(RestUtil.buildGenerateObject(this.path, true));
 
         switch (response.getStatus()) {
             case 200:

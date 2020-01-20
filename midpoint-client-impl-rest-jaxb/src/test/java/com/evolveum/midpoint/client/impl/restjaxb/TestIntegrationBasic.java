@@ -3,14 +3,12 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.SearchResult;
 import com.evolveum.midpoint.client.api.Service;
+import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.client.api.scripting.ObjectProcessingOutput;
 import com.evolveum.midpoint.client.api.scripting.OperationSpecificData;
 import com.evolveum.midpoint.client.api.scripting.ValueGenerationData;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.AssignmentType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectReferenceType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultStatusType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.OrgType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 import org.apache.commons.lang.StringUtils;
 import org.testng.AssertJUnit;
@@ -26,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -33,11 +32,24 @@ public class TestIntegrationBasic extends AbstractTest {
 
     private static final String ENDPOINT_ADDRESS = "http://localhost:8080/midpoint/ws/rest";
 
+    private static final String TEST_DIR = "src/test/resources/integration";
+
     private static final String USER_JACK_OID = "229487cb-59b6-490b-879d-7a6d925dd08c";
+    private static final File USER_JACK_FILE = new File(TEST_DIR, "user-jack.xml");
     private static final String REQUEST_DIR = "src/test/resources/request";
     private static final File SCRIPT_GENERATE_PASSWORD = new File(REQUEST_DIR, "request-script-generate-passwords.xml");
     private static final File SCRIPT_MODIFY_VALID_TO= new File(REQUEST_DIR, "request-script-modify-validTo.xml");
 
+    @Test
+    public void test210createUserjack() throws Exception {
+        Service service = getService();
+
+        UserType userJack = unmarshallFromFile(UserType.class, USER_JACK_FILE);
+        ObjectReference<UserType> userJackRef = service.users().add(userJack).post();
+        UserType userJackAfter = userJackRef.get();
+
+        assertNotNull("Unexpected null object", userJackAfter);
+    }
     // see analogous test 520 in midPoint TestAbstractRestService
     @Test
     public void test220GeneratePasswordsUsingScripting() throws Exception {
@@ -223,6 +235,19 @@ public class TestIntegrationBasic extends AbstractTest {
         assertTrue("test300 is not among roots", names.contains("test300"));
     }
 
+    @Test
+    public void test500deleteUserJack() throws Exception {
+        Service service = getService();
+
+        service.users().oid(USER_JACK_OID).delete();
+
+        try {
+            service.users().oid(USER_JACK_OID).get();
+            fail("Unexpected object found");
+        } catch (ObjectNotFoundException e) {
+            //expected
+        }
+    }
     private Service getService() throws IOException {
         return getService(ADMIN, ADMIN_PASS, ENDPOINT_ADDRESS, AuthenticationType.BASIC);
     }

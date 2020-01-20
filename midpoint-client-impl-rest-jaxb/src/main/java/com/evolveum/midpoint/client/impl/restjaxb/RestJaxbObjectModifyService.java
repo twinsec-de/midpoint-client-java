@@ -98,7 +98,7 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
         String oid = getOid();
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), oid);
 
-        Response response = getService().getClient().replacePath(restPath).post(RestUtil.buildModifyObject(modifications));
+        Response response = getService().getClient().path(restPath).post(RestUtil.buildModifyObject(modifications));
 
         switch (response.getStatus()) {
             case 204:
