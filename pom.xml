@@ -22,7 +22,7 @@
 
     <groupId>com.evolveum.midpoint.client</groupId>
     <artifactId>parent</artifactId>
-    <version>3.9-SNAPSHOT</version>
+    <version>4.0.1</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -40,6 +40,7 @@
         <jaxb.version>2.3.0</jaxb.version>
 		<activation.version>1.2.0</activation.version>
 		<surefire.version>3.0.0-M4</surefire.version>
+		<javax.annotation.version>1.2</javax.annotation.version>
     </properties>
 
     <scm>
@@ -147,7 +148,7 @@
 			<dependency>
 				<groupId>javax.annotation</groupId>
 				<artifactId>javax.annotation-api</artifactId>
-				<version>1.2</version>
+				<version>${javax.annotation.version}}</version>
 			</dependency>
 	    </dependencies>
     </dependencyManagement>
