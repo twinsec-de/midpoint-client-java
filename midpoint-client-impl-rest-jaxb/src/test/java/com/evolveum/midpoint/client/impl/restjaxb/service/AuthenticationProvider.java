@@ -98,14 +98,14 @@ public class AuthenticationProvider implements ContainerRequestFilter {
 	        
 	        String password = usernamePasswordAuthentication.get(enteredUsername);
 	        if (password == null) {
-	        	requestCtx.abortWith(Response.status(Status.FORBIDDEN).build());
+	        	requestCtx.abortWith(Response.status(Status.UNAUTHORIZED).build());
 	        	return;
 	        }
 	        
 	        if (password.equals(policy.getPassword())) {
 	        	//successfull authn
 	        } else {
-	        	requestCtx.abortWith(Response.status(Status.FORBIDDEN).build());
+	        	requestCtx.abortWith(Response.status(Status.UNAUTHORIZED).build());
 	        }
 			return;
 		}

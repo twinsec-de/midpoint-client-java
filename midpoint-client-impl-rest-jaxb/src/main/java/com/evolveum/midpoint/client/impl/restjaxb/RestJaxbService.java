@@ -32,15 +32,25 @@ import javax.xml.namespace.QName;
 import javax.xml.bind.Unmarshaller;
 
 import com.evolveum.midpoint.client.api.*;
+import com.evolveum.midpoint.client.api.exception.*;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectModificationType;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
 import com.evolveum.midpoint.client.impl.restjaxb.scripting.ScriptingUtilImpl;
 
+import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
 
-import com.evolveum.midpoint.client.api.exception.AuthenticationException;
-import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 /**
  * @author semancik
@@ -55,29 +65,11 @@ public class RestJaxbService implements Service {
 
 	private String endpoint;
 
-	// TODO: jaxb context
-	
-//	private WebClient client;
+	private WebClient client;
 	private DomSerializer domSerializer;
 	private JAXBContext jaxbContext;
 	private AuthenticationManager<?> authenticationManager;
 	private List<AuthenticationType> supportedAuthenticationsByServer;
-	
-	public WebClient getClient() {
-		CustomAuthNProvider<?> authNProvider = new CustomAuthNProvider<>(authenticationManager, this);
-		WebClient client = WebClient.create(endpoint, Arrays.asList(new JaxbXmlProvider<>(jaxbContext)));
-		ClientConfiguration config = WebClient.getConfig(client);
-		config.getInInterceptors().add(authNProvider);
-		config.getInFaultInterceptors().add(authNProvider);
-		client.accept(MediaType.APPLICATION_XML);
-		client.type(MediaType.APPLICATION_XML);
-
-		if (authenticationManager != null) {
-			client.header("Authorization", authenticationManager.createAuthorizationHeader());
-		}
-
-		return client;
-	}
 	
 	public DomSerializer getDomSerializer() {
 		return domSerializer;
@@ -99,10 +91,14 @@ public class RestJaxbService implements Service {
 	public <T extends AuthenticationChallenge> AuthenticationManager<T> getAuthenticationManager() {
 		return (AuthenticationManager<T>) authenticationManager;
 	}
+
+	ClientConfiguration getClientConfiguration () {
+		return WebClient.getConfig(client);
+	}
 	
 	public RestJaxbService() {
 		super();
-//		client = WebClient.create("");
+		client = WebClient.create("");
 		util = new RestJaxbServiceUtil(null);
 		scriptingUtil = new ScriptingUtilImpl(util);
 	}
@@ -125,17 +121,30 @@ public class RestJaxbService implements Service {
 		util = new RestJaxbServiceUtil(jaxbContext);
 		scriptingUtil = new ScriptingUtilImpl(util);
 		domSerializer = new DomSerializer(jaxbContext);
+
+		CustomAuthNProvider<?> authNProvider = new CustomAuthNProvider<>(authenticationManager, this);
+		client = WebClient.create(endpoint, Arrays.asList(new JaxbXmlProvider<>(jaxbContext)));
+		ClientConfiguration config = WebClient.getConfig(client);
+		config.getInInterceptors().add(authNProvider);
+		config.getInFaultInterceptors().add(authNProvider);
+		client.accept(MediaType.APPLICATION_XML);
+		client.type(MediaType.APPLICATION_XML);
+
+		if (authenticationManager != null) {
+			client.header("Authorization", authenticationManager.createAuthorizationHeader());
+		}
+
 	}
 
 	@Override
 	public Service impersonate(String oid){
-		getClient().header(IMPERSONATE_HEADER, oid);
+		client.header(IMPERSONATE_HEADER, oid);
 		return this;
 	}
 
 	@Override
 	public Service addHeader(String header, String value){
-		getClient().header(header, value);
+		client.header(header, value);
 		return this;
 	}
 	
@@ -221,7 +230,7 @@ public class RestJaxbService implements Service {
 	}
 
 	<O extends ObjectType> O getObject(final Class<O> type, final String oid)
-			throws ObjectNotFoundException, AuthenticationException {
+			throws ObjectNotFoundException {
 		return getObject(type, oid, null, null, null);
 	}
 
@@ -231,10 +240,10 @@ public class RestJaxbService implements Service {
 	 */
 	<O extends ObjectType> O getObject(final Class<O> type, final String oid, List<String> options,
 									   List<String> include, List<String> exclude)
-			throws ObjectNotFoundException, AuthenticationException {
+			throws ObjectNotFoundException {
 
 		String urlPrefix = RestUtil.subUrl(Types.findType(type).getRestPath(), oid);
-		WebClient cli = getClient().path(urlPrefix);
+		WebClient cli = client.replacePath(urlPrefix);
 		addQueryParameter(cli, "options", options);
 		addQueryParameter(cli, "include", include);
 		addQueryParameter(cli, "exclude", exclude);
@@ -252,6 +261,10 @@ public class RestJaxbService implements Service {
 		if (Status.UNAUTHORIZED.getStatusCode() == response.getStatus()) {
 			throw new AuthenticationException(response.getStatusInfo().getReasonPhrase());
 		}
+
+		if (Status.FORBIDDEN.getStatusCode() == response.getStatus()) {
+			throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());
+		}
 		
 		return null;
 	}
@@ -266,9 +279,30 @@ public class RestJaxbService implements Service {
 		}
 	}
 
-	<O extends ObjectType> void deleteObject(final Class<O> type, final String oid) throws ObjectNotFoundException, AuthenticationException {
+	<T> Response post(String path, T object) throws ObjectNotFoundException{
+
+		Response response = client.replacePath("/" + path).post(object);
+
+		switch (response.getStatus()) {
+			case 250:
+				throw new PartialErrorException(response.getStatusInfo().getReasonPhrase());
+			case 400:
+				throw new BadRequestException(response.getStatusInfo().getReasonPhrase());
+			case 401:
+				throw new AuthenticationException(response.getStatusInfo().getReasonPhrase());
+			case 403:
+				throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());
+				//TODO: Do we want to return a reference? Might be useful.
+			case 404:
+				throw new ObjectNotFoundException(response.getStatusInfo().getReasonPhrase());
+		}
+
+		return response;
+	}
+
+	<O extends ObjectType> void deleteObject(final Class<O> type, final String oid) throws ObjectNotFoundException {
 		String urlPrefix = RestUtil.subUrl(Types.findType(type).getRestPath(), oid);
-		Response response = getClient().path(urlPrefix).delete();
+		Response response = client.replacePath(urlPrefix).delete();
 
 		//TODO: Looks like midPoint returns a 204 and not a 200 on success
 		if (Status.OK.getStatusCode() == response.getStatus() ) {
@@ -294,9 +328,9 @@ public class RestJaxbService implements Service {
 	}
 
 	@Override
-	public UserType self() throws AuthenticationException{
+	public UserType self() {
 		String urlPrefix = "/self";
-		Response response = getClient().path(urlPrefix).get();
+		Response response = client.replacePath(urlPrefix).get();
 
 
 		if (Status.OK.getStatusCode() == response.getStatus() ) {

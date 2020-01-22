@@ -22,6 +22,8 @@ import javax.ws.rs.core.Response.Status;
 
 import com.evolveum.midpoint.client.api.SearchResult;
 import com.evolveum.midpoint.client.api.SearchService;
+import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.client.api.exception.AuthorizationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.client.api.query.FilterEntryOrEmpty;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectListType;
@@ -48,8 +50,9 @@ public class RestJaxbSearchService<O extends ObjectType> extends AbstractObjectT
 	
 		@Override
 	public SearchResult<O> get() throws ObjectNotFoundException {
-		Response response = getService().getClient().path("/" + Types.findType(getType()).getRestPath() + "/search").post(query);
-		
+		String path = "/" + Types.findType(getType()).getRestPath() + "/search";
+		Response response = getService().post(path, query);
+
 		if (Status.OK.getStatusCode() == response.getStatus()) {
 			return new JaxbSearchResult<>(getSearchResultList(response));
 		}

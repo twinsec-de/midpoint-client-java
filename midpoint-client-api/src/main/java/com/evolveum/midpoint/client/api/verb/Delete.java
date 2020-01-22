@@ -25,6 +25,6 @@ import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 public interface Delete<T> {
 
 	//TODO: Does this need to return anything?
-	void delete() throws ObjectNotFoundException, AuthenticationException;;
+	void delete() throws ObjectNotFoundException;
 	
 }

@@ -35,13 +35,9 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
+import static org.testng.Assert.*;
 import static org.testng.AssertJUnit.assertNotNull;
 
 /**
@@ -51,7 +47,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 public class TestBasic extends AbstractTest {
 	
 	private static Server server;
-	private static final String ENDPOINT_ADDRESS = "http://localhost:18080/midpoint/ws/rest";
+	private static final String ENDPOINT_ADDRESS = "http://localhost:18080/midpoint/ws/rest/";
 
 	private static final String ADMIN = "administrator";
 	private static final String ADMIN_PASS = "5ecr3t";
@@ -215,7 +211,7 @@ public class TestBasic extends AbstractTest {
 
 	@Test
 	public void test100challengeRepsonse() throws Exception {
-		RestJaxbService service = (RestJaxbService) getService(ADMIN, "", ENDPOINT_ADDRESS, AuthenticationType.SECQ);
+		RestJaxbService service = (RestJaxbService) getService(ADMIN, ENDPOINT_ADDRESS, (List) null);
 
 		try {
 			service.users().oid("123").get();
@@ -248,7 +244,7 @@ public class TestBasic extends AbstractTest {
 
 	@Test
 	public void test200fullChallengeRepsonse() throws Exception {
-		RestJaxbService service = (RestJaxbService) getService(null, null, ENDPOINT_ADDRESS, null);
+		RestJaxbService service = (RestJaxbService) getService(null, ENDPOINT_ADDRESS);
 
 		try {
 			service.users().oid("123").get();
@@ -259,11 +255,12 @@ public class TestBasic extends AbstractTest {
 
 		List<AuthenticationType> supportedAuthentication = service.getSupportedAuthenticationsByServer();
 		assertNotNull("no supported authentication. something wen wrong", supportedAuthentication);
+        assertNotEquals(supportedAuthentication.size(), 0);
 		AuthenticationType basicAtuh = supportedAuthentication.iterator().next();
 		assertEquals(basicAtuh.getType(), AuthenticationType.BASIC.getType(), "expected basic authentication, but got" + basicAtuh);
 
 
-		service = (RestJaxbService) getService(ADMIN, ADMIN_PASS, ENDPOINT_ADDRESS, basicAtuh);
+		service = (RestJaxbService) getService(ADMIN, ADMIN_PASS, ENDPOINT_ADDRESS);
 
 		try {
 			service.users().oid("123").get();
@@ -390,7 +387,7 @@ public class TestBasic extends AbstractTest {
 
 
 	private Service getService() throws IOException {
-		return getService(ADMIN, ADMIN_PASS, ENDPOINT_ADDRESS, AuthenticationType.BASIC);
+		return getService(ADMIN, ADMIN_PASS, ENDPOINT_ADDRESS);
 	}
 
 }

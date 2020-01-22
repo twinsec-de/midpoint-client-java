@@ -53,7 +53,7 @@ public class RestJaxbObjectReference<O extends ObjectType> extends AbstractObjec
 	}
 
 	@Override
-	public O get() throws ObjectNotFoundException, AuthenticationException {
+	public O get() throws ObjectNotFoundException {
 		if (object == null) {
 			object = getService().getObject(getType(), getOid());
 		}

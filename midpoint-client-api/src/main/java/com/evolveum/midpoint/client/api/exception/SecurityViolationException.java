@@ -21,7 +21,7 @@ package com.evolveum.midpoint.client.api.exception;
  * @author katkav
  *
  */
-public class SecurityViolationException extends CommonException {
+public class SecurityViolationException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 

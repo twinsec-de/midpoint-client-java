@@ -30,7 +30,7 @@ public class TestEducation extends AbstractTest {
 
 
     private Service getService() throws IOException {
-        return getService(ADMIN, ADMIN_PASS, ENDPOINT_ADDRESS, AuthenticationType.BASIC);
+        return getService(ADMIN, ADMIN_PASS, ENDPOINT_ADDRESS);
     }
 
     @Test

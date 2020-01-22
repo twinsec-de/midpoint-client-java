@@ -28,27 +28,30 @@ public class AbstractTest {
     private RestJaxbServiceUtil util;
     private Unmarshaller unmarshaller;
 
-    public Service getService(String username, String password, String endpoint, AuthenticationType authenticationType) throws IOException {
+    public Service getService(String username, String password, String endpoint) throws IOException {
+        RestJaxbServiceBuilder serviceBuilder = new RestJaxbServiceBuilder().password(password);
+        Service service = getService(serviceBuilder, AuthenticationType.BASIC, username, endpoint);
+        return service;
 
+    }
+
+    public Service getService(String username, String endpoint) throws IOException {
         RestJaxbServiceBuilder serviceBuilder = new RestJaxbServiceBuilder();
-        serviceBuilder.authentication(authenticationType).username(username).password(password).url(endpoint);
-        RestJaxbService service = serviceBuilder.build();
-        WebClient client = service.getClient();
-        WebClient.getConfig(client).getRequestContext().put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
-
+        Service service = getService(serviceBuilder, null, username, endpoint);
         return service;
 
     }
 
 
     public Service getService(String username, String endpoint, List<SecurityQuestionAnswer> answer) throws IOException {
+        RestJaxbServiceBuilder serviceBuilder = new RestJaxbServiceBuilder().authenticationChallenge(answer);
+        return getService(serviceBuilder, AuthenticationType.SECQ, username, endpoint);
 
-        RestJaxbServiceBuilder serviceBuilder = new RestJaxbServiceBuilder();
-        serviceBuilder.authentication(AuthenticationType.SECQ).username(username).authenticationChallenge(answer).url(endpoint);
-        RestJaxbService service = serviceBuilder.build();
-        WebClient client = service.getClient();
-        WebClient.getConfig(client).getRequestContext().put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
+    }
 
+    private Service getService(RestJaxbServiceBuilder serviceBuilder, AuthenticationType authnType, String username, String endpoint) throws IOException {
+        RestJaxbService service = serviceBuilder.authentication(authnType).username(username).url(endpoint).build();
+        service.getClientConfiguration().getRequestContext().put(LocalConduit.DIRECT_DISPATCH, Boolean.TRUE);
         return service;
     }
 

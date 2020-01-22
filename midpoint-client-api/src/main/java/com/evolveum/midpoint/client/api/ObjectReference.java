@@ -38,7 +38,7 @@ public interface ObjectReference<O extends ObjectType> extends Get<O> {
 	
 	Class<O> getType();
 	
-	O getObject() throws ObjectNotFoundException, AuthenticationException;
+	O getObject() throws ObjectNotFoundException;
 	
 	boolean containsObject();
 }

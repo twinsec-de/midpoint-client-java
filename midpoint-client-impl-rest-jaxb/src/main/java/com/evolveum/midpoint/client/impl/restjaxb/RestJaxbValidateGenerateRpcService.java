@@ -52,22 +52,12 @@ public class RestJaxbValidateGenerateRpcService implements ValidateGenerateRpcSe
 	@Override
 	public TaskFuture<PolicyItemsDefinitionType> apost() throws CommonException {
 		
-		Response response = service.getClient().path(path).post(policyItemDefinition);
+		Response response = service.post(path, policyItemDefinition);
 		
 		switch (response.getStatus()) {
         case 200:
             PolicyItemsDefinitionType itemsDefinitionType = response.readEntity(PolicyItemsDefinitionType.class);
             return new RestJaxbCompletedFuture<>(itemsDefinitionType);
-		case 250:
-			throw new PartialErrorException(response.getStatusInfo().getReasonPhrase());
-        case 400:
-            throw new BadRequestException(response.getStatusInfo().getReasonPhrase());
-        case 401:
-            throw new AuthenticationException(response.getStatusInfo().getReasonPhrase());
-        case 403:
-            throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());
-        case 404:
-            throw new ObjectNotFoundException(response.getStatusInfo().getReasonPhrase());
 		case 409:
 			OperationResultType operationResultType = response.readEntity(OperationResultType.class);
 	        throw new PolicyViolationException(RestUtil.getFailedValidationMessage(operationResultType));

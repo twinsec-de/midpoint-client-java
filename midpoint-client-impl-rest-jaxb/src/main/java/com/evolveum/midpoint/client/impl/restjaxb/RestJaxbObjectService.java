@@ -36,29 +36,28 @@ public class RestJaxbObjectService<O extends ObjectType> extends AbstractObjectW
 	}
 
 	@Override
-	public O get() throws ObjectNotFoundException, AuthenticationException {
+	public O get() throws ObjectNotFoundException {
 		return get(null);
 	}
 
 	@Override
-	public O get(List<String> options) throws ObjectNotFoundException, AuthenticationException {
+	public O get(List<String> options) throws ObjectNotFoundException {
 		return get(options, null, null);
 	}
 
 	@Override
-	public O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException, AuthenticationException {
+	public O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException {
 		return getService().getObject(getType(), getOid(), options, include, exclude);
 	}
 
 	@Override
-	public void delete() throws ObjectNotFoundException, AuthenticationException
+	public void delete() throws ObjectNotFoundException
 	{
 		 getService().deleteObject(getType(), getOid());
 	}
 
 	@Override
-	public ObjectModifyService<O> modify() throws ObjectNotFoundException, AuthenticationException
-	{
+	public ObjectModifyService<O> modify() throws ObjectNotFoundException {
 		return new RestJaxbObjectModifyService<>(getService(), getType(), getOid());
 	}
 

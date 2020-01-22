@@ -29,11 +29,11 @@ import java.util.List;
  */
 public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O> {
 
-	O get(List<String> options) throws ObjectNotFoundException, AuthenticationException;
+	O get(List<String> options) throws ObjectNotFoundException;
 
-	O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException, AuthenticationException;
+	O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException;
 
-	ObjectModifyService<O> modify() throws ObjectNotFoundException, AuthenticationException;
+	ObjectModifyService<O> modify() throws ObjectNotFoundException;
 
 	// todo this doesn't make much sense, it's not usable for all objects, only users, and maybe shadows?
 	ObjectCredentialService<O> credential();

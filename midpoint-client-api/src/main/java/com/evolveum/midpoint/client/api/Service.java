@@ -33,7 +33,7 @@ public interface Service {
 
 	ObjectCollectionService<ValuePolicyType> valuePolicies();
 
-	UserType self() throws AuthenticationException;
+	UserType self();
 
 	Service impersonate(String oid);
 

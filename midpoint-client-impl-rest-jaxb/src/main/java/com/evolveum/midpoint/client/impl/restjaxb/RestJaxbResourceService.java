@@ -17,6 +17,7 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 
 import com.evolveum.midpoint.client.api.ResourceService;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.client.api.exception.AuthorizationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ResourceType;
@@ -34,18 +35,13 @@ public class RestJaxbResourceService extends RestJaxbObjectService<ResourceType>
 	}
 
 	@Override
-	public OperationResultType test() throws ObjectNotFoundException, AuthenticationException {
-		String urlPrefix = RestUtil.subUrl(Types.findType(ResourceType.class).getRestPath(), getOid(), "test");
+	public OperationResultType test() throws ObjectNotFoundException {
 
-		WebClient client = getService().getClient();
-		Response response = client.path(urlPrefix).post(null);
+		String path = RestUtil.subUrl(Types.findType(ResourceType.class).getRestPath(), getOid(), "test");
+		Response response = getService().post(path, null);
 
 		if (Response.Status.OK.getStatusCode() == response.getStatus()) {
 			return response.readEntity(OperationResultType.class);
-		}
-
-		if (Response.Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
-			throw new ObjectNotFoundException("Cannot test resource. No such resource");
 		}
 		return null;
 	}

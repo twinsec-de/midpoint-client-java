@@ -12,6 +12,7 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 import org.apache.commons.lang.StringUtils;
 import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import javax.xml.namespace.QName;
@@ -40,10 +41,15 @@ public class TestIntegrationBasic extends AbstractTest {
     private static final File SCRIPT_GENERATE_PASSWORD = new File(REQUEST_DIR, "request-script-generate-passwords.xml");
     private static final File SCRIPT_MODIFY_VALID_TO= new File(REQUEST_DIR, "request-script-modify-validTo.xml");
 
+    private Service service;
+
+    @BeforeClass
+    public void initService() throws Exception {
+        service = getService();
+    }
+
     @Test
     public void test210createUserjack() throws Exception {
-        Service service = getService();
-
         UserType userJack = unmarshallFromFile(UserType.class, USER_JACK_FILE);
         ObjectReference<UserType> userJackRef = service.users().add(userJack).post();
         UserType userJackAfter = userJackRef.get();
@@ -53,9 +59,6 @@ public class TestIntegrationBasic extends AbstractTest {
     // see analogous test 520 in midPoint TestAbstractRestService
     @Test
     public void test220GeneratePasswordsUsingScripting() throws Exception {
-        // GIVEN
-        Service service = getService();
-
         // WHEN
         //noinspection unchecked
         ExecuteScriptType request = unmarshallFromFile(ExecuteScriptType.class, SCRIPT_GENERATE_PASSWORD);
@@ -85,9 +88,6 @@ public class TestIntegrationBasic extends AbstractTest {
     // see analogous test 530 in midPoint TestAbstractRestService
     @Test
     public void test230ModifyValidToUsingScripting() throws Exception {
-        // GIVEN
-        Service service = getService();
-
         // WHEN
         //noinspection unchecked
         ExecuteScriptType request = unmarshallFromFile(ExecuteScriptType.class, SCRIPT_MODIFY_VALID_TO);
@@ -117,8 +117,6 @@ public class TestIntegrationBasic extends AbstractTest {
 
     @Test
     public void test300OrgAdd() throws Exception {
-        Service service = getService();
-
         OrgType orgBefore = new OrgType();
         orgBefore.setName(service.util().createPoly("test300"));
 
@@ -137,8 +135,6 @@ public class TestIntegrationBasic extends AbstractTest {
 
     @Test
     public void test310SubOrgAdd() throws Exception {
-        Service service = getService();
-
         OrgType orgBefore = new OrgType();
         orgBefore.setName(service.util().createPoly("test310"));
         ObjectReferenceType parentRef = new ObjectReferenceType();
@@ -163,8 +159,6 @@ public class TestIntegrationBasic extends AbstractTest {
 
     @Test
     public void test320SubOrgAdd() throws Exception {
-        Service service = getService();
-
         OrgType orgBefore = new OrgType();
         orgBefore.setName(service.util().createPoly("test320"));
         ObjectReferenceType parentRef = new ObjectReferenceType();
@@ -187,8 +181,6 @@ public class TestIntegrationBasic extends AbstractTest {
 
     @Test
     public void test330OrgDirectChildSearch() throws Exception {
-        Service service = getService();
-
         // WHEN
         SearchResult<OrgType> result = service.orgs().search()
                 .queryFor(OrgType.class)
@@ -202,8 +194,6 @@ public class TestIntegrationBasic extends AbstractTest {
 
     @Test
     public void test340OrgChildSearch() throws Exception {
-        Service service = getService();
-
         // WHEN
         SearchResult<OrgType> result = service.orgs().search()
                 .queryFor(OrgType.class)
@@ -220,8 +210,6 @@ public class TestIntegrationBasic extends AbstractTest {
 
     @Test
     public void test350RootSearch() throws Exception {
-        Service service = getService();
-
         // WHEN
         SearchResult<OrgType> result = service.orgs().search()
                 .queryFor(OrgType.class)
@@ -237,8 +225,6 @@ public class TestIntegrationBasic extends AbstractTest {
 
     @Test
     public void test500deleteUserJack() throws Exception {
-        Service service = getService();
-
         service.users().oid(USER_JACK_OID).delete();
 
         try {
@@ -249,6 +235,6 @@ public class TestIntegrationBasic extends AbstractTest {
         }
     }
     private Service getService() throws IOException {
-        return getService(ADMIN, ADMIN_PASS, ENDPOINT_ADDRESS, AuthenticationType.BASIC);
+        return getService(ADMIN, ADMIN_PASS, ENDPOINT_ADDRESS);
     }
 }
