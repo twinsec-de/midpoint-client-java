@@ -15,12 +15,16 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.evolveum.midpoint.client.api.*;
+import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.client.api.exception.AuthorizationException;
+import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.exception.PartialErrorException;
+import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
+import com.evolveum.midpoint.client.impl.restjaxb.scripting.ScriptingUtilImpl;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
+import org.apache.cxf.jaxrs.client.WebClient;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
@@ -28,29 +32,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
-import javax.xml.bind.Unmarshaller;
-
-import com.evolveum.midpoint.client.api.*;
-import com.evolveum.midpoint.client.api.exception.*;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectModificationType;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
-import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
-import com.evolveum.midpoint.client.impl.restjaxb.scripting.ScriptingUtilImpl;
-
-import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
-import org.apache.cxf.jaxrs.client.ClientConfiguration;
-import org.apache.cxf.jaxrs.client.WebClient;
-
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.Credentials;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.impl.client.HttpClientBuilder;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author semancik
