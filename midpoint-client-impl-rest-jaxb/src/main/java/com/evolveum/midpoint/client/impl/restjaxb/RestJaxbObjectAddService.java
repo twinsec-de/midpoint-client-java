@@ -51,9 +51,14 @@ public class RestJaxbObjectAddService<O extends ObjectType> extends AbstractObje
 				throw new ObjectAlreadyExistsException(response.getStatusInfo().getReasonPhrase());
 			case 201:
 			case 202:
-				String location = response.getLocation().toString();
-				String[] locationSegments = location.split(restPath + "/");
-				String oid = locationSegments[1];
+				String oid = null;
+				// Fixed location null: When you enabled policy rule in Midpoint, for instance an approval step on user's creation
+				// The HTTP response is 202 without location reference
+				if(response.getLocation() != null) {
+					String location = response.getLocation().toString();
+					String[] locationSegments = location.split(restPath + "/");
+					oid = locationSegments[1];
+				}
 				RestJaxbObjectReference<O> ref = new RestJaxbObjectReference<>(getService(), getType(), oid);
 				return new RestJaxbCompletedFuture<>(ref);
 			default:
