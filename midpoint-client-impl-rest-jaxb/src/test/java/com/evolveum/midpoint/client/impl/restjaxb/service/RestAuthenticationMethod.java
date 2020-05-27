@@ -15,7 +15,7 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb.service;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *

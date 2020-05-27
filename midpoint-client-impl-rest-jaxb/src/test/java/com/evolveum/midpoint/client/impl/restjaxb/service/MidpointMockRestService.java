@@ -47,7 +47,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.*;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.midpoint.xml.ns._public.model.scripting_3.*;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

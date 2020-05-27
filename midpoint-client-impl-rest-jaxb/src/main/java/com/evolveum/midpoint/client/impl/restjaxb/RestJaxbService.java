@@ -15,6 +15,8 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
+import static java.util.Collections.singletonList;
+
 import com.evolveum.midpoint.client.api.*;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.AuthorizationException;
@@ -34,7 +36,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -105,7 +106,7 @@ public class RestJaxbService implements Service {
 		domSerializer = new DomSerializer(jaxbContext);
 
 		CustomAuthNProvider<?> authNProvider = new CustomAuthNProvider<>(authenticationManager, this);
-		client = WebClient.create(endpoint, Arrays.asList(new JaxbXmlProvider<>(jaxbContext)));
+		client = WebClient.create(endpoint, singletonList(new JaxbXmlProvider<>(jaxbContext)));
 		ClientConfiguration config = WebClient.getConfig(client);
 		config.getInInterceptors().add(authNProvider);
 		config.getInFaultInterceptors().add(authNProvider);
