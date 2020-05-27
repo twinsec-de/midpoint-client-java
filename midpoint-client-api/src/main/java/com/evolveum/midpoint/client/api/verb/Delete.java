@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,5 +26,5 @@ public interface Delete<T> {
 
 	//TODO: Does this need to return anything?
 	void delete() throws ObjectNotFoundException;
-	
+
 }

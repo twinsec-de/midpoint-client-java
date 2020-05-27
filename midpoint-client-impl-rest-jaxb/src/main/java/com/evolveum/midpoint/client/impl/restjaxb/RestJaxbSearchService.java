@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,16 +38,16 @@ import com.evolveum.prism.xml.ns._public.query_3.QueryType;
 public class RestJaxbSearchService<O extends ObjectType> extends AbstractObjectTypeWebResource<O> implements SearchService<O> {
 
 	private QueryType query;
-	
+
 	public RestJaxbSearchService(final RestJaxbService service, final Class<O> type) {
 		this(service, type, null);
 	}
-	
+
 	public RestJaxbSearchService(final RestJaxbService service, final Class<O> type, final QueryType query) {
 		super(service, type);
 		this.query = query;
 	}
-	
+
 		@Override
 	public SearchResult<O> get() throws ObjectNotFoundException {
 		String path = "/" + Types.findType(getType()).getRestPath() + "/search";
@@ -56,14 +56,14 @@ public class RestJaxbSearchService<O extends ObjectType> extends AbstractObjectT
 		if (Status.OK.getStatusCode() == response.getStatus()) {
 			return new JaxbSearchResult<>(getSearchResultList(response));
 		}
-		
+
 		if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
 			throw new ObjectNotFoundException("Cannot search objects. No such service");
 		}
 		return null;
-		
+
 	}
-		
+
 	@Override
 	public FilterEntryOrEmpty<O> queryFor(Class<O> type) {
 		return new FilterBuilder<O>(getService(), getType());

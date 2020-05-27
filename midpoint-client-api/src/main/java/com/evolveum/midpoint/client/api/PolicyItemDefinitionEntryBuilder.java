@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,6 @@ public interface PolicyItemDefinitionEntryBuilder {
 
 	PolicyItemDefinitionExitBuilder policy(String oid);
 //	PolicyItemDefinitionExitBuilder execute();
-	
+
 	ValidateGenerateRpcService build();
 }

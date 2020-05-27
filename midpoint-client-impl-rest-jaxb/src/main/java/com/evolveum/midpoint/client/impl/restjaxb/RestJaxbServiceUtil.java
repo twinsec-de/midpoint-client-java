@@ -66,13 +66,13 @@ public class RestJaxbServiceUtil implements ServiceUtil {
 	private static final String F_CLEAR_VALUE = "clearValue";
 
 	private static DatatypeFactory df;
-	
+
 	private JAXBContext jaxbContext;
-	
+
 	public RestJaxbServiceUtil(JAXBContext jaxbContext) {
 		this.jaxbContext = jaxbContext;
 	}
-	
+
 	static {
         try {
             df = DatatypeFactory.newInstance();
@@ -80,7 +80,7 @@ public class RestJaxbServiceUtil implements ServiceUtil {
             throw new IllegalStateException("Exception while obtaining Datatype Factory instance", dce);
         }
     }
-	
+
 	@Override
 	public PolyStringType createPoly(String orig) {
 		PolyStringType poly = new PolyStringType();
@@ -101,7 +101,7 @@ public class RestJaxbServiceUtil implements ServiceUtil {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public ItemPathType createItemPathType(QName... qname) {
 		ItemPathType itemPathType = new ItemPathType();
@@ -109,7 +109,7 @@ public class RestJaxbServiceUtil implements ServiceUtil {
 		Arrays.asList(qname).forEach(name -> itemPathType.setValue(itemPathType + "/" + name.getLocalPart()));
 		return itemPathType;
 	}
-	
+
 	@Override
 	public XMLGregorianCalendar asXMLGregorianCalendar(Date date) {
 		if (date == null) {
@@ -155,10 +155,10 @@ public class RestJaxbServiceUtil implements ServiceUtil {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public <T> T parse(Class<T> type, String xml) throws SchemaException {
-		
+
 		if (AssignmentType.class.equals(type)) {
 			try {
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -169,106 +169,106 @@ public class RestJaxbServiceUtil implements ServiceUtil {
 			throw new SchemaException("Cannot parse: " + xml + ". Reason: " + e.getMessage(), e);
 		}
 		}
-	
-		
+
+
 		if (!ObjectDeltaType.class.isAssignableFrom(type)) {
 			throw new UnsupportedOperationException("Unsupported type to parse: " + type);
 		}
-		
+
 		try {
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
 			StringReader reader = new StringReader(xml);
 			JAXBElement<ObjectDeltaType> objectDeltaTypeJaxb = (JAXBElement<ObjectDeltaType>) unmarshaller.unmarshal(reader);
-			
+
 			ObjectDeltaType objectDeltaType = objectDeltaTypeJaxb.getValue();
 			List<ItemDeltaType> parsedItemDeltas = new ArrayList<>();
 			for (ItemDeltaType itemDelta : objectDeltaType.getItemDelta()) {
 				ItemDeltaType parsedItemDelta = new ItemDeltaType();
 				parsedItemDelta.setModificationType(itemDelta.getModificationType());
 				parsedItemDelta.setPath(itemDelta.getPath());
-				
+
 				parsedItemDelta.getEstimatedOldValue().addAll(parseValue(objectDeltaType.getObjectType(), itemDelta.getPath(), itemDelta.getEstimatedOldValue(), unmarshaller));
-				
+
 				parsedItemDelta.getValue().addAll(parseValue(objectDeltaType.getObjectType(), itemDelta.getPath(), itemDelta.getValue(), unmarshaller));
 				parsedItemDeltas.add(parsedItemDelta);
 			}
-			
+
 			objectDeltaType.getItemDelta().clear();
 			objectDeltaType.getItemDelta().addAll(parsedItemDeltas);
 			return (T) objectDeltaType;
 		} catch (JAXBException e) {
 			throw new SchemaException("Cannot parse: " + xml + ". Reason: " + e.getMessage(), e);
 		}
-		
-		
+
+
 	}
-	
+
 	private List<Object> parseValue(QName objectType, ItemPathType itemPath, List<Object> values, Unmarshaller unmarshaller) throws JAXBException {
-		
+
 		List<Object> parsedValues = new ArrayList<>();
 		for (Object o : values) {
 			if (Node.class.isAssignableFrom(o.getClass())) {
-				
+
 				Node node = (Node) o;
 				List<QName> namedSegments = getPathNamedSegments(itemPath.getValue());
 				Types type = Types.findType(objectType.getLocalPart());
 				Class<?> jaxbType = findType(type.getClazz(), namedSegments);
-				
+
 				JAXBElement jaxb = null;
 				if (jaxbType == null) {
 					 jaxb = (JAXBElement) unmarshaller.unmarshal(node, String.class);
 				} else {
 					jaxb = unmarshaller.unmarshal(node, jaxbType);
 				}
-				
+
 				Object value = jaxb.getValue();
 				parsedValues.add(value);
-				
+
 			} else {
 				parsedValues.add(o);
 			}
-			
+
 		}
-	
+
 		return parsedValues;
 	}
-	
+
 	private Class<?> findType(Class<?> superClass, List<QName> pathSegment) {
 		for (int i = 0; i < pathSegment.size(); i++) {
-			
+
 			String localName = pathSegment.get(i).getLocalPart();
 			Field field = findFiled(superClass, localName);
-			
+
 			if (field == null) {
 				return null;
 			}
-			
+
 			if (field.getName().equals(pathSegment.get(i).getLocalPart())) {
 				List<QName> pathSegmentRemaining = pathSegment.subList(i + 1, pathSegment.size());
-		
+
 				if (pathSegmentRemaining.size() > 0) {
 					return findType(getTypeClass(field), pathSegmentRemaining);
 				}
-				
+
 				return getTypeClass(field);
-				
+
 			}
 		}
-		
+
 		return null;
-		
+
 	}
-	
+
 	private Class<?> getTypeClass(Field field) {
 		Type type = field.getGenericType();
 		if (type instanceof ParameterizedType) {
 			Type[] actualType = ((ParameterizedType) type).getActualTypeArguments();
 			return (Class<?>) actualType[0];
 		}
-		
+
 		return field.getType();
 	}
-	
+
 	private Field findFiled(Class<?> clazz, String localName) {
 		Field[] fields = clazz.getDeclaredFields();
 		for (Field field : fields) {
@@ -276,18 +276,18 @@ public class RestJaxbServiceUtil implements ServiceUtil {
 				return field;
 			}
 		}
-		
+
 		Class<?> superClass = clazz.getSuperclass();
 		if (superClass == null) {
 			return null;
 		}
-		
+
 		return findFiled(superClass, localName);
-		
+
 	}
-	
+
 	private List<QName> getPathNamedSegments(String path) {
-		
+
 		String[] segments = path.split("/");
 		List<QName> namedSegments = new ArrayList<>();
 		int j=0;
@@ -296,7 +296,7 @@ public class RestJaxbServiceUtil implements ServiceUtil {
 				j--;
 				continue;
 			}
-			
+
 			String[] parsed = segments[i].split(":");
 			if (parsed.length == 1) {
 				String s = parsed[0];
@@ -308,8 +308,8 @@ public class RestJaxbServiceUtil implements ServiceUtil {
 		}
 		return namedSegments;
 	}
-	
-	private boolean hasChildren(Node node) { 
+
+	private boolean hasChildren(Node node) {
 		boolean hasChildren = false;
 		for (int i = 0; i < node.getChildNodes().getLength() -1; i++ ) {
 			Node n = node.getChildNodes().item(i);
@@ -317,10 +317,10 @@ public class RestJaxbServiceUtil implements ServiceUtil {
 				hasChildren = true;
 			}
 		}
-		
+
 		return hasChildren;
 	}
-	
+
 	private QName getQName(ItemPathType itemPath) {
 		String pathAsString = itemPath.getValue();
 		String[] segments = pathAsString.split("/");
@@ -328,7 +328,7 @@ public class RestJaxbServiceUtil implements ServiceUtil {
 		if (lastSegment.contains("[")) {
 			lastSegment = segments[segments.length -2];
 		}
-		
+
 		String[] qnameSplitted = lastSegment.split(":");
 		String localPart = "";
 		if (qnameSplitted.length == 2) {
@@ -336,21 +336,21 @@ public class RestJaxbServiceUtil implements ServiceUtil {
 		} else {
 			localPart = qnameSplitted[0];
 		}
-		
+
 		return DOMUtils.convertStringToQName(localPart);
 	}
-	
+
 	private void cloneAttributes(Node from, Element to) {
 		for (int i=0; i < from.getAttributes().getLength() -1; i++) {
 			to.setAttributeNode((Attr) from.getAttributes().item(i).cloneNode(true));
 		}
 	}
-	
+
 	private void prettyPrint(Node node) {
 		Transformer transformer;
 		try {
 			transformer = TransformerFactory.newInstance().newTransformer();
-		
+
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		//initialize StreamResult with File object to save to file

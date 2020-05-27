@@ -1,5 +1,24 @@
 package com.evolveum.midpoint.client.impl.restjaxb;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.xml.namespace.QName;
+
+import org.apache.commons.lang3.StringUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.SearchResult;
 import com.evolveum.midpoint.client.api.Service;
@@ -10,25 +29,13 @@ import com.evolveum.midpoint.client.api.scripting.ValueGenerationData;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
-import org.apache.commons.lang.StringUtils;
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
-import javax.xml.namespace.QName;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
-
+/**
+ * This is integration test that requires running midPoint (e.g. from other project).
+ * This midPoint must have clean midpoint.home, otherwise some tests fail on conflicts.
+ * Because of these prerequisites it is NOT part of the Maven build.
+ * TODO: Make it less brittle I guess.
+ */
 public class TestIntegrationBasic extends AbstractTest {
 
     private static final String ENDPOINT_ADDRESS = "http://localhost:8080/midpoint/ws/rest";
@@ -39,7 +46,7 @@ public class TestIntegrationBasic extends AbstractTest {
     private static final File USER_JACK_FILE = new File(TEST_DIR, "user-jack.xml");
     private static final String REQUEST_DIR = "src/test/resources/request";
     private static final File SCRIPT_GENERATE_PASSWORD = new File(REQUEST_DIR, "request-script-generate-passwords.xml");
-    private static final File SCRIPT_MODIFY_VALID_TO= new File(REQUEST_DIR, "request-script-modify-validTo.xml");
+    private static final File SCRIPT_MODIFY_VALID_TO = new File(REQUEST_DIR, "request-script-modify-validTo.xml");
 
     private Service service;
 
@@ -56,6 +63,7 @@ public class TestIntegrationBasic extends AbstractTest {
 
         assertNotNull("Unexpected null object", userJackAfter);
     }
+
     // see analogous test 520 in midPoint TestAbstractRestService
     @Test
     public void test220GeneratePasswordsUsingScripting() throws Exception {
@@ -89,7 +97,6 @@ public class TestIntegrationBasic extends AbstractTest {
     @Test
     public void test230ModifyValidToUsingScripting() throws Exception {
         // WHEN
-        //noinspection unchecked
         ExecuteScriptType request = unmarshallFromFile(ExecuteScriptType.class, SCRIPT_MODIFY_VALID_TO);
         ExecuteScriptResponseType response = service.rpc().executeScript(request).post();
 
@@ -111,7 +118,6 @@ public class TestIntegrationBasic extends AbstractTest {
         AssertJUnit.assertNotNull("Object missing in second output", second.getObject());
         AssertJUnit.assertNotNull("Operation result missing in second output", second.getResult());
     }
-
 
     private String test300oid;
 
@@ -234,6 +240,7 @@ public class TestIntegrationBasic extends AbstractTest {
             //expected
         }
     }
+
     private Service getService() throws IOException {
         return getService(ADMIN, ADMIN_PASS, ENDPOINT_ADDRESS);
     }

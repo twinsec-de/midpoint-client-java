@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
 public interface RightHandItemEntry<O extends ObjectType> {
-	
+
 	AtomicFilterExit<O> item(QName... names);
 	AtomicFilterExit<O> item(ItemPathType itemPath);
 }

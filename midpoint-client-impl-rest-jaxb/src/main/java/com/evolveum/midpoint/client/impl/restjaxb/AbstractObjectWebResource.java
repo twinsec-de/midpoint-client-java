@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 public abstract class AbstractObjectWebResource<O extends ObjectType> extends AbstractObjectTypeWebResource<O> {
 
 	final private String oid;
-	
+
 	public AbstractObjectWebResource(final RestJaxbService service, final Class<O> type, final String oid) {
 		super(service, type);
 		this.oid = oid;
@@ -33,6 +33,6 @@ public abstract class AbstractObjectWebResource<O extends ObjectType> extends Ab
 	protected String getOid() {
 		return oid;
 	}
-	
-	
+
+
 }

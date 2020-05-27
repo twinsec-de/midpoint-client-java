@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,27 +34,27 @@ import com.fasterxml.jackson.databind.node.MissingNode;
 public class SecurityQuestionAuthenticationManager implements AuthenticationManager<SecurityQuestionChallenge> {
 
 	private SecurityQuestionChallenge challenge;
-	
+
 	private AuthenticationType authenticationType;
-	
+
 	public SecurityQuestionAuthenticationManager(String username, List<SecurityQuestionAnswer> secQ) {
 		this.authenticationType = AuthenticationType.SECQ;
 		challenge = new SecurityQuestionChallenge();
 		challenge.setUsername(username);
 		challenge.setAnswer(secQ);
 	}
-	
+
 	public AuthenticationType getAuthenticationType() {
 		return authenticationType;
 	}
-	
-	
-	
+
+
+
 	@Override
 	public String getType() {
 		return authenticationType.getType();
 	}
-	
+
 	@Override
 	public void parseChallenge(String authenticationChallenge) throws SchemaException {
 		JsonFactory f = new JsonFactory();
@@ -65,12 +65,12 @@ public class SecurityQuestionAuthenticationManager implements AuthenticationMana
 			} catch (IOException e) {
 				throw new SchemaException(e);
 			}
-			
+
 			JsonNode userNameNode = node.findPath("user");
 			if (userNameNode instanceof MissingNode) {
 				return;
 			}
-			
+
 //			String userName = userNameNode.asText();
 //			challenge.setUsername(userName);
 			JsonNode answerNode = node.findPath("answer");
@@ -90,21 +90,21 @@ public class SecurityQuestionAuthenticationManager implements AuthenticationMana
 				questionAnswer.setQtxt(questionText);
 				questionAnswers.add(questionAnswer);
 			}
-			
+
 			challenge.setAnswer(questionAnswers);
-			
+
 			return;
 	}
 
 	@Override
 	public String createAuthorizationHeader() {
-		
-		
+
+
 //		String USER_CHALLENGE = "\"user\" : \"$username\"";
 //		String USER_QUESTION_ANSWER_CHALLENGE = ", \"answer\" :";
 //		String QUESTION = "{\"qid\" : \"$QID\", \"qans\" : \"$QANS\"}";
 		String authorizationHeader = getType();
-		
+
 		if (challenge != null) {
 			JsonFactory f = new JsonFactory();
 			ObjectMapper mapper = new ObjectMapper(f);
@@ -118,22 +118,22 @@ public class SecurityQuestionAuthenticationManager implements AuthenticationMana
 //			if (challenge.getUsername() != null) {
 //				stringChallenge = "{" + USER_CHALLENGE.replace("$username", challenge.getUsername()) + "}";
 //			}
-//			
+//
 //			if (!CollectionUtils.isEmpty(challenge.getQuestionAnswer())) {
 //				stringChallenge += USER_QUESTION_ANSWER_CHALLENGE + "[";
 //				challenge.getQuestionAnswer().forEach(qa -> stringChallenge += QUESTION.replace("$QID" , qa.getId()).replace("$QANS", qa.getAnswer()));
 //			}
 			JsonNode node = mapper.valueToTree(challenge);
 			authorizationHeader += " " + Base64Utility.encode(node.toString().getBytes());
-			
+
 		}
-		
+
 		return authorizationHeader;
 	}
-	
+
 	@Override
 	public SecurityQuestionChallenge getChallenge() {
 		return challenge;
 	}
-	
+
 }

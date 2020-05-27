@@ -48,30 +48,28 @@ public class RestJaxbService implements Service {
 	private final ServiceUtil util;
 	private final ScriptingUtil scriptingUtil;
 
-	private String endpoint;
-
 	private WebClient client;
 	private DomSerializer domSerializer;
 	private JAXBContext jaxbContext;
 	private AuthenticationManager<?> authenticationManager;
 	private List<AuthenticationType> supportedAuthenticationsByServer;
-	
+
 	public DomSerializer getDomSerializer() {
 		return domSerializer;
 	}
-	
+
 	public JAXBContext getJaxbContext() {
 		return jaxbContext;
 	}
-	
+
 	public List<AuthenticationType> getSupportedAuthenticationsByServer() {
 		if (supportedAuthenticationsByServer == null) {
 			supportedAuthenticationsByServer = new ArrayList<>();
 		}
 		return supportedAuthenticationsByServer;
 	}
-	
-	
+
+
 	@SuppressWarnings("unchecked")
 	public <T extends AuthenticationChallenge> AuthenticationManager<T> getAuthenticationManager() {
 		return (AuthenticationManager<T>) authenticationManager;
@@ -80,14 +78,14 @@ public class RestJaxbService implements Service {
 	ClientConfiguration getClientConfiguration () {
 		return WebClient.getConfig(client);
 	}
-	
+
 	public RestJaxbService() {
 		super();
 		client = WebClient.create("");
 		util = new RestJaxbServiceUtil(null);
 		scriptingUtil = new ScriptingUtilImpl(util);
 	}
-	
+
 	RestJaxbService(String endpoint, String username, String password, AuthenticationType authentication, List<SecurityQuestionAnswer> secQ) throws IOException {
 		super();
 		try {
@@ -95,8 +93,7 @@ public class RestJaxbService implements Service {
 		} catch (JAXBException e) {
 			throw new IOException(e);
 		}
-		this.endpoint = endpoint;
-		
+
 		if (AuthenticationType.SECQ == authentication) {
 			authenticationManager = new SecurityQuestionAuthenticationManager(username, secQ);
 		} else if (authentication != null ){
@@ -132,7 +129,7 @@ public class RestJaxbService implements Service {
 		client.header(header, value);
 		return this;
 	}
-	
+
 
 	@Override
 	public ObjectCollectionService<UserType> users() {
@@ -221,7 +218,7 @@ public class RestJaxbService implements Service {
 
 	/**
 	 * Used frequently at several places. Therefore unified here.
-	 * @throws ObjectNotFoundException 
+	 * @throws ObjectNotFoundException
 	 */
 	<O extends ObjectType> O getObject(final Class<O> type, final String oid, List<String> options,
 									   List<String> include, List<String> exclude)
@@ -238,11 +235,11 @@ public class RestJaxbService implements Service {
 		if (Status.OK.getStatusCode() == response.getStatus() ) {
 			return response.readEntity(type);
 		}
-		
+
 		if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
-			throw new ObjectNotFoundException("Cannot get object with oid" + oid + ". Object doesn't exist");
+			throw new ObjectNotFoundException("Cannot get object with oid " + oid + ". Object doesn't exist");
 		}
-		
+
 		if (Status.UNAUTHORIZED.getStatusCode() == response.getStatus()) {
 			throw new AuthenticationException(response.getStatusInfo().getReasonPhrase());
 		}
@@ -250,7 +247,7 @@ public class RestJaxbService implements Service {
 		if (Status.FORBIDDEN.getStatusCode() == response.getStatus()) {
 			throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());
 		}
-		
+
 		return null;
 	}
 
@@ -304,7 +301,7 @@ public class RestJaxbService implements Service {
 		}
 
 		if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
-			throw new ObjectNotFoundException("Cannot delete object with oid" + oid + ". Object doesn't exist");
+			throw new ObjectNotFoundException("Cannot delete object with oid " + oid + ". Object doesn't exist");
 		}
 
 		if (Status.UNAUTHORIZED.getStatusCode() == response.getStatus()) {

@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,13 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 public interface ObjectCollectionService<O extends ObjectType> {
 
 	ObjectService<O> oid(String oid);
-	
+
 	SearchService<O> search();
-	
+
 	// TODO: get() as search().get()? or vice versa?
-	
+
 	ObjectAddService<O> add(O object);
-	
+
 	// TODO
-	
+
 }

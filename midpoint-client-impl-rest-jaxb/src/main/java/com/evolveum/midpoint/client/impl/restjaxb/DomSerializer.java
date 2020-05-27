@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,12 +40,12 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectReferenceType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
 /**
- * 
+ *
  * @author katkav
  *
  */
 public class DomSerializer {
-	
+
 	private static final String FILTER_EQUAL = "equal";
 	private static final String FILTER_REF = "ref";
 	private static final String FILTER_REF_OID = "oid";
@@ -63,11 +63,11 @@ public class DomSerializer {
 	private static final String FILTER_SUBSTRING_ANCHOR_END = "anchorEnd";
 	private static final String FILTER_GREATER = "greater";
 	private static final String FILTER_LESS = "less";
-	
+
 	private static final String FILTER_NOT = "not";
 	private static final String FILTER_AND = "and";
 	private static final String FILTER_OR = "or";
-	
+
 	private static final String FILTER_PATH = "path";
 	private static final String FILTER_VALUE = "value";
 
@@ -84,7 +84,7 @@ public class DomSerializer {
 	private Document document;
 	private DocumentBuilder documentBuilder;
 	private JAXBContext jaxbContext;
-	
+
 	public DomSerializer(JAXBContext jaxbContext) throws IOException{
 		this.jaxbContext = jaxbContext;
 		try {
@@ -120,56 +120,56 @@ public class DomSerializer {
 		}
 	}
 
-	
+
 	public Element createEqualFilter(ItemPathType itemPath, List<Object> values) {
 //		Document document = documentBuilder.newDocument();
 		Element equal = createEqual(itemPath, document);
-		
+
 		List<Element> valueElements = createValueElements(values, document);
 		if (values == null) {
 			//TODO throw exception?
 			return equal;
 		}
-		
+
 		valueElements.forEach(v -> equal.appendChild(v));
 
 		return equal;
 	}
-	
+
 	public Element createEqualPolyFilter(ItemPathType itemPath, String orig, String norm) {
 		Element equal = createEqual(itemPath, document);
-		
+
 		Element value = document.createElementNS(SchemaConstants.NS_QUERY, FILTER_VALUE);
 		if (!StringUtils.isBlank(orig)) {
 			Element origElement = document.createElementNS(SchemaConstants.NS_TYPES, "orig");
 			origElement.setTextContent(orig);
 			value.appendChild(origElement);
 		}
-		
+
 		if (!StringUtils.isBlank(norm)) {
 			Element normElement = document.createElementNS(SchemaConstants.NS_TYPES, "norm");
 			normElement.setTextContent(norm);
 			value.appendChild(normElement);
 		}
-		
+
 		return equal;
 	}
-	
+
 	private Element createEqual(ItemPathType itemPath, Document document){
-		
+
 		Element equal = document.createElementNS(SchemaConstants.NS_QUERY, FILTER_EQUAL);
 		Element path = document.createElementNS(SchemaConstants.NS_QUERY, FILTER_PATH);
 		path.setTextContent(itemPath.getValue());
 		equal.appendChild(path);
 		return equal;
 	}
-	
+
 	private List<Element> createValueElements(List<Object> values, Document value) {
 		if (CollectionUtils.isEmpty(values)) {
 			return null;
 		}
 		List<Element> valueElements = new ArrayList<>();
-		
+
 			values.forEach(v -> {
 				Marshaller marshaller;
 				try {
@@ -182,15 +182,15 @@ public class DomSerializer {
 				}
 			});
 		return valueElements;
-		
+
 	}
-	
+
 	public Element createRefFilter(ItemPathType itemPath, Collection<ObjectReferenceType> values) {
 		Element ref = document.createElementNS(SchemaConstants.NS_QUERY, FILTER_REF);
 		Element path = document.createElement(FILTER_PATH);
 		path.setTextContent(itemPath.getValue());
 		ref.appendChild(path);
-		
+
 		Element value = document.createElement(FILTER_VALUE);
 		if (!CollectionUtils.isEmpty(values)) {
 			// This is a bit suspicious - what if there are more values?
@@ -254,7 +254,7 @@ public class DomSerializer {
 			startsWith.setTextContent(String.valueOf(true));
 			substringFilter.appendChild(startsWith);
 		}
-		
+
 		if (anchorEnd) {
 			Element endsWith = document.createElement(FILTER_SUBSTRING_ANCHOR_END);
 			endsWith.setTextContent(String.valueOf(true));
@@ -273,15 +273,15 @@ public class DomSerializer {
 		matchingRuleElement.setTextContent(matchingRule);
 		return matchingRuleElement;
 	}
-	
+
 	public Element createGreaterFilter(ItemPathType itemPath, Object valueToSearch) {
 		return createPropertyValueFilter(FILTER_GREATER, itemPath, valueToSearch);
 	}
-	
+
 	public Element createLessFilter(ItemPathType itemPath, Object valueToSearch) {
 		return createPropertyValueFilter(FILTER_LESS, itemPath, valueToSearch);
 	}
-	
+
 @SuppressWarnings({ "unchecked", "rawtypes" })
 private Element createPropertyValueFilter(String filterType, ItemPathType itemPath, Object valueToSearch){
 	Element greater = document.createElementNS(SchemaConstants.NS_QUERY, filterType);
@@ -294,7 +294,7 @@ private Element createPropertyValueFilter(String filterType, ItemPathType itemPa
 		marshaller = jaxbContext.createMarshaller();
 		marshaller.marshal(new JAXBElement(new QName(SchemaConstants.NS_QUERY, FILTER_VALUE), valueToSearch.getClass(), valueToSearch),
 				greater);
-		
+
 	} catch (JAXBException e) {
 		//throw new SchemaException(e);
 		// TODO: how to properly handle??
@@ -303,14 +303,14 @@ private Element createPropertyValueFilter(String filterType, ItemPathType itemPa
 
 	return greater;
 }
-	
+
 	public Element createNotFilter(Element filter) {
 		Document document = documentBuilder.newDocument();
 		Element not = document.createElementNS(SchemaConstants.NS_QUERY, FILTER_NOT);
 		not.appendChild(filter);
 		return not;
 	}
-	
+
 	public Element createAndFilter(Element filter) {
 		Document document = null;
 		if (filter != null) {
@@ -322,17 +322,17 @@ private Element createPropertyValueFilter(String filterType, ItemPathType itemPa
 		and.appendChild(filter);
 		return and;
 	}
-	
+
 	public Element addCondition(Element andFilter, Element subFilter) {
 		andFilter.appendChild(subFilter);
 		return andFilter;
 	}
-	
+
 	public Element createOrFilter(List<Element> children) {
 		if (children == null) {
 			return null;
 		}
-		
+
 		if (children.isEmpty()) {
 			return null;
 		}
@@ -341,6 +341,6 @@ private Element createPropertyValueFilter(String filterType, ItemPathType itemPa
 		children.forEach(child -> or.appendChild(child));
 		return or;
 	}
-	
-	
+
+
 }

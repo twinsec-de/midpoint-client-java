@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 public abstract class AbstractObjectTypeWebResource<O extends ObjectType> extends AbstractWebResource {
 
 	final private Class<O> type;
-	
+
 	public AbstractObjectTypeWebResource(final RestJaxbService service, final Class<O> type) {
 		super(service);
 		this.type = type;
@@ -33,5 +33,5 @@ public abstract class AbstractObjectTypeWebResource<O extends ObjectType> extend
 	protected Class<O> getType() {
 		return type;
 	}
-		
+
 }

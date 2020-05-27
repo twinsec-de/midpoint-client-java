@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,47 +19,47 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * 
+ *
  * @author katkav
  *
  */
 public class RestJaxbServiceBuilder {
-	
+
 	private String url;
 	private AuthenticationType authentication;
 	private String username;
 	private String password;
 	private List<SecurityQuestionAnswer> questionAnswer;
-	
-	
+
+
 	public RestJaxbServiceBuilder url(String url) {
 		this.url = url;
 		return this;
 	}
-	
+
 	public RestJaxbServiceBuilder authentication(AuthenticationType authentication) {
 		this.authentication = authentication;
 		return this;
 	}
-	
+
 	public RestJaxbServiceBuilder username(String username) {
 		this.username = username;
 		return this;
 	}
-	
+
 	public RestJaxbServiceBuilder password(String password) {
 		this.password = password;
 		return this;
 	}
-	
+
 	public RestJaxbServiceBuilder authenticationChallenge(List<SecurityQuestionAnswer> questionAnswer) {
 		this.questionAnswer = questionAnswer;
 		return this;
 	}
-	
+
 	public RestJaxbService build() throws IOException {
 		return new RestJaxbService(url, username, password, authentication, questionAnswer);
 	}
-	
-	
+
+
 }
