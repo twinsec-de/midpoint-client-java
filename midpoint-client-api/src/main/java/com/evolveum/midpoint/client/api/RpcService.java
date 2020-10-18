@@ -34,4 +34,6 @@ public interface RpcService<T> extends Post<T> {
 
 	// Preliminary implementation. Adapt as necessary.
 	Post<ExecuteScriptResponseType> executeScript(ExecuteScriptType request);
+
+	Post<ExecuteScriptResponseType> executeScript(ExecuteScriptType request, boolean asynchronous);
 }

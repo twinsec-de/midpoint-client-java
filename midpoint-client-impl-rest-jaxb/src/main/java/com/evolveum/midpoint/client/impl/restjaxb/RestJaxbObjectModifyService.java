@@ -96,7 +96,7 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
     public TaskFuture<ObjectReference<O>> apost() throws ObjectNotFoundException {
 
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), getOid());
-        Response response = getService().post(restPath, RestUtil.buildModifyObject(modifications));
+        Response response = getService().post(restPath, RestUtil.buildModifyObject(modifications), null); //TODO params
 
         switch (response.getStatus()) {
             case 204:

@@ -44,16 +44,14 @@ public class RestJaxbObjectAddService<O extends ObjectType> extends AbstractObje
 
 		// if object created (sync):
 		String restPath = Types.findType(getType()).getRestPath();
-		Response response = getService().post(restPath, object);
+		Response response = getService().post(restPath, object, null); //TODO parameters
 
 		switch(response.getStatus()) {
 			case 409:
 				throw new ObjectAlreadyExistsException(response.getStatusInfo().getReasonPhrase());
 			case 201:
 			case 202:
-				String location = response.getLocation().toString();
-				String[] locationSegments = location.split(restPath + "/");
-				String oid = locationSegments[1];
+				String oid = RestUtil.getOidFromLocation(response, restPath);
 				RestJaxbObjectReference<O> ref = new RestJaxbObjectReference<>(getService(), getType(), oid);
 				return new RestJaxbCompletedFuture<>(ref);
 			default:

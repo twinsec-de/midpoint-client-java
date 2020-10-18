@@ -16,14 +16,18 @@
 package com.evolveum.midpoint.client.impl.restjaxb;
 
 import com.evolveum.midpoint.client.api.ExecuteScriptRpcService;
+import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.TaskFuture;
-import com.evolveum.midpoint.client.api.exception.*;
+import com.evolveum.midpoint.client.api.exception.CommonException;
+import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.exception.PolicyViolationException;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
+import java.util.*;
 
 /**
  * Preliminary implementation. Adapt as necessary.
@@ -36,21 +40,34 @@ public class RestJaxbExecuteScriptRpcService implements ExecuteScriptRpcService 
 	private String path;
 
 	private ExecuteScriptType script;
+	private boolean asynchronous;
 
-	public RestJaxbExecuteScriptRpcService(RestJaxbService service, String path, ExecuteScriptType script) {
+	public RestJaxbExecuteScriptRpcService(RestJaxbService service, String path, ExecuteScriptType script, boolean asynchronous) {
 		this.service = service;
 		this.path = path;
 		this.script = script;
+		this.asynchronous = asynchronous;
 	}
 
 	@Override
 	public TaskFuture<ExecuteScriptResponseType> apost() throws CommonException {
-		Response response = service.post(path, script);
+
+		Map<String, List<String>> queryParams = null;
+		if (asynchronous) {
+			queryParams = new HashMap<>();
+			queryParams.put("asynchronous", Collections.singletonList(String.valueOf(true)));
+		}
+
+		Response response = service.post(path, script, queryParams);
 
 		switch (response.getStatus()) {
 			case 200:
 				ExecuteScriptResponseType executeScriptResponse = response.readEntity(ExecuteScriptResponseType.class);
 				return new RestJaxbCompletedFuture<>(executeScriptResponse);
+			case 201:
+				String oid = RestUtil.getOidFromLocation(response, path);
+				RestJaxbObjectReference<TaskType> taskRef = new RestJaxbObjectReference<>(service, TaskType.class, oid);
+				return new RestJaxbCompletedFuture<>(taskRef);
 			case 409:
 				OperationResultType operationResultType = response.readEntity(OperationResultType.class);
 				throw new PolicyViolationException(operationResultType.getMessage());

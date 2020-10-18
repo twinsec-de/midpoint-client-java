@@ -33,9 +33,11 @@ import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author semancik
@@ -229,9 +231,10 @@ public class RestJaxbService implements Service {
 
 		String urlPrefix = RestUtil.subUrl(Types.findType(type).getRestPath(), oid);
 		WebClient cli = client.replacePath(urlPrefix);
-		addQueryParameter(cli, "options", options);
-		addQueryParameter(cli, "include", include);
-		addQueryParameter(cli, "exclude", exclude);
+		client.resetQuery();
+		addQueryParameter("options", options);
+		addQueryParameter("include", include);
+		addQueryParameter( "exclude", exclude);
 
 		Response response = cli.get();
 
@@ -250,11 +253,10 @@ public class RestJaxbService implements Service {
 		if (Status.FORBIDDEN.getStatusCode() == response.getStatus()) {
 			throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());
 		}
-		
 		return null;
 	}
 
-	private void addQueryParameter(WebClient client, String name, List<String> values) {
+	private void addQueryParameter(String name, List<String> values) {
 		if (values == null || values.isEmpty()) {
 			return;
 		}
@@ -264,9 +266,15 @@ public class RestJaxbService implements Service {
 		}
 	}
 
-	<T> Response post(String path, T object) throws ObjectNotFoundException{
+	<T> Response post(String path, T object) throws ObjectNotFoundException {
+		return post(path, object, null);
+	}
+
+	<T> Response post(String path, T object, Map<String, List<String>> queryParams) throws ObjectNotFoundException {
 
 		Response response = client.replacePath("/" + path).post(object);
+		client.resetQuery();
+		addQueryParameters(queryParams);
 
 		switch (response.getStatus()) {
 			case 250:
@@ -283,6 +291,16 @@ public class RestJaxbService implements Service {
 		}
 
 		return response;
+	}
+
+	private void addQueryParameters(Map<String, List<String>> queryParams) {
+		if (queryParams == null) {
+			return;
+		}
+
+		for (Map.Entry<String, List<String>> entry : queryParams.entrySet()) {
+			addQueryParameter(entry.getKey(), entry.getValue());
+		}
 	}
 
 	<O extends ObjectType> void deleteObject(final Class<O> type, final String oid) throws ObjectNotFoundException {
@@ -350,5 +368,10 @@ public class RestJaxbService implements Service {
 				+ "com.evolveum.prism.xml.ns._public.annotation_3:"
 				+ "com.evolveum.prism.xml.ns._public.query_3:"
 				+ "com.evolveum.prism.xml.ns._public.types_3");
+	}
+
+	//TODO make something smarter - this is actually neede just for tests
+	public URI getCurrentUri() {
+		return client.getCurrentURI();
 	}
 }

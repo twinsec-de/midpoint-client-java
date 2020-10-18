@@ -51,7 +51,7 @@ public class RestJaxbSearchService<O extends ObjectType> extends AbstractObjectT
 		@Override
 	public SearchResult<O> get() throws ObjectNotFoundException {
 		String path = "/" + Types.findType(getType()).getRestPath() + "/search";
-		Response response = getService().post(path, query);
+		Response response = getService().post(path, query, null); // TODO params
 
 		if (Status.OK.getStatusCode() == response.getStatus()) {
 			return new JaxbSearchResult<>(getSearchResultList(response));

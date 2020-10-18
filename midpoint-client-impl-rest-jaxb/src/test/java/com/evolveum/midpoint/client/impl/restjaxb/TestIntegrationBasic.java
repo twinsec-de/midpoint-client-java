@@ -16,18 +16,15 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import javax.xml.namespace.QName;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.*;
+import java.net.URI;
+import java.nio.file.Files;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.*;
 
 public class TestIntegrationBasic extends AbstractTest {
 
@@ -41,7 +38,9 @@ public class TestIntegrationBasic extends AbstractTest {
     private static final File SCRIPT_GENERATE_PASSWORD = new File(REQUEST_DIR, "request-script-generate-passwords.xml");
     private static final File SCRIPT_MODIFY_VALID_TO= new File(REQUEST_DIR, "request-script-modify-validTo.xml");
 
-    private Service service;
+    private static final File JACK_PHOTO = new File(TEST_DIR, "user-jack-photo.png");
+
+    private RestJaxbService service;
 
     @BeforeClass
     public void initService() throws Exception {
@@ -56,6 +55,32 @@ public class TestIntegrationBasic extends AbstractTest {
 
         assertNotNull("Unexpected null object", userJackAfter);
     }
+
+    @Test
+    public void test211jackResolvePhoto() throws Exception {
+        UserType jackAfter = service.users().oid(USER_JACK_OID).get(null, Collections.singletonList("jpegPhoto"), null);
+
+        URI currentUri = service.getCurrentUri();
+        String query = currentUri.getQuery();
+        System.out.println("query: " + query);
+    }
+
+    @Test
+    public void test211jackResolvePhotoAgain() throws Exception {
+        UserType jack = service.users().oid(USER_JACK_OID).get(null, Collections.singletonList("jpegPhoto"), null);
+
+        //Check service, if query params where correcly handled
+        URI currentUri = service.getCurrentUri();
+        String query = currentUri.getQuery();
+        System.out.println("query: " + query);
+    }
+
+    private byte[] getJackPhoto() throws IOException {
+        return Files.readAllBytes(JACK_PHOTO.toPath());
+    }
+
+
+
     // see analogous test 520 in midPoint TestAbstractRestService
     @Test
     public void test220GeneratePasswordsUsingScripting() throws Exception {
@@ -83,6 +108,8 @@ public class TestIntegrationBasic extends AbstractTest {
         AssertJUnit.assertEquals("Wrong status in second output", OperationResultStatusType.SUCCESS, second.getStatus());
         AssertJUnit.assertNotNull("Object missing in second output", second.getObject());
         AssertJUnit.assertNotNull("Operation result missing in second output", second.getResult());
+
+        assertNull("No query should be here", getQuery(service));
     }
 
     // see analogous test 530 in midPoint TestAbstractRestService
@@ -110,6 +137,8 @@ public class TestIntegrationBasic extends AbstractTest {
         AssertJUnit.assertEquals("Wrong status in second output", OperationResultStatusType.SUCCESS, second.getStatus());
         AssertJUnit.assertNotNull("Object missing in second output", second.getObject());
         AssertJUnit.assertNotNull("Operation result missing in second output", second.getResult());
+
+        assertNull("No query should be here", getQuery(service));
     }
 
 
@@ -129,6 +158,8 @@ public class TestIntegrationBasic extends AbstractTest {
 
         OrgType orgAfter = ref.get();
         Asserts.assertPoly(service, "Wrong name", "test300", orgAfter.getName());
+
+        assertNull("No query should be here", getQuery(service));
     }
 
     private String test310oid;
@@ -153,6 +184,8 @@ public class TestIntegrationBasic extends AbstractTest {
 
         OrgType orgAfter = ref.get();
         Asserts.assertPoly(service, "Wrong name", "test310", orgAfter.getName());
+
+        assertNull("No query should be here", getQuery(service));
     }
 
     private String test320oid;
@@ -177,6 +210,7 @@ public class TestIntegrationBasic extends AbstractTest {
 
         OrgType orgAfter = ref.get();
         Asserts.assertPoly(service, "Wrong name", "test320", orgAfter.getName());
+        assertNull("No query should be here", getQuery(service));
     }
 
     @Test
@@ -190,6 +224,8 @@ public class TestIntegrationBasic extends AbstractTest {
         // THEN
         assertEquals(result.size(), 1);
         Asserts.assertPoly(service, "Wrong name", "test310", result.get(0).getName());
+
+        assertNull("No query should be here", getQuery(service));
     }
 
     @Test
@@ -206,6 +242,8 @@ public class TestIntegrationBasic extends AbstractTest {
                 .map(org -> service.util().getOrig(org.getName()))
                 .collect(Collectors.toSet());
         assertEquals(new HashSet<>(Arrays.asList("test310", "test320")), names);
+
+        assertNull("No query should be here", getQuery(service));
     }
 
     @Test
@@ -221,6 +259,8 @@ public class TestIntegrationBasic extends AbstractTest {
                 .map(org -> service.util().getOrig(org.getName()))
                 .collect(Collectors.toSet());
         assertTrue("test300 is not among roots", names.contains("test300"));
+
+        assertNull("No query should be here", getQuery(service));
     }
 
     @Test
@@ -233,8 +273,61 @@ public class TestIntegrationBasic extends AbstractTest {
         } catch (ObjectNotFoundException e) {
             //expected
         }
+
+        assertNull("No query should be here", getQuery(service));
     }
-    private Service getService() throws IOException {
-        return getService(ADMIN, ADMIN_PASS, ENDPOINT_ADDRESS);
+
+    @Test
+    public void test510deteleOrg300() throws Exception {
+        service.orgs().oid(test300oid).delete();
+
+        try {
+            service.orgs().oid(test300oid).get();
+            fail("Unexpected object found");
+        } catch (ObjectNotFoundException e) {
+            // expected
+        }
+
+        assertNull("No query should be here", getQuery(service));
     }
+
+    @Test
+    public void test510deteleOrg310() throws Exception {
+        service.orgs().oid(test310oid).delete();
+
+        try {
+            service.orgs().oid(test310oid).get();
+            fail("Unexpected object found");
+        } catch (ObjectNotFoundException e) {
+            // expected
+        }
+
+        assertNull("No query should be here", getQuery(service));
+    }
+
+    @Test
+    public void test510deteleOrg320() throws Exception {
+        service.orgs().oid(test320oid).delete();
+
+        try {
+            service.orgs().oid(test320oid).get();
+            fail("Unexpected object found");
+        } catch (ObjectNotFoundException e) {
+            // expected
+        }
+
+        assertNull("No query should be here", getQuery(service));
+    }
+
+    private RestJaxbService getService() throws IOException {
+        return (RestJaxbService) getService(ADMIN, ADMIN_PASS, ENDPOINT_ADDRESS);
+    }
+
+    private static String getQuery(RestJaxbService service) {
+        URI currentUri = service.getCurrentUri();
+        String query = currentUri.getQuery();
+        System.out.println("query: " + query);
+        return query;
+    }
+
 }

@@ -167,7 +167,7 @@ public class TestBasic extends AbstractTest {
 		rolePathType.setValue("roleMembershipRef");
 
 		ItemPathType assignemtTargetRef = new ItemPathType();
-		assignemtTargetRef.setValue("asiignemnt/targetRef");
+		assignemtTargetRef.setValue("assignment/targetRef");
 		
 		ItemPathType namePath = new ItemPathType();
 		namePath.setValue("name");

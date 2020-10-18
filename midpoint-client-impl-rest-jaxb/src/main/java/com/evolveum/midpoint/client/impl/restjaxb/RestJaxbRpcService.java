@@ -56,7 +56,12 @@ public class RestJaxbRpcService<T> implements RpcService<T> {
 
 	@Override
 	public Post<ExecuteScriptResponseType> executeScript(ExecuteScriptType script) {
-		return new RestJaxbExecuteScriptRpcService(getService(), EXECUTE_SCRIPT_PATH, script);
+		return new RestJaxbExecuteScriptRpcService(getService(), EXECUTE_SCRIPT_PATH, script, false);
+	}
+
+	@Override
+	public Post<ExecuteScriptResponseType> executeScript(ExecuteScriptType script, boolean asynchronous) {
+		return new RestJaxbExecuteScriptRpcService(getService(), EXECUTE_SCRIPT_PATH, script, asynchronous);
 	}
 
 	@Override
