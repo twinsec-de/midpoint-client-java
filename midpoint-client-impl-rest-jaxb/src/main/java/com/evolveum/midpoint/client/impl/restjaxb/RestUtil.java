@@ -23,7 +23,8 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.prism.xml.ns._public.types_3.ItemDeltaType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
-import org.apache.commons.lang3.StringUtils;
+
+import org.apache.commons.lang.StringUtils;
 
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
@@ -154,11 +155,11 @@ public class RestUtil {
 
 		if (localizableMessage instanceof LocalizableMessageListType) {
 			List<LocalizableMessageType> messageList = ((LocalizableMessageListType) localizableMessage).getMessage();
-			String fallbackMsg = "";
+			StringBuilder fallbackMsg = new StringBuilder();
 			for (LocalizableMessageType msg : messageList) {
-				fallbackMsg += getStringMessage(msg);
+				fallbackMsg.append(getStringMessage(msg));
 			}
-			return fallbackMsg;
+			return fallbackMsg.toString();
 		}
 
 		throw new UnsupportedOperationException("Unknown localizable message type: " + ((localizableMessage != null) ? localizableMessage.getClass() : null));
@@ -168,13 +169,12 @@ public class RestUtil {
         URI uriLocation = response.getLocation();
         // Fixed location null: When you enabled policy rule in Midpoint, for instance an approval step on user's creation
         // The HTTP response is 202 without location reference
-        if (uriLocation != null) {
+        if (uriLocation == null) {
             return null;
         }
 		String location = uriLocation.toString();
 		String[] locationSegments = location.split(path + "/");
-		String oid = locationSegments[1];
-		return oid;
+		return locationSegments[1];
 	}
 
 }
