@@ -15,16 +15,15 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import com.evolveum.midpoint.client.api.RpcService;
-import com.evolveum.midpoint.client.api.TaskFuture;
-import com.evolveum.midpoint.client.api.ValidateGenerateRpcService;
+import com.evolveum.midpoint.client.api.*;
 import com.evolveum.midpoint.client.api.exception.CommonException;
 import com.evolveum.midpoint.client.api.verb.Post;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 
 /**
- * 
+ *
  * @author katkav
  *
  */
@@ -35,11 +34,11 @@ public class RestJaxbRpcService<T> implements RpcService<T> {
 	private static final String EXECUTE_SCRIPT_PATH = "/rpc/executeScript";
 
 	private RestJaxbService service;
-	
+
 	public RestJaxbRpcService(RestJaxbService service) {
 		this.service = service;
 	}
-	
+
 	public RestJaxbService getService() {
 		return service;
 	}
@@ -55,14 +54,14 @@ public class RestJaxbRpcService<T> implements RpcService<T> {
 	}
 
 	@Override
-	public Post<ExecuteScriptResponseType> executeScript(ExecuteScriptType script) {
-		return new RestJaxbExecuteScriptRpcService(getService(), EXECUTE_SCRIPT_PATH, script, false);
+	public ExecuteScriptRpcService<ExecuteScriptResponseType> executeScript(ExecuteScriptType script) {
+		return new RestJaxbExecuteScriptRpcService<>(getService(), EXECUTE_SCRIPT_PATH, script, false);
 	}
 
-	@Override
-	public Post<ExecuteScriptResponseType> executeScript(ExecuteScriptType script, boolean asynchronous) {
-		return new RestJaxbExecuteScriptRpcService(getService(), EXECUTE_SCRIPT_PATH, script, asynchronous);
-	}
+    @Override
+    public ExecuteScriptRpcService<ObjectReference<TaskType>> executeScriptAsync(ExecuteScriptType script) {
+        return new RestJaxbExecuteScriptRpcService<>(getService(), EXECUTE_SCRIPT_PATH, script, true);
+    }
 
 	@Override
 	public TaskFuture<T> apost() throws CommonException {

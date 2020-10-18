@@ -135,8 +135,8 @@ public class RestJaxbService implements Service {
 
 
 	@Override
-	public ObjectCollectionService<UserType> users() {
-		return new RestJaxbObjectCollectionService<>(this, Types.USERS.getRestPath(), UserType.class);
+	public FocusCollectionService<UserType> users() {
+		return new RestJaxbFocusCollectionService<>(this, Types.USERS.getRestPath(), UserType.class);
 	}
 
 	@Override
@@ -180,8 +180,8 @@ public class RestJaxbService implements Service {
 	}
 
 	@Override
-	public ObjectCollectionService<TaskType> tasks() {
-		return new RestJaxbObjectCollectionService<>(this, Types.TASKS.getRestPath(), TaskType.class);
+	public TaskCollectionService tasks() {
+		return new RestJaxbTaskCollectionService(this);
 	}
 
 	@Override
@@ -190,13 +190,13 @@ public class RestJaxbService implements Service {
 	}
 
 	@Override
-	public ObjectCollectionService<RoleType> roles() {
-		return new RestJaxbObjectCollectionService<>(this, Types.ROLES.getRestPath(), RoleType.class);
+	public FocusCollectionService<RoleType> roles() {
+		return new RestJaxbFocusCollectionService<>(this, Types.ROLES.getRestPath(), RoleType.class);
 	}
 
 	@Override
-	public ObjectCollectionService<OrgType> orgs() {
-		return new RestJaxbObjectCollectionService<>(this, Types.ORGS.getRestPath(), OrgType.class);
+	public FocusCollectionService<OrgType> orgs() {
+		return new RestJaxbFocusCollectionService<>(this, Types.ORGS.getRestPath(), OrgType.class);
 	}
 
 	@Override

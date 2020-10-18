@@ -29,17 +29,11 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
  */
 public class RestJaxbCompletedFuture<T> implements TaskFuture<T> {
 
-	private T object;
-	private ObjectReference<TaskType> taskRef;
+	private final T object;
 
 	public RestJaxbCompletedFuture(T object) {
 		super();
 		this.object = object;
-	}
-
-	public RestJaxbCompletedFuture(ObjectReference<TaskType> taskRef) {
-		super();
-		this.taskRef = taskRef;
 	}
 
 	@Override
@@ -59,7 +53,7 @@ public class RestJaxbCompletedFuture<T> implements TaskFuture<T> {
 
 	@Override
 	public ObjectReference<TaskType> getTaskRef() {
-		return taskRef;
+		return null;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2018 Evolveum
+ * Copyright (c) 2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,10 @@
  */
 package com.evolveum.midpoint.client.api;
 
-import com.evolveum.midpoint.client.api.verb.Post;
-import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 
-/**
- * Preliminary implementation. Adapt as necessary.
- *
- * @author mederly
- */
-public interface ExecuteScriptRpcService<T> extends Post<T> {
+public interface TaskCollectionService extends ObjectCollectionService<TaskType> {
 
+    @Override
+    TaskService oid(String oid);
 }

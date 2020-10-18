@@ -15,7 +15,7 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import com.evolveum.midpoint.client.api.ObjectCredentialService;
+import com.evolveum.midpoint.client.api.Focus;
 import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.*;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredentialResetResponseType;
@@ -23,7 +23,6 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredentialResetRequestType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 
 /**
@@ -31,17 +30,17 @@ import javax.ws.rs.core.Response;
  * @author Jakmor
  *
  */
-public class RestJaxbObjectCredentialService<O extends ObjectType>  extends AbstractObjectWebResource<O> implements ObjectCredentialService<O>
+public class RestJaxbFocusCredentialService<O extends ObjectType>  extends AbstractObjectWebResource<O> implements Focus<O>
 {
     private ExecuteCredentialResetRequestType executeCredentialResetRequest;
 
-    public RestJaxbObjectCredentialService(final RestJaxbService service, final Class<O> type, final String oid)
+    public RestJaxbFocusCredentialService(final RestJaxbService service, final Class<O> type, final String oid)
     {
         super(service, type, oid);
     }
 
     @Override
-    public ObjectCredentialService<O> executeResetPassword(ExecuteCredentialResetRequestType executeCredentialResetRequest)
+    public Focus<O> executeResetPassword(ExecuteCredentialResetRequestType executeCredentialResetRequest)
     {
         this.executeCredentialResetRequest = executeCredentialResetRequest;
 

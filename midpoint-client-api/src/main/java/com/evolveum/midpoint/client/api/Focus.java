@@ -25,7 +25,7 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
  * @author Jakmor
  *
  */
-public interface ObjectCredentialService<O extends ObjectType> extends Post<ExecuteCredentialResetResponseType>
-{
-    ObjectCredentialService<O> executeResetPassword(ExecuteCredentialResetRequestType executeCredentialResetRequest);
+public interface Focus<O extends ObjectType> extends Post<ExecuteCredentialResetResponseType> {
+
+    Focus<O> executeResetPassword(ExecuteCredentialResetRequestType executeCredentialResetRequest);
 }

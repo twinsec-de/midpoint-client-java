@@ -35,11 +35,4 @@ public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O> {
 
 	ObjectModifyService<O> modify() throws ObjectNotFoundException;
 
-	// todo this doesn't make much sense, it's not usable for all objects, only users, and maybe shadows?
-	ObjectCredentialService<O> credential();
-
-	ValidateGenerateRpcService generate();
-
-	ValidateGenerateRpcService validate();
-//    ObjectGenerateService<O> modifyGenerate(String path) throws ObjectNotFoundException, AuthenticationException;
 }

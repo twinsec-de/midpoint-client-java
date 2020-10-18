@@ -19,6 +19,7 @@ import com.evolveum.midpoint.client.api.ExecuteScriptRpcService;
 import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.CommonException;
+import com.evolveum.midpoint.client.api.exception.ConfigurationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.client.api.exception.PolicyViolationException;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
@@ -34,7 +35,7 @@ import java.util.*;
  *
  * @author mederly
  */
-public class RestJaxbExecuteScriptRpcService implements ExecuteScriptRpcService {
+public class RestJaxbExecuteScriptRpcService<T> implements ExecuteScriptRpcService<T> {
 
 	private RestJaxbService service;
 	private String path;
@@ -50,7 +51,7 @@ public class RestJaxbExecuteScriptRpcService implements ExecuteScriptRpcService 
 	}
 
 	@Override
-	public TaskFuture<ExecuteScriptResponseType> apost() throws CommonException {
+	public TaskFuture<T> apost() throws CommonException {
 
 		Map<String, List<String>> queryParams = null;
 		if (asynchronous) {
@@ -63,11 +64,14 @@ public class RestJaxbExecuteScriptRpcService implements ExecuteScriptRpcService 
 		switch (response.getStatus()) {
 			case 200:
 				ExecuteScriptResponseType executeScriptResponse = response.readEntity(ExecuteScriptResponseType.class);
-				return new RestJaxbCompletedFuture<>(executeScriptResponse);
+				return new RestJaxbCompletedFuture<>((T) executeScriptResponse);
 			case 201:
+			    if (!asynchronous) {
+			        throw new ConfigurationException("Location not present when executing script synchronously");
+                }
 				String oid = RestUtil.getOidFromLocation(response, path);
 				RestJaxbObjectReference<TaskType> taskRef = new RestJaxbObjectReference<>(service, TaskType.class, oid);
-				return new RestJaxbCompletedFuture<>(taskRef);
+				return new RestJaxbCompletedFuture<>((T) taskRef);
 			case 409:
 				OperationResultType operationResultType = response.readEntity(OperationResultType.class);
 				throw new PolicyViolationException(operationResultType.getMessage());
