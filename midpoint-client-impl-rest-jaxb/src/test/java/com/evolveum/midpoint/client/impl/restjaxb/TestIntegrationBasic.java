@@ -1,8 +1,23 @@
 package com.evolveum.midpoint.client.impl.restjaxb;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
+import static org.testng.AssertJUnit.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.util.*;
+import java.util.stream.Collectors;
+import javax.xml.namespace.QName;
+
+import org.apache.commons.lang.StringUtils;
+import org.testng.AssertJUnit;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+
 import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.SearchResult;
-import com.evolveum.midpoint.client.api.Service;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.client.api.scripting.ObjectProcessingOutput;
 import com.evolveum.midpoint.client.api.scripting.OperationSpecificData;
@@ -10,22 +25,13 @@ import com.evolveum.midpoint.client.api.scripting.ValueGenerationData;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
-import org.apache.commons.lang.StringUtils;
-import org.testng.AssertJUnit;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
-import javax.xml.namespace.QName;
-import java.io.*;
-import java.net.URI;
-import java.nio.file.Files;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
-import static org.testng.AssertJUnit.*;
-
+/**
+ * This is integration test that requires running midPoint (e.g. from other project).
+ * This midPoint must have clean midpoint.home, otherwise some tests fail on conflicts.
+ * Because of these prerequisites it is NOT part of the Maven build.
+ * TODO: Make it less brittle I guess.
+ */
 public class TestIntegrationBasic extends AbstractTest {
 
     private static final String ENDPOINT_ADDRESS = "http://localhost:8080/midpoint/ws/rest";
@@ -36,9 +42,7 @@ public class TestIntegrationBasic extends AbstractTest {
     private static final File USER_JACK_FILE = new File(TEST_DIR, "user-jack.xml");
     private static final String REQUEST_DIR = "src/test/resources/request";
     private static final File SCRIPT_GENERATE_PASSWORD = new File(REQUEST_DIR, "request-script-generate-passwords.xml");
-    private static final File SCRIPT_MODIFY_VALID_TO= new File(REQUEST_DIR, "request-script-modify-validTo.xml");
-
-    private static final File JACK_PHOTO = new File(TEST_DIR, "user-jack-photo.png");
+    private static final File SCRIPT_MODIFY_VALID_TO = new File(REQUEST_DIR, "request-script-modify-validTo.xml");
 
     private RestJaxbService service;
 
@@ -58,7 +62,7 @@ public class TestIntegrationBasic extends AbstractTest {
 
     @Test
     public void test211jackResolvePhoto() throws Exception {
-        UserType jackAfter = service.users().oid(USER_JACK_OID).get(null, Collections.singletonList("jpegPhoto"), null);
+        service.users().oid(USER_JACK_OID).get(null, Collections.singletonList("jpegPhoto"), null);
 
         URI currentUri = service.getCurrentUri();
         String query = currentUri.getQuery();
@@ -67,7 +71,7 @@ public class TestIntegrationBasic extends AbstractTest {
 
     @Test
     public void test211jackResolvePhotoAgain() throws Exception {
-        UserType jack = service.users().oid(USER_JACK_OID).get(null, Collections.singletonList("jpegPhoto"), null);
+        service.users().oid(USER_JACK_OID).get(null, Collections.singletonList("jpegPhoto"), null);
 
         //Check service, if query params where correcly handled
         URI currentUri = service.getCurrentUri();
@@ -75,17 +79,10 @@ public class TestIntegrationBasic extends AbstractTest {
         System.out.println("query: " + query);
     }
 
-    private byte[] getJackPhoto() throws IOException {
-        return Files.readAllBytes(JACK_PHOTO.toPath());
-    }
-
-
-
     // see analogous test 520 in midPoint TestAbstractRestService
     @Test
     public void test220GeneratePasswordsUsingScripting() throws Exception {
         // WHEN
-        //noinspection unchecked
         ExecuteScriptType request = unmarshallFromFile(ExecuteScriptType.class, SCRIPT_GENERATE_PASSWORD);
         ExecuteScriptResponseType response = service.rpc().executeScript(request).post();
 
@@ -116,7 +113,6 @@ public class TestIntegrationBasic extends AbstractTest {
     @Test
     public void test230ModifyValidToUsingScripting() throws Exception {
         // WHEN
-        //noinspection unchecked
         ExecuteScriptType request = unmarshallFromFile(ExecuteScriptType.class, SCRIPT_MODIFY_VALID_TO);
         ExecuteScriptResponseType response = service.rpc().executeScript(request).post();
 
@@ -140,7 +136,6 @@ public class TestIntegrationBasic extends AbstractTest {
 
         assertNull("No query should be here", getQuery(service));
     }
-
 
     private String test300oid;
 

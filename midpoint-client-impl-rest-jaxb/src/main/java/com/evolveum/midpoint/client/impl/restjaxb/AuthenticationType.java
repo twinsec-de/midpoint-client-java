@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,12 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.evolveum.midpoint.client.api.exception.SchemaException;
 
 /**
- * 
+ *
  * @author katkav
  *
  */
@@ -30,25 +30,25 @@ public enum AuthenticationType {
 
 	BASIC("Basic"),
 	SECQ("SecQ");
-	
+
 	private String type;
-	
+
 	private AuthenticationType(String type) {
 		this.type = type;
 	}
-	
+
 	public static AuthenticationType getAuthenticationType(String type) throws SchemaException {
-		
+
 		if (StringUtils.isBlank(type)) {
 			return null;
 		}
-		
+
 		return Arrays.asList(values()).stream().filter(authnType -> type.equals(authnType.getType())).findAny().orElseThrow(() -> new SchemaException("Unsupported type: " + type));
-		
+
 	}
-	
+
 	public String getType() {
 		return type;
 	}
-	
+
 }

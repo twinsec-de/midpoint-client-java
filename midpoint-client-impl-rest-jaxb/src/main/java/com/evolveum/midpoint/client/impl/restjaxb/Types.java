@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import java.util.Arrays;
 
 import javax.xml.namespace.QName;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteCredentialResetRequestType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectListType;
@@ -30,7 +30,7 @@ import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 import com.evolveum.prism.xml.ns._public.query_3.QueryType;
 
 /**
- * 
+ *
  * @author katkav
  *
  */
@@ -66,38 +66,38 @@ public enum Types {
 	 */
 	private QName elementName;
 	/**
-	 * type name as QName, e.g. c:RoleType, c:ValuePolicyType.. e.g. we need it to the reference 
+	 * type name as QName, e.g. c:RoleType, c:ValuePolicyType.. e.g. we need it to the reference
 	 */
 	private QName typeQName;
 	private String restPath;
-	
+
 	private Types(Class<?> clazz, QName typeQName, QName elementName, String restPath) {
 		this.clazz = clazz;
 		this.typeQName = typeQName;
 		this.elementName = elementName;
 		this.restPath = restPath;
 	}
-	
+
 	public Class<?> getClazz() {
 		return clazz;
 	}
-	
+
 	public QName getElementName() {
 		return elementName;
 	}
-	
+
 	public String getRestPath() {
 		return restPath;
 	}
-	
+
 	public QName getTypeQName() {
 		return typeQName;
 	}
-	
+
 	public static Types findType(Class<?> clazz) {
 		return Arrays.asList(values()).stream().filter(type -> type.getClazz().equals(clazz)).findAny().orElse(null);
 	}
-	
+
 	public static Types findType(String localname) {
 		if (StringUtils.isBlank(localname)) {
 			return null;

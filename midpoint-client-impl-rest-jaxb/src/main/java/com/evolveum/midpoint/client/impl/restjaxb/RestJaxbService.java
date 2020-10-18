@@ -15,6 +15,8 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
+import static java.util.Collections.singletonList;
+
 import com.evolveum.midpoint.client.api.*;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.AuthorizationException;
@@ -35,7 +37,6 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -50,30 +51,28 @@ public class RestJaxbService implements Service {
 	private final ServiceUtil util;
 	private final ScriptingUtil scriptingUtil;
 
-	private String endpoint;
-
 	private WebClient client;
 	private DomSerializer domSerializer;
 	private JAXBContext jaxbContext;
 	private AuthenticationManager<?> authenticationManager;
 	private List<AuthenticationType> supportedAuthenticationsByServer;
-	
+
 	public DomSerializer getDomSerializer() {
 		return domSerializer;
 	}
-	
+
 	public JAXBContext getJaxbContext() {
 		return jaxbContext;
 	}
-	
+
 	public List<AuthenticationType> getSupportedAuthenticationsByServer() {
 		if (supportedAuthenticationsByServer == null) {
 			supportedAuthenticationsByServer = new ArrayList<>();
 		}
 		return supportedAuthenticationsByServer;
 	}
-	
-	
+
+
 	@SuppressWarnings("unchecked")
 	public <T extends AuthenticationChallenge> AuthenticationManager<T> getAuthenticationManager() {
 		return (AuthenticationManager<T>) authenticationManager;
@@ -82,14 +81,14 @@ public class RestJaxbService implements Service {
 	ClientConfiguration getClientConfiguration () {
 		return WebClient.getConfig(client);
 	}
-	
+
 	public RestJaxbService() {
 		super();
 		client = WebClient.create("");
 		util = new RestJaxbServiceUtil(null);
 		scriptingUtil = new ScriptingUtilImpl(util);
 	}
-	
+
 	RestJaxbService(String endpoint, String username, String password, AuthenticationType authentication, List<SecurityQuestionAnswer> secQ) throws IOException {
 		super();
 		try {
@@ -97,8 +96,7 @@ public class RestJaxbService implements Service {
 		} catch (JAXBException e) {
 			throw new IOException(e);
 		}
-		this.endpoint = endpoint;
-		
+
 		if (AuthenticationType.SECQ == authentication) {
 			authenticationManager = new SecurityQuestionAuthenticationManager(username, secQ);
 		} else if (authentication != null ){
@@ -110,7 +108,7 @@ public class RestJaxbService implements Service {
 		domSerializer = new DomSerializer(jaxbContext);
 
 		CustomAuthNProvider<?> authNProvider = new CustomAuthNProvider<>(authenticationManager, this);
-		client = WebClient.create(endpoint, Arrays.asList(new JaxbXmlProvider<>(jaxbContext)));
+		client = WebClient.create(endpoint, singletonList(new JaxbXmlProvider<>(jaxbContext)));
 		ClientConfiguration config = WebClient.getConfig(client);
 		config.getInInterceptors().add(authNProvider);
 		config.getInFaultInterceptors().add(authNProvider);
@@ -134,7 +132,7 @@ public class RestJaxbService implements Service {
 		client.header(header, value);
 		return this;
 	}
-	
+
 
 	@Override
 	public ObjectCollectionService<UserType> users() {
@@ -223,7 +221,7 @@ public class RestJaxbService implements Service {
 
 	/**
 	 * Used frequently at several places. Therefore unified here.
-	 * @throws ObjectNotFoundException 
+	 * @throws ObjectNotFoundException
 	 */
 	<O extends ObjectType> O getObject(final Class<O> type, final String oid, List<String> options,
 									   List<String> include, List<String> exclude)
@@ -241,11 +239,11 @@ public class RestJaxbService implements Service {
 		if (Status.OK.getStatusCode() == response.getStatus() ) {
 			return response.readEntity(type);
 		}
-		
+
 		if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
-			throw new ObjectNotFoundException("Cannot get object with oid" + oid + ". Object doesn't exist");
+			throw new ObjectNotFoundException("Cannot get object with oid " + oid + ". Object doesn't exist");
 		}
-		
+
 		if (Status.UNAUTHORIZED.getStatusCode() == response.getStatus()) {
 			throw new AuthenticationException(response.getStatusInfo().getReasonPhrase());
 		}
@@ -322,7 +320,7 @@ public class RestJaxbService implements Service {
 		}
 
 		if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
-			throw new ObjectNotFoundException("Cannot delete object with oid" + oid + ". Object doesn't exist");
+			throw new ObjectNotFoundException("Cannot delete object with oid " + oid + ". Object doesn't exist");
 		}
 
 		if (Status.UNAUTHORIZED.getStatusCode() == response.getStatus()) {

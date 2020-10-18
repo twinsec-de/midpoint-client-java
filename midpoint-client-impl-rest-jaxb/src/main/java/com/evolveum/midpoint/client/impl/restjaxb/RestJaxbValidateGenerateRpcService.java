@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefini
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 
 /**
- * 
+ *
  * @author katkav
  *
  */
@@ -34,26 +34,26 @@ public class RestJaxbValidateGenerateRpcService implements ValidateGenerateRpcSe
 
 	private RestJaxbService service;
 	private PolicyItemsDefinitionType policyItemDefinition;
-	
+
 	private String path;
-	
-	
+
+
 	public RestJaxbValidateGenerateRpcService(RestJaxbService service, String path) {
 		this.service = service;
 		this.path = path;
 	}
-	
+
 	public RestJaxbValidateGenerateRpcService(RestJaxbService service, String path, PolicyItemsDefinitionType policyItemDefinition) {
 		this.service = service;
 		this.path = path;
-		this.policyItemDefinition = policyItemDefinition; 
+		this.policyItemDefinition = policyItemDefinition;
 	}
-	
+
 	@Override
 	public TaskFuture<PolicyItemsDefinitionType> apost() throws CommonException {
-		
+
 		Response response = service.post(path, policyItemDefinition);
-		
+
 		switch (response.getStatus()) {
         case 200:
             PolicyItemsDefinitionType itemsDefinitionType = response.readEntity(PolicyItemsDefinitionType.class);

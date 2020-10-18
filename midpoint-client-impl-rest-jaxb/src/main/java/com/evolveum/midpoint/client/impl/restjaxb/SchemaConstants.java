@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package com.evolveum.midpoint.client.impl.restjaxb;
 
 /**
- * 
+ *
  * @author katkav
  *
  */
@@ -26,7 +26,7 @@ public class SchemaConstants {
 	public static final String NS_API_TYPES_PREFIX = "apit:";
 	public static final String NS_QUERY_PREFIX = "q:";
 	public static final String NS_TYPES_PREFIX = "t:";
-	
+
 	public static final String NS_COMMON = "http://midpoint.evolveum.com/xml/ns/public/common/common-3";
 	public static final String NS_API_TYPES = "http://midpoint.evolveum.com/xml/ns/public/common/api-types-3";
 	public static final String NS_QUERY = "http://prism.evolveum.com/xml/ns/public/query-3";

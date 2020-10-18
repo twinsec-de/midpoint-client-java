@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,22 +27,22 @@ import com.evolveum.midpoint.client.api.SearchResult;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
 /**
- * 
+ *
  * @author katkav
  *
  */
 public class JaxbSearchResult<O extends ObjectType> implements SearchResult<O> {
 
 	private List<O> list = null;
-	
+
 	public JaxbSearchResult() {
 	}
-	
+
 	public JaxbSearchResult(List<O> list) {
 		super();
 		this.list = list;
 	}
-	
+
 	@Override
 	public int size() {
 		if (list == null) {
@@ -161,6 +161,6 @@ public class JaxbSearchResult<O extends ObjectType> implements SearchResult<O> {
 		return subList(fromIndex, toIndex);
 	}
 
-	
-	
+
+
 }

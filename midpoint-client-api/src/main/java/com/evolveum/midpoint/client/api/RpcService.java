@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResp
 import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 
 /**
- * 
+ *
  * @author katkav
  *
  */
@@ -28,7 +28,7 @@ public interface RpcService<T> extends Post<T> {
 
 	ValidateGenerateRpcService validate();
 	ValidateGenerateRpcService generate();
-	
+
 	//TODO: implement, change return type etc
 	void compare();
 

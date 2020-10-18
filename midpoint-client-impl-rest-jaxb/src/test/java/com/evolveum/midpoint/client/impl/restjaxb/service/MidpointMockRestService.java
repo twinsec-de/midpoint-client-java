@@ -44,11 +44,10 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import com.evolveum.midpoint.client.impl.restjaxb.RestJaxbService;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.*;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.midpoint.xml.ns._public.model.scripting_3.*;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -62,15 +61,15 @@ import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
 import com.evolveum.prism.xml.ns._public.types_3.PolyStringType;
 
 /**
- * 
+ *
  * @author katkav
  *
  */
 @Produces({"application/xml"})
 public class MidpointMockRestService {
-	
+
 	private  Map<String, Map<String, ? extends ObjectType>> objectMap = new HashMap<>();
-	
+
 	private Map<String, UserType> userMap = new HashMap<>();
 	private Map<String, ValuePolicyType> valuePolicyMap = new HashMap<>();
 	private Map<String, SecurityPolicyType> securityPolicyMap = new HashMap<>();
@@ -79,11 +78,11 @@ public class MidpointMockRestService {
 	private static final String IMPERSONATE_OID = "44af349b-5a0c-4f3a-9fe9-2f64d9390ed3";
 
 	private static final String RESPONSE_DIR = "src/test/resources/response";
-		
+
 	private ValuePolicyType systemValuePolicy;
 	private RestJaxbServiceUtil util;
 	private JAXBContext jaxbCtx;
-		
+
 	public MidpointMockRestService(JAXBContext jaxbCtx) {
 		this.jaxbCtx = jaxbCtx;
 		util = new RestJaxbServiceUtil(jaxbCtx);
@@ -92,9 +91,9 @@ public class MidpointMockRestService {
 		impersonate.setOid(IMPERSONATE_OID);
 
 		userMap.put(IMPERSONATE_OID, impersonate);
-			
+
 		UserType jackuser = new UserType();
-			
+
 		jackuser.setGivenName(util.createPoly("jack"));
 		jackuser.setName(util.createPoly("jack"));
 		jackuser.setFamilyName(util.createPoly("jack"));
@@ -103,11 +102,11 @@ public class MidpointMockRestService {
 		UserType jimuser = new UserType();
 		jimuser.setNickName(util.createPoly("jim"));
 		userMap.put("1bae776f-4939-4071-92e2-8efd5bd57799", jimuser);
-			
+
 		objectMap.put("users", userMap);
 
 		valuePolicyMap.put("00000000-0000-0000-0000-000000000003", new ValuePolicyType());
-			
+
 		ValuePolicyType valuePolicy1 = new ValuePolicyType();
 		StringPolicyType stringPolicyType = new StringPolicyType();
 		LimitationsType limitations = new LimitationsType();
@@ -115,12 +114,12 @@ public class MidpointMockRestService {
 		limitations.setMinUniqueChars(3);
 
 		limitations.getLimit().add(createStringLimitType("abcdefghijklmnopqrstuvwxyz", null, 1, null));
-			
+
 		stringPolicyType.setLimitations(limitations);
 		valuePolicy1.setStringPolicy(stringPolicyType);
 		valuePolicyMap.put("00000000-0000-0000-0000-p00000000001", valuePolicy1);
 		objectMap.put("valuePolicies", valuePolicyMap);
-			
+
 		systemValuePolicy = new ValuePolicyType();
 		stringPolicyType = new StringPolicyType();
 		limitations = new LimitationsType();
@@ -148,29 +147,29 @@ public class MidpointMockRestService {
 		stringLimitType.setMaxOccurs(maxOccurs);
 		return stringLimitType;
 	}
-			
+
 	@POST
 	@Path("/{type}")
 	@Consumes({MediaType.APPLICATION_XML})
 	public <O extends ObjectType> Response addObject(@PathParam("type") String type, O object,
 			@QueryParam("options") List<String> options,
 			@Context UriInfo uriInfo, @Context MessageContext mc) {
-			
+
 		String oid = object.getOid();
 		if (object.getOid() == null) {
 			oid = RandomStringUtils.random(5);
 			object.setOid(oid);
 		}
-		
+
 		if ("users".equals(type)) {
 			userMap.put(oid, (UserType) object);
 		}
-		
+
 		URI location = uriInfo.getAbsolutePathBuilder().path(oid).build(oid);
-		
+
 		return location == null ? Response.status(Status.ACCEPTED).build() : Response.status(Status.ACCEPTED).location(location).build();
 	}
-	
+
 	@GET
 	@Path("/{type}/{id}")
 	@Produces({MediaType.APPLICATION_XML})
@@ -179,19 +178,19 @@ public class MidpointMockRestService {
 			@QueryParam("include") List<String> include,
 			@QueryParam("exclude") List<String> exclude,
 			@Context MessageContext mc){
-		
+
 		OperationResultType result = new OperationResultType();
 		result.setOperation("Get object");
 		T objectType = (T) objectMap.get(type).get(id);
-		
+
 		if (objectType == null) {
 			result.setStatus(OperationResultStatusType.FATAL_ERROR);
 			result.setMessage("User with oid " + id + " not found");
 			return RestMockServiceUtil.createResponse(Status.NOT_FOUND, result);
 		}
-		
+
 		return Response.status(Status.OK).header("Content-Type", MediaType.APPLICATION_XML).entity(objectType).build();
-		
+
 	}
 
 	@POST
@@ -235,7 +234,7 @@ public class MidpointMockRestService {
 
 		return Response.status(Status.OK).header("Content-Type", MediaType.APPLICATION_XML).entity(object).build();
 	}
-	
+
 	@POST
 	@Path("/rpc/generate")
 	@Produces({MediaType.APPLICATION_XML})
@@ -249,22 +248,22 @@ public class MidpointMockRestService {
 			result.setMessage("Policy items definition cannot be null");
 			return RestMockServiceUtil.createResponse(Status.BAD_REQUEST, result);
 		}
-		
+
 		generate(object, result);
-		
+
 		OperationResultUtil.computeStatusIfUnknown(result);
 		if (OperationResultUtil.isSuccess(result)) {
 			return RestMockServiceUtil.createResponse(Status.OK, object, result);
 		}
-		
+
 		return RestMockServiceUtil.createResponse(Status.BAD_REQUEST, object, result, true);
-		
-		
+
+
 	}
-	
+
 	private void generate(PolicyItemsDefinitionType object, OperationResultType result){
 List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemDefinition();
-		
+
 		policyItemDefinitionTypes.forEach(itemDefinition ->
 		{
 			ObjectReferenceType ref = itemDefinition.getValuePolicyRef();
@@ -282,9 +281,9 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 		}
 		);
 	}
-	
-	
-	
+
+
+
 	@POST
 	@Path("/rpc/validate")
 	@Produces({MediaType.APPLICATION_XML})
@@ -298,9 +297,9 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 			result.setMessage("Policy items definition cannot be null");
 			return RestMockServiceUtil.createResponse(Status.BAD_REQUEST, result);
 		}
-		
+
 		List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemDefinition();
-		
+
 		policyItemDefinitionTypes.forEach(itemDefinition ->
 		{
 			ObjectReferenceType ref = itemDefinition.getValuePolicyRef();
@@ -321,27 +320,27 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 			}
 		}
 		);
-		
+
 		OperationResultUtil.computeStatusIfUnknown(result);
 		if (OperationResultUtil.isSuccess(result)) {
 			return RestMockServiceUtil.createResponse(Status.OK, object, result, true);
 		}
-		
+
 		return RestMockServiceUtil.createResponse(Status.BAD_REQUEST, object, result, true);
-		
-		
+
+
 	}
-	
+
 	private ValuePolicyType resolveValuePolicyType(ObjectReferenceType ref) {
 		if (ref != null && ref.getOid() != null) {
 			return valuePolicyMap.get(ref.getOid());
 		}
-		
+
 		return systemValuePolicy;
-		
+
 	}
-	
-	
+
+
 	@POST
 	@Path("/{type}/{id}/generate")
 	@Produces({MediaType.APPLICATION_XML})
@@ -362,9 +361,9 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 			return RestMockServiceUtil.createResponse(Status.NOT_FOUND, result);
 		}
 
-		
+
 		generate(object, result);
-		
+
 //		String newValue = "Bob";
 //
 //		try
@@ -451,7 +450,7 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 
 		return Response.status(Status.OK).header("Content-Type", MediaType.APPLICATION_XML).build();
 	}
-	
+
 	@POST
 	@Path("/{type}/search")
 	@Produces({MediaType.APPLICATION_XML})
@@ -463,9 +462,9 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 			@Context MessageContext mc){
 		OperationResultType result = new OperationResultType();
 		result.setOperation("Search objects");
-		
+
 		ObjectListType resultList = new ObjectListType();
-		
+
 		try {
 			Marshaller marshaller = jaxbCtx.createMarshaller();
 			StringWriter writer = new StringWriter();
@@ -476,7 +475,7 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return RestMockServiceUtil.createResponse(Status.OK, resultList, result);
 	}
 
@@ -555,5 +554,4 @@ List<PolicyItemDefinitionType> policyItemDefinitionTypes = object.getPolicyItemD
 			throw new IllegalStateException(e);
 		}
 	}
-	
 }

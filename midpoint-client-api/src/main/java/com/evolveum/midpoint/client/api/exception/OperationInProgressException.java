@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.evolveum.midpoint.client.api.exception;
 /**
  * Thrown when client invoked synchronous operation, but the
  * operation is executed as asynchronous on the server.
- * 
+ *
  * @author semancik
  *
  */

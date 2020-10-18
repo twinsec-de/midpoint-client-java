@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@ import com.evolveum.midpoint.client.api.verb.Get;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
 /**
- * 
+ *
  * get() without setting a query means that all objects should
  * be returned.
- * 
+ *
  * @author semancik
  */
 public interface SearchService<O extends ObjectType> extends Get<SearchResult<O>> {
 
 	FilterEntryOrEmpty<O> queryFor(Class<O> type);
-	
+
 }

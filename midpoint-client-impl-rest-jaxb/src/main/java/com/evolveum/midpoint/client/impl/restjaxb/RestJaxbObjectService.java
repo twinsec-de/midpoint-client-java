@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,14 +74,14 @@ public class RestJaxbObjectService<O extends ObjectType> extends AbstractObjectW
         restPath += "/generate";
 		return new RestJaxbValidateGenerateRpcService(getService(), restPath);
 	}
-	
+
 	@Override
 	public ValidateGenerateRpcService validate() {
 		String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), getOid());
         restPath += "/validate";
 		return new RestJaxbValidateGenerateRpcService(getService(), restPath);
 	}
-	
+
 //	@Override
 //	public ObjectGenerateService<O> modifyGenerate(String path) throws ObjectNotFoundException, AuthenticationException{
 //		return new RestJaxbObjectGenerateService<>(getService(), getType(), getOid(), path);
