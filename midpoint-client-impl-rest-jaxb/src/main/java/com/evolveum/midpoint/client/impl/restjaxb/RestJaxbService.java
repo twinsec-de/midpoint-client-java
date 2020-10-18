@@ -270,26 +270,35 @@ public class RestJaxbService implements Service {
 
 	<T> Response post(String path, T object, Map<String, List<String>> queryParams) throws ObjectNotFoundException {
 
+        client.resetQuery();
+        addQueryParameters(queryParams);
 		Response response = client.replacePath("/" + path).post(object);
-		client.resetQuery();
-		addQueryParameters(queryParams);
-
-		switch (response.getStatus()) {
-			case 250:
-				throw new PartialErrorException(response.getStatusInfo().getReasonPhrase());
-			case 400:
-				throw new BadRequestException(response.getStatusInfo().getReasonPhrase());
-			case 401:
-				throw new AuthenticationException(response.getStatusInfo().getReasonPhrase());
-			case 403:
-				throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());
-				//TODO: Do we want to return a reference? Might be useful.
-			case 404:
-				throw new ObjectNotFoundException(response.getStatusInfo().getReasonPhrase());
-		}
-
+		handleCommonStatuses(response);
 		return response;
 	}
+
+	Response get(String path) throws ObjectNotFoundException {
+        client.resetQuery();
+	    Response response = client.replacePath("/" + path).get();
+	    handleCommonStatuses(response);
+	    return response;
+    }
+
+    private void handleCommonStatuses(Response response) throws ObjectNotFoundException {
+        switch (response.getStatus()) {
+            case 250:
+                throw new PartialErrorException(response.getStatusInfo().getReasonPhrase());
+            case 400:
+                throw new BadRequestException(response.getStatusInfo().getReasonPhrase());
+            case 401:
+                throw new AuthenticationException(response.getStatusInfo().getReasonPhrase());
+            case 403:
+                throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());
+                //TODO: Do we want to return a reference? Might be useful.
+            case 404:
+                throw new ObjectNotFoundException(response.getStatusInfo().getReasonPhrase());
+        }
+    }
 
 	private void addQueryParameters(Map<String, List<String>> queryParams) {
 		if (queryParams == null) {

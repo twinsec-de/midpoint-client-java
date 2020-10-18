@@ -177,4 +177,16 @@ public class RestUtil {
 		return locationSegments[1];
 	}
 
+    public static String getOidLastFromLocation(Response response) {
+        URI uriLocation = response.getLocation();
+        // Fixed location null: When you enabled policy rule in Midpoint, for instance an approval step on user's creation
+        // The HTTP response is 202 without location reference
+        if (uriLocation == null) {
+            return null;
+        }
+        String location = uriLocation.toString();
+        String[] locationSegments = location.split("/");
+        return locationSegments[locationSegments.length-1];
+    }
+
 }

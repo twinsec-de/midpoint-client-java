@@ -15,7 +15,7 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import com.evolveum.midpoint.client.api.TaskExecutionService;
+import com.evolveum.midpoint.client.api.TaskOperationService;
 import com.evolveum.midpoint.client.api.TaskService;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 
@@ -30,17 +30,17 @@ public class RestJaxbTaskService extends RestJaxbObjectService<TaskType> impleme
     }
 
     @Override
-    public TaskExecutionService suspend() {
-        return new RestJaxbTaskExecuteService(getService(), PATH_SUSPEND, getOid());
+    public TaskOperationService suspend() {
+        return new RestJaxbTaskOperationService(getService(), PATH_SUSPEND, getOid());
     }
 
     @Override
-    public TaskExecutionService resume() {
-        return new RestJaxbTaskExecuteService(getService(), PATH_RESUME, getOid());
+    public TaskOperationService resume() {
+        return new RestJaxbTaskOperationService(getService(), PATH_RESUME, getOid());
     }
 
     @Override
-    public TaskExecutionService run() {
-        return new RestJaxbTaskExecuteService(getService(), PATH_RUN, getOid());
+    public TaskOperationService run() {
+        return new RestJaxbTaskOperationService(getService(), PATH_RUN, getOid());
     }
 }

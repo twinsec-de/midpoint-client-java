@@ -15,9 +15,11 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
+import com.evolveum.midpoint.client.api.FocusPolicyService;
 import com.evolveum.midpoint.client.api.FocusService;
 import com.evolveum.midpoint.client.api.Focus;
 import com.evolveum.midpoint.client.api.ValidateGenerateRpcService;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.CredentialsPolicyType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.FocusType;
 
 public class RestJaxbFocusService<F extends FocusType> extends RestJaxbObjectService<F> implements FocusService<F> {
@@ -44,5 +46,11 @@ public class RestJaxbFocusService<F extends FocusType> extends RestJaxbObjectSer
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), getOid());
         restPath += "/validate";
         return new RestJaxbValidateGenerateRpcService(getService(), restPath);
+    }
+
+    @Override
+    public FocusPolicyService<CredentialsPolicyType> credentialsPolicy() {
+        String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), getOid(), "policy");
+        return new RestJaxbFocusPolicyService<>(getService(), restPath, CredentialsPolicyType.class);
     }
 }

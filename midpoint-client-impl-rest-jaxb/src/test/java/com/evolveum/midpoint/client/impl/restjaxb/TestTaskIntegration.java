@@ -30,6 +30,10 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 
 import static org.testng.AssertJUnit.*;
 
+/**
+ * Won't work with empty deplyment. At least, some users has to exists
+ * so if the task starts, it will take a while to finish
+ */
 public class TestTaskIntegration extends AbstractTest {
 
     private static final String ENDPOINT_ADDRESS = "http://localhost:8080/midpoint/ws/rest";

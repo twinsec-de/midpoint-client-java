@@ -19,9 +19,9 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 
 public interface TaskService extends ObjectService<TaskType> {
 
-    TaskExecutionService suspend();
+    TaskOperationService suspend();
 
-    TaskExecutionService resume();
+    TaskOperationService resume();
 
-    TaskExecutionService run();
+    TaskOperationService run();
 }

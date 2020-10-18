@@ -15,19 +15,11 @@
  */
 package com.evolveum.midpoint.client.api;
 
-import com.evolveum.midpoint.xml.ns._public.common.common_3.CredentialsPolicyType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.FocusType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 
-public interface FocusService<F extends FocusType> extends ObjectService<F> {
+public interface ResourceImportService {
 
-    Focus<F> credential();
+    ResourceOperationService<ObjectReference<TaskType>> objectClass(String objectClass);
 
-    ValidateGenerateRpcService generate();
-
-    ValidateGenerateRpcService validate();
-
-    FocusPolicyService<CredentialsPolicyType> credentialsPolicy();
-
-    //TODO: later add other, such as authenticationpolicy, flowPolicy, securityPolicy ,...
-
+    //TODO later supoort for kind/intent
 }

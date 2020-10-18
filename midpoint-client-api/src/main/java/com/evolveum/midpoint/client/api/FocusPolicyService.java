@@ -15,8 +15,9 @@
  */
 package com.evolveum.midpoint.client.api;
 
-import com.evolveum.midpoint.client.api.verb.Post;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
+import com.evolveum.midpoint.client.api.verb.Get;
 
-public interface TaskExecutionService extends Post<ObjectReference<TaskType>> {
+public interface FocusPolicyService<T> extends Get<T> {
+
+
 }

@@ -18,18 +18,18 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 import javax.ws.rs.core.Response;
 
 import com.evolveum.midpoint.client.api.ObjectReference;
-import com.evolveum.midpoint.client.api.TaskExecutionService;
+import com.evolveum.midpoint.client.api.TaskOperationService;
 import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.CommonException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 
-public class RestJaxbTaskExecuteService implements TaskExecutionService {
+public class RestJaxbTaskOperationService implements TaskOperationService {
 
     private RestJaxbService service;
     private String path;
     private String oid;
 
-    public RestJaxbTaskExecuteService(RestJaxbService service, String path, String oid) {
+    public RestJaxbTaskOperationService(RestJaxbService service, String path, String oid) {
         this.service = service;
         this.path = path;
         this.oid = oid;

@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.lang3.StringUtils;
@@ -77,6 +80,30 @@ public class TestIntegrationBasic extends AbstractTest {
         URI currentUri = service.getCurrentUri();
         String query = currentUri.getQuery();
         System.out.println("query: " + query);
+    }
+
+    @Test
+    public void test212getValuePolicyForJack() throws Exception {
+        CredentialsPolicyType credentialsPolicyType = service.users().oid(USER_JACK_OID).credentialsPolicy().get();
+
+        //Default security policy distributed with midPoint should be returned
+        PasswordCredentialsPolicyType passwordPolicy = credentialsPolicyType.getPassword();
+        assertNotNull("Password policy not provded.", passwordPolicy);
+        assertEquals(passwordPolicy.getMinOccurs(), "0", "Min occurs doesn't match.");
+        assertEquals(passwordPolicy.getLockoutMaxFailedAttempts().intValue(), 3, "lockoutMaxFailedAttempts doesn't match.");
+
+        assertEquals(createDuration("PT3M").compare(passwordPolicy.getLockoutFailedAttemptsDuration()), 0, "lockoutFailedAttemptsDuration doesn't match.");
+        assertEquals(createDuration("PT15M").compare(passwordPolicy.getLockoutDuration()), 0, "lockoutDuration doesn't match.");
+
+        assertNull(credentialsPolicyType.getSecurityQuestions());
+        assertNull(credentialsPolicyType.getDefault());
+        assertEquals(0, credentialsPolicyType.getNonce().size(), "No nonce configuration expected");
+
+    }
+
+    private Duration createDuration(String lexicalRepresentation) throws DatatypeConfigurationException {
+        DatatypeFactory datatypefactory = DatatypeFactory.newInstance();
+        return datatypefactory.newDuration(lexicalRepresentation);
     }
 
     // see analogous test 520 in midPoint TestAbstractRestService
