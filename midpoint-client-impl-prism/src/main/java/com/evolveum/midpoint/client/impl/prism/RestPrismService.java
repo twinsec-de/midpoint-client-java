@@ -24,8 +24,8 @@ public class RestPrismService implements Service {
 
 
     @Override
-    public ObjectCollectionService<UserType> users() {
-        return new RestPrismObjectCollectionService<>(this, ObjectTypes.USER);
+    public FocusCollectionService<UserType> users() {
+        return new RestPrismFocusCollectionService<>(this, ObjectTypes.USER);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class RestPrismService implements Service {
     }
 
     @Override
-    public ObjectCollectionService<TaskType> tasks() {
+    public TaskCollectionService tasks() {
         return null;
     }
 
@@ -99,12 +99,12 @@ public class RestPrismService implements Service {
     }
 
     @Override
-    public ObjectCollectionService<RoleType> roles() {
+    public FocusCollectionService<RoleType> roles() {
         return null;
     }
 
     @Override
-    public ObjectCollectionService<OrgType> orgs() {
+    public FocusCollectionService<OrgType> orgs() {
         return null;
     }
 

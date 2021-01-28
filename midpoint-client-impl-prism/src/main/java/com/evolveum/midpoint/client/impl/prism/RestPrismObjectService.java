@@ -1,9 +1,7 @@
 package com.evolveum.midpoint.client.impl.prism;
 
-import com.evolveum.midpoint.client.api.ObjectCredentialService;
 import com.evolveum.midpoint.client.api.ObjectModifyService;
 import com.evolveum.midpoint.client.api.ObjectService;
-import com.evolveum.midpoint.client.api.ValidateGenerateRpcService;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.schema.constants.ObjectTypes;
@@ -35,21 +33,6 @@ public class RestPrismObjectService<O extends ObjectType> extends CommonPrismSer
 
     @Override
     public ObjectModifyService<O> modify() throws ObjectNotFoundException, AuthenticationException {
-        return null;
-    }
-
-    @Override
-    public ObjectCredentialService<O> credential() {
-        return null;
-    }
-
-    @Override
-    public ValidateGenerateRpcService generate() {
-        return null;
-    }
-
-    @Override
-    public ValidateGenerateRpcService validate() {
         return null;
     }
 

@@ -28,6 +28,7 @@
     <modules>
         <module>midpoint-client-api</module>
         <module>midpoint-client-impl-rest-jaxb</module>
+        <module>midpoint-client-impl-prism</module>
     </modules>
 
     <properties>
