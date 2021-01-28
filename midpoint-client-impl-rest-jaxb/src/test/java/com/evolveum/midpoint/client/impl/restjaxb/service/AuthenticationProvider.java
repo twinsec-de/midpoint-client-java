@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.Base64Exception;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.configuration.security.AuthorizationPolicy;
@@ -43,13 +43,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
 
 /**
- * 
+ *
  * @author katkav
  *
  */
 @Priority(Priorities.AUTHENTICATION)
 public class AuthenticationProvider implements ContainerRequestFilter {
-	
+
 	protected static final String USER_CHALLENGE = "\"user\" : \"username\"";
 	protected static final String USER_QUESTION_ANSWER_CHALLENGE = ", \"answer\" :";
 	protected static final String QUESTION = "{\"qid\" : \"$QID\", \"qtxt\" : \"$QTXT\"}";
@@ -57,30 +57,30 @@ public class AuthenticationProvider implements ContainerRequestFilter {
 	private static final String Q_ID = "$QID";
 	private static final String Q_TXT = "$QTXT";
 
-	
+
 	private static Map<String, String> usernamePasswordAuthentication;
 	private static Map<String, Map<String, String>> usernameSecurityQuestionAuthneticator;
-	
+
 	private static Map<String, String> securityQuestionAnswer;
-	
-	
+
+
 	static {
-		
+
 		securityQuestionAnswer = new HashMap<>();
 		securityQuestionAnswer.put("id1", "How are you?");
 		securityQuestionAnswer.put("id2", "What's your favorite color?");
-		
+
 		usernamePasswordAuthentication = new HashMap<>();
 		usernamePasswordAuthentication.put("administrator", "5ecr3t");
 		usernamePasswordAuthentication.put("jack", "sp4rr0w");
-		
+
 		usernameSecurityQuestionAuthneticator = new HashMap<>();
 		Map<String, String> admnistratorQA = new HashMap<>();
 		admnistratorQA.put("id1", "I'm pretty good, thanks for AsKinG");
 		admnistratorQA.put("id2", "I do NOT have FAVORITE c0l0r!");
 		usernameSecurityQuestionAuthneticator.put("administrator", admnistratorQA);
 	}
-	
+
 	@Override
 	public void filter(ContainerRequestContext requestCtx) throws IOException {
 		Message m = JAXRSUtils.getCurrentMessage();
@@ -95,17 +95,17 @@ public class AuthenticationProvider implements ContainerRequestFilter {
 	        }
 
 	        //TODO: better impelemtnation:
-	        
+
 	        String password = usernamePasswordAuthentication.get(enteredUsername);
 	        if (password == null) {
-	        	requestCtx.abortWith(Response.status(Status.FORBIDDEN).build());
+	        	requestCtx.abortWith(Response.status(Status.UNAUTHORIZED).build());
 	        	return;
 	        }
-	        
+
 	        if (password.equals(policy.getPassword())) {
 	        	//successfull authn
 	        } else {
-	        	requestCtx.abortWith(Response.status(Status.FORBIDDEN).build());
+	        	requestCtx.abortWith(Response.status(Status.UNAUTHORIZED).build());
 	        }
 			return;
 		}
@@ -143,14 +143,14 @@ public class AuthenticationProvider implements ContainerRequestFilter {
 			if (!handleSecurityQuestionRequest(policy, m, requestCtx)) {
 				return;
 			}
-		
+
 		} catch (Base64Exception e) {
 			RestMockServiceUtil.createSecurityQuestionAbortMessage(requestCtx, "{\"user\" : \"username\"}");
 			return;
 
 		}
 	}
-	
+
 	private boolean handleSecurityQuestionRequest(AuthorizationPolicy policy, Message message, ContainerRequestContext requestCtx) {
 		JsonFactory f = new JsonFactory();
 		ObjectMapper mapper = new ObjectMapper(f);
@@ -172,7 +172,7 @@ public class AuthenticationProvider implements ContainerRequestFilter {
 
 			if (answerNode instanceof MissingNode) {
 				Map<String, String> questionAnswer = usernameSecurityQuestionAuthneticator.get(userName);
-				
+
 				if (questionAnswer == null) {
 					requestCtx.abortWith(Response.status(Status.UNAUTHORIZED).header("WWW-Authenticate", "Security question authentication failed. Incorrect username and/or password").build());
 					return false;
@@ -183,7 +183,7 @@ public class AuthenticationProvider implements ContainerRequestFilter {
 					return false;
 				}
 
-				
+
 				String questionChallenge = "";
 				Set<Entry<String, String>> securityQuestionAnswerValues = securityQuestionAnswer.entrySet();
 				Iterator<Entry<String, String>> securityQuestionAnswerValuesIterator = securityQuestionAnswerValues.iterator();

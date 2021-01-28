@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,6 @@ public interface AtomicFilterExit<O extends ObjectType> extends FilterExit<O> {
 
 	FilterEntry<O> and();
 	FilterEntry<O> or();
-	
-//	QueryBuilder<O> finishQuery(); 
+
+//	QueryBuilder<O> finishQuery();
 }

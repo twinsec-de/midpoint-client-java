@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.evolveum.midpoint.client.impl.restjaxb;
 import com.evolveum.midpoint.client.api.PolicyService;
 import com.evolveum.midpoint.client.api.ShadowService;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.client.api.exception.AuthorizationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.FocusType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
@@ -36,11 +37,10 @@ public class RestJaxbShadowService extends RestJaxbObjectService<ShadowType> imp
 	}
 
 	@Override
-	public OperationResultType importShadow() throws ObjectNotFoundException, AuthenticationException {
+	public OperationResultType importShadow() throws ObjectNotFoundException {
 		String urlPrefix = RestUtil.subUrl(Types.findType(ShadowType.class).getRestPath(), getOid(), "import");
 
-		WebClient client = getService().getClient();
-		Response response = client.replacePath(urlPrefix).post(null);
+		Response response = getService().post(urlPrefix, null);
 
 		if (Response.Status.OK.getStatusCode() == response.getStatus()) {
 			return response.readEntity(OperationResultType.class);
@@ -54,7 +54,7 @@ public class RestJaxbShadowService extends RestJaxbObjectService<ShadowType> imp
 	}
 
 	@Override
-	public FocusType owner() throws ObjectNotFoundException, AuthenticationException {
+	public FocusType owner() throws ObjectNotFoundException {
 		// todo implement
 		return null;
 	}

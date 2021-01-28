@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import com.evolveum.midpoint.client.api.AuthenticationManager;
 import com.evolveum.midpoint.client.api.exception.SchemaException;
@@ -24,14 +24,14 @@ public class BasicAuthenticationManager implements AuthenticationManager<BasicCh
 
 	private BasicChallenge authnCtx;
 	private AuthenticationType type;
-	
+
 	public BasicAuthenticationManager(String username, String password) {
 		this.type = AuthenticationType.BASIC;
 		authnCtx = new BasicChallenge();
 		authnCtx.setUsername(username);
 		authnCtx.setPassword(password);
 	}
-	
+
 	@Override
 	public String getType() {
 		return type.getType();
@@ -45,7 +45,7 @@ public class BasicAuthenticationManager implements AuthenticationManager<BasicCh
 	@Override
 	public String createAuthorizationHeader() {
 		String authorizationHeader = getType();
-		
+
 		if (StringUtils.isNotBlank(authnCtx.getUsername())) {
 			authorizationHeader += " " + org.apache.cxf.common.util.Base64Utility.encode(
 					(authnCtx.getUsername() + ":" + (authnCtx.getPassword() == null ? "" : authnCtx.getPassword()))
@@ -54,7 +54,7 @@ public class BasicAuthenticationManager implements AuthenticationManager<BasicCh
 		return authorizationHeader;
 
 	}
-	
+
 	@Override
 	public BasicChallenge getChallenge() {
 		return authnCtx;

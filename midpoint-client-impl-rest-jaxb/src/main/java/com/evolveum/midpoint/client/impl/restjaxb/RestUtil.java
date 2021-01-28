@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,6 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.xml.namespace.QName;
-
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectModificationType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemTargetType;
@@ -28,9 +23,13 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 import com.evolveum.prism.xml.ns._public.types_3.ItemDeltaType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
-import com.sun.org.apache.xerces.internal.dom.ElementNSImpl;
-import com.sun.org.apache.xerces.internal.dom.TextImpl;
-import org.apache.commons.lang.StringUtils;
+
+import org.apache.commons.lang3.StringUtils;
+
+import javax.ws.rs.core.Response;
+import javax.xml.namespace.QName;
+import java.net.URI;
+import java.util.List;
 
 /**
  * @author semancik
@@ -111,31 +110,22 @@ public class RestUtil {
 		return objectReferenceType;
 	}
 
-	public static String getPolicyItemsDefValue(PolicyItemsDefinitionType policyItems){
-		List<PolicyItemDefinitionType> resultList = policyItems.getPolicyItemDefinition();
-		PolicyItemDefinitionType policyItemDefinitionType = resultList.get(0);
-		//Why cant getValue just return the string value? :(
-		ElementNSImpl elementNSImpl = (ElementNSImpl) policyItemDefinitionType.getValue();
-		TextImpl textImpl = (TextImpl) elementNSImpl.getFirstChild();
-		return textImpl.getData();
-	}
-
 	public static String getFailedValidationMessage(OperationResultType operationResultType){
-		
+
 		if (operationResultType.getMessage() != null) {
 			return operationResultType.getMessage();
 		}
-		
+
 		if (operationResultType.getUserFriendlyMessage() != null) {
 			LocalizableMessageType localizableMessage = operationResultType.getUserFriendlyMessage();
 			return getStringMessage(localizableMessage);
 		}
-		
+
 		LocalizableMessageType validationResult = getValidationOperationResult(operationResultType);
 		return getStringMessage(validationResult);
 
 	}
-	
+
 	private static LocalizableMessageType getValidationOperationResult(OperationResultType operationResultType) {
 		List<OperationResultType> partialResults = operationResultType.getPartialResults();
 		for(OperationResultType operationResult : partialResults){
@@ -144,10 +134,10 @@ public class RestUtil {
 				return getValidationDetialsOperationResult(operationResult);
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	private static LocalizableMessageType getValidationDetialsOperationResult(OperationResultType validationResult) {
 		for(OperationResultType operationResult : validationResult.getPartialResults()){
 			if(VALUE_POLICY_EVALUATOR_VALIDATE_VALUE_PATH.equals(operationResult.getOperation()))
@@ -157,23 +147,46 @@ public class RestUtil {
 		}
 		return null;
 	}
-	
+
 	private static String getStringMessage(LocalizableMessageType localizableMessage) {
 		if (localizableMessage instanceof SingleLocalizableMessageType) {
 			return ((SingleLocalizableMessageType) localizableMessage).getFallbackMessage();
 		}
-		
+
 		if (localizableMessage instanceof LocalizableMessageListType) {
 			List<LocalizableMessageType> messageList = ((LocalizableMessageListType) localizableMessage).getMessage();
-			String fallbackMsg = "";
+			StringBuilder fallbackMsg = new StringBuilder();
 			for (LocalizableMessageType msg : messageList) {
-				fallbackMsg += getStringMessage(msg);
+				fallbackMsg.append(getStringMessage(msg));
 			}
-			return fallbackMsg;
+			return fallbackMsg.toString();
 		}
-		
+
 		throw new UnsupportedOperationException("Unknown localizable message type: " + ((localizableMessage != null) ? localizableMessage.getClass() : null));
 	}
-	
+
+	public static String getOidFromLocation(Response response, String path) {
+        URI uriLocation = response.getLocation();
+        // Fixed location null: When you enabled policy rule in Midpoint, for instance an approval step on user's creation
+        // The HTTP response is 202 without location reference
+        if (uriLocation == null) {
+            return null;
+        }
+		String location = uriLocation.toString();
+		String[] locationSegments = location.split(path + "/");
+		return locationSegments[1];
+	}
+
+    public static String getOidLastFromLocation(Response response) {
+        URI uriLocation = response.getLocation();
+        // Fixed location null: When you enabled policy rule in Midpoint, for instance an approval step on user's creation
+        // The HTTP response is 202 without location reference
+        if (uriLocation == null) {
+            return null;
+        }
+        String location = uriLocation.toString();
+        String[] locationSegments = location.split("/");
+        return locationSegments[locationSegments.length-1];
+    }
 
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class CustomAuthNProvider<T extends AuthenticationChallenge> extends Abst
 			if (authenticationType == null) {
 				return;
 			}
-			
+
 			String[] authNConfig = authenticationType.split(" ");
 			if (authNConfig.length > 1) {
 				String challenge = authNConfig[1];
@@ -84,7 +84,7 @@ public class CustomAuthNProvider<T extends AuthenticationChallenge> extends Abst
 
 		for (String auhtN : header) {
 			String[] authNType = auhtN.split(",");
-			
+
 			for (String s : authNType) {
 				String[] type = s.split(" ");
 				try {
@@ -95,7 +95,7 @@ public class CustomAuthNProvider<T extends AuthenticationChallenge> extends Abst
 				}
 			}
 
-			
+
 
 		}
 

@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,28 +30,28 @@ public interface Post<T> {
 	 * Synchronous POST.
 	 */
 	default T post() throws OperationInProgressException, CommonException {
-		
+
 		TaskFuture<T> future = apost();
-		
+
 		if (!future.isDone()) {
 			// TODO: better error message
 			throw new OperationInProgressException("Operation in progress");
 		}
-		
+
 		try {
-			
+
 			return future.get();
-			
+
 		} catch (InterruptedException e) {
 			// We do not support interruptions or cancelations yet.
 			// Therefore this should not happen.
 			throw new SystemException("Unexpected internal error", e);
-			
+
 		} catch (ExecutionException e) {
 			// Exception during execution
 			Throwable cause = e.getCause();
 			if (cause instanceof CommonException) {
-				throw (CommonException)cause;				
+				throw (CommonException)cause;
 			} else if (cause instanceof RuntimeException) {
 				throw (RuntimeException)cause;
 			} else {
@@ -59,11 +59,11 @@ public interface Post<T> {
 			}
 		}
 	}
-	
+
 	/**
 	 * Potentially asynchronous POST.
-	 * @throws AuthorizationException 
+	 * @throws AuthorizationException
 	 */
 	TaskFuture<T> apost() throws CommonException;
-	
+
 }

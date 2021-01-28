@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,11 @@ package com.evolveum.midpoint.client.api;
 
 import com.evolveum.midpoint.client.api.verb.Post;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 
 /**
- * 
+ *
  * @author katkav
  *
  */
@@ -28,10 +29,12 @@ public interface RpcService<T> extends Post<T> {
 
 	ValidateGenerateRpcService validate();
 	ValidateGenerateRpcService generate();
-	
+
 	//TODO: implement, change return type etc
 	void compare();
 
 	// Preliminary implementation. Adapt as necessary.
-	Post<ExecuteScriptResponseType> executeScript(ExecuteScriptType request);
+	ExecuteScriptRpcService<ExecuteScriptResponseType> executeScript(ExecuteScriptType request);
+
+	ExecuteScriptRpcService<ObjectReference<TaskType>> executeScriptAsync(ExecuteScriptType request);
 }

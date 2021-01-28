@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,21 +24,21 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
  * Reference to an object. It contains object OID and type as
  * a very minimum. But the reference may be resolved and then
  * it contains full object.
- * 
+ *
  * The reference is used in places where the method can return
  * either object identifiers (OID, type) or they may return complete
  * object.
- * 
+ *
  * @author semancik
  *
  */
 public interface ObjectReference<O extends ObjectType> extends Get<O> {
 
 	String getOid();
-	
+
 	Class<O> getType();
-	
-	O getObject() throws ObjectNotFoundException, AuthenticationException;
-	
+
+	O getObject() throws ObjectNotFoundException;
+
 	boolean containsObject();
 }

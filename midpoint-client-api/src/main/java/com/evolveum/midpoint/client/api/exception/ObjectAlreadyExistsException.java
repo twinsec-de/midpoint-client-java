@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.evolveum.midpoint.client.api.exception;
 
 /**
- * 
+ *
  * @author katkav
  *
  */
@@ -39,10 +39,10 @@ public class ObjectAlreadyExistsException extends CommonException {
 	public ObjectAlreadyExistsException(String message, Throwable cause) {
 		super(message, cause);
 	}
-	
+
 	public ObjectAlreadyExistsException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
 	}
 
-	
+
 }

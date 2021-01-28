@@ -16,58 +16,68 @@
 package com.evolveum.midpoint.client.impl.restjaxb;
 
 import com.evolveum.midpoint.client.api.ExecuteScriptRpcService;
+import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.TaskFuture;
-import com.evolveum.midpoint.client.api.exception.*;
+import com.evolveum.midpoint.client.api.exception.CommonException;
+import com.evolveum.midpoint.client.api.exception.ConfigurationException;
+import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.exception.PolicyViolationException;
 import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResponseType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 import com.evolveum.midpoint.xml.ns._public.model.scripting_3.ExecuteScriptType;
 
-import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
+import java.util.*;
 
 /**
  * Preliminary implementation. Adapt as necessary.
  *
  * @author mederly
  */
-public class RestJaxbExecuteScriptRpcService implements ExecuteScriptRpcService {
+public class RestJaxbExecuteScriptRpcService<T> implements ExecuteScriptRpcService<T> {
 
 	private RestJaxbService service;
 	private String path;
 
 	private ExecuteScriptType script;
+	private boolean asynchronous;
 
-	public RestJaxbExecuteScriptRpcService(RestJaxbService service, String path, ExecuteScriptType script) {
+	public RestJaxbExecuteScriptRpcService(RestJaxbService service, String path, ExecuteScriptType script, boolean asynchronous) {
 		this.service = service;
 		this.path = path;
 		this.script = script;
+		this.asynchronous = asynchronous;
 	}
 
 	@Override
-	public TaskFuture<ExecuteScriptResponseType> apost() throws CommonException {
-		
-		Response response = service.getClient().replacePath(path).post(script);
+	public TaskFuture<T> apost() throws CommonException {
+
+		Map<String, List<String>> queryParams = null;
+		if (asynchronous) {
+			queryParams = new HashMap<>();
+			queryParams.put("asynchronous", Collections.singletonList(String.valueOf(true)));
+		}
+
+		Response response = service.post(path, script, queryParams);
 
 		switch (response.getStatus()) {
 			case 200:
 				ExecuteScriptResponseType executeScriptResponse = response.readEntity(ExecuteScriptResponseType.class);
-				return new RestJaxbCompletedFuture<>(executeScriptResponse);
-			// TODO deduplicate the following error responses
-			case 250:
-				throw new PartialErrorException(response.getStatusInfo().getReasonPhrase());
-			case 400:
-				throw new BadRequestException(response.getStatusInfo().getReasonPhrase());
-			case 401:
-				throw new AuthenticationException(response.getStatusInfo().getReasonPhrase());
-			case 403:
-				throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());
-			case 404:
-				throw new ObjectNotFoundException(response.getStatusInfo().getReasonPhrase());
+				return new RestJaxbCompletedFuture<>((T) executeScriptResponse);
+			case 201:
+			    if (!asynchronous) {
+			        throw new ConfigurationException("Location not present when executing script synchronously");
+                }
+				String oid = RestUtil.getOidFromLocation(response, path);
+				RestJaxbObjectReference<TaskType> taskRef = new RestJaxbObjectReference<>(service, TaskType.class, oid);
+				return new RestJaxbCompletedFuture<>((T) taskRef);
 			case 409:
 				OperationResultType operationResultType = response.readEntity(OperationResultType.class);
 				throw new PolicyViolationException(operationResultType.getMessage());
 			default:
 				throw new UnsupportedOperationException("Implement other status codes, unsupported return status: " + response.getStatus());
 		}
+
 	}
 }

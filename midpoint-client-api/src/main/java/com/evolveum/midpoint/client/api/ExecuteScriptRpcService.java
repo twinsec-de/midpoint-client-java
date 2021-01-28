@@ -23,6 +23,6 @@ import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ExecuteScriptResp
  *
  * @author mederly
  */
-public interface ExecuteScriptRpcService extends Post<ExecuteScriptResponseType> {
+public interface ExecuteScriptRpcService<T> extends Post<T> {
 
 }

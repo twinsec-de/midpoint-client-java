@@ -27,13 +27,13 @@ public interface Service {
 	// TODO
 //	ProxyService proxy();
 
-	ObjectCollectionService<UserType> users();
+    FocusCollectionService<UserType> users();
 
 	<T> RpcService<T> rpc();
 
 	ObjectCollectionService<ValuePolicyType> valuePolicies();
 
-	UserType self() throws AuthenticationException;
+	UserType self();
 
 	Service impersonate(String oid);
 
@@ -53,13 +53,13 @@ public interface Service {
 
 	ObjectCollectionService<SystemConfigurationType> systemConfigurations();
 
-	ObjectCollectionService<TaskType> tasks();
+	TaskCollectionService tasks();
 
 	ShadowCollectionService shadows();
 
-	ObjectCollectionService<RoleType> roles();
+    FocusCollectionService<RoleType> roles();
 
-	ObjectCollectionService<OrgType> orgs();
+    FocusCollectionService<OrgType> orgs();
 
 	ServiceUtil util();
 

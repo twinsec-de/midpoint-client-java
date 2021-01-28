@@ -48,17 +48,12 @@ import java.util.List;
  * @author mederly
  *
  */
-public class TestServiceUtil {
+public class TestServiceUtil extends AbstractTest {
 	
 	private static final String DATA_DIR = "src/test/resources/other";
 
-	private Unmarshaller unmarshaller;
-	private ServiceUtil util;
-
 	public TestServiceUtil() throws JAXBException, IOException {
-		JAXBContext jaxbCtx = createJaxbContext();
-		util = new RestJaxbServiceUtil(jaxbCtx);
-		unmarshaller = jaxbCtx.createUnmarshaller();
+
 	}
 
 	@Test
@@ -87,7 +82,7 @@ public class TestServiceUtil {
 		String deltaAsString = IOUtils.toString(new FileInputStream(file));
 		
 		
-		ObjectDeltaType objectDetla = util.parse(ObjectDeltaType.class, deltaAsString);
+		ObjectDeltaType objectDetla = getServiceUtils().parse(ObjectDeltaType.class, deltaAsString);
 		List<ItemDeltaType> itemDeltaType = objectDetla.getItemDelta();
 		assertTrue(itemDeltaType.size() != 0, "Unexpected item detla size: " + itemDeltaType.size());
 		
@@ -108,7 +103,7 @@ public class TestServiceUtil {
 		String deltaAsString = IOUtils.toString(new FileInputStream(file));
 		
 		
-		ObjectDeltaType objectDetla = util.parse(ObjectDeltaType.class, deltaAsString);
+		ObjectDeltaType objectDetla = getServiceUtils().parse(ObjectDeltaType.class, deltaAsString);
 		List<ItemDeltaType> itemDeltaTypes = objectDetla.getItemDelta();
 		assertTrue(itemDeltaTypes.size() == 1, "Unexpected item detla size: " + itemDeltaTypes.size());
 		
@@ -132,7 +127,7 @@ public class TestServiceUtil {
 		String deltaAsString = IOUtils.toString(new FileInputStream(file));
 		
 		
-		ObjectDeltaType objectDetla = util.parse(ObjectDeltaType.class, deltaAsString);
+		ObjectDeltaType objectDetla = getServiceUtils().parse(ObjectDeltaType.class, deltaAsString);
 		List<ItemDeltaType> itemDeltaTypes = objectDetla.getItemDelta();
 		assertTrue(itemDeltaTypes.size() == 1, "Unexpected item detla size: " + itemDeltaTypes.size());
 		
@@ -146,7 +141,7 @@ public class TestServiceUtil {
 		assertEquals(o.getClass(), ProtectedStringType.class);
 		
 		ProtectedStringType password = (ProtectedStringType) o;
-		assertEquals(util.getClearValue(password), "asd123");
+		assertEquals(getServiceUtils().getClearValue(password), "asd123");
 	}
 	
 	@Test
@@ -155,7 +150,7 @@ public class TestServiceUtil {
 		String deltaAsString = IOUtils.toString(new FileInputStream(file));
 		
 		
-		ObjectDeltaType objectDetla = util.parse(ObjectDeltaType.class, deltaAsString);
+		ObjectDeltaType objectDetla = getServiceUtils().parse(ObjectDeltaType.class, deltaAsString);
 		List<ItemDeltaType> itemDeltaTypes = objectDetla.getItemDelta();
 		assertTrue(itemDeltaTypes.size() == 1, "Unexpected item detla size: " + itemDeltaTypes.size());
 		
@@ -172,7 +167,7 @@ public class TestServiceUtil {
 		String deltaAsString = IOUtils.toString(new FileInputStream(file));
 		
 		
-		ObjectDeltaType objectDetla = util.parse(ObjectDeltaType.class, deltaAsString);
+		ObjectDeltaType objectDetla = getServiceUtils().parse(ObjectDeltaType.class, deltaAsString);
 		List<ItemDeltaType> itemDeltaTypes = objectDetla.getItemDelta();
 		assertTrue(itemDeltaTypes.size() == 1, "Unexpected item detla size: " + itemDeltaTypes.size());
 		
@@ -196,7 +191,7 @@ public class TestServiceUtil {
 		String deltaAsString = IOUtils.toString(new FileInputStream(file));
 		
 		
-		AssignmentType assignment = util.parse(AssignmentType.class, deltaAsString);
+		AssignmentType assignment = getServiceUtils().parse(AssignmentType.class, deltaAsString);
 		System.out.println("Assignemnt: " + assignment);
 		ObjectReferenceType ort = new ObjectReferenceType();
 		ort.setOid("123123");
@@ -207,35 +202,9 @@ public class TestServiceUtil {
 	
 	private void testProtectedString(String filename, String expectedValue) throws Exception {
 		//noinspection unchecked
-		ProtectedStringType ps = ((JAXBElement<ProtectedStringType>) unmarshaller.unmarshal(new File(DATA_DIR, filename))).getValue();
-		String clearValue = util.getClearValue(ps);
+		ProtectedStringType ps = ((JAXBElement<ProtectedStringType>) getUnmarshaller().unmarshal(new File(DATA_DIR, filename))).getValue();
+		String clearValue = getServiceUtils().getClearValue(ps);
 		AssertJUnit.assertEquals("Unexpected clear value", expectedValue, clearValue);
 	}
-	
-	
 
-	private JAXBContext createJaxbContext() throws IOException {
-		try {
-			return JAXBContext.newInstance("com.evolveum.midpoint.xml.ns._public.common.api_types_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.common.audit_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.common.common_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_schema_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.resource_schema_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.gui.admin_1:"
-					+ "com.evolveum.midpoint.xml.ns._public.model.extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.model.scripting_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.model.scripting.extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.report.extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.resource.capabilities_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.task.extension_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.task.jdbc_ping.handler_3:"
-					+ "com.evolveum.midpoint.xml.ns._public.task.noop.handler_3:"
-					+ "com.evolveum.prism.xml.ns._public.annotation_3:"
-					+ "com.evolveum.prism.xml.ns._public.query_3:"
-					+ "com.evolveum.prism.xml.ns._public.types_3");
-		} catch (JAXBException e) {
-			throw new IOException(e);
-		}
-	}
 }

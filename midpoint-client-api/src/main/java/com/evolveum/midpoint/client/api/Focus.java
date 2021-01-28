@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
  * @author Jakmor
  *
  */
-public interface ObjectCredentialService<O extends ObjectType> extends Post<ExecuteCredentialResetResponseType>
-{
-    ObjectCredentialService<O> executeResetPassword(ExecuteCredentialResetRequestType executeCredentialResetRequest);
+public interface Focus<O extends ObjectType> extends Post<ExecuteCredentialResetResponseType> {
+
+    Focus<O> executeResetPassword(ExecuteCredentialResetRequestType executeCredentialResetRequest);
 }

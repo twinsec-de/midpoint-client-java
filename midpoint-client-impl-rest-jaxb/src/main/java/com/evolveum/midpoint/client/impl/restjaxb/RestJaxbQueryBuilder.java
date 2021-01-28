@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
 
 /**
- * 
+ *
  * @author katkav
  *
  */
@@ -49,11 +49,11 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntr
 
 	private RestJaxbService queryForService;
 	private Class<O> type;
-	
+
 //	private QueryType query;
 
 	private FilterBuilder<O> owner;
-	
+
 	private RestJaxbQueryBuilder(RestJaxbQueryBuilder<O> originalFilter, ItemPathType itemPath, FilterBuilder<O> owner) {
 		this(originalFilter.queryForService, originalFilter.type);
 		this.itemPath = itemPath;
@@ -67,7 +67,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntr
 		this.filterClause = filterClause;
 		this.owner = owner;
 	}
-	
+
 //	public RestJaxbQueryBuilder(RestJaxbService searchService, Class<O> type, QueryType query) {
 //		this(searchService, type);
 //		this.query = query;
@@ -77,16 +77,16 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntr
 	private RestJaxbQueryBuilder(RestJaxbService searchService, Class<O> type) {
 		this.queryForService = searchService;
 		this.type = type;
-		
+
 	}
-	
+
 	private RestJaxbQueryBuilder(RestJaxbService searchService, Class<O> type, FilterBuilder<O> owner) {
 		this.queryForService = searchService;
 		this.type = type;
 		this.owner = owner;
 	}
-	
-	
+
+
 	public static <O extends ObjectType>  RestJaxbQueryBuilder<O> create(RestJaxbService serachService, Class<O> type, FilterBuilder<O> owner, ItemPathType itemPath){
 		RestJaxbQueryBuilder<O> restJaxbBuilder = new RestJaxbQueryBuilder<>(serachService, type, owner);
 		restJaxbBuilder.itemPath = itemPath;
@@ -296,7 +296,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntr
 	public FilterEntry<O> or() {
 		return finish().or();
 	}
-	
+
 	private FilterBuilder<O> finish() {
 		if (filterClause == null) {
 			throw new IllegalStateException("No filter created yet.");
@@ -309,7 +309,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntr
 //		return finish().finishQuery();
 //		QueryType query = new QueryType();
 //		query.setFilter(buildFilter());;
-//		
+//
 //		return new RestJaxbQueryBuilder<>(queryForService, type, query, owner);
 //	}
 
@@ -354,8 +354,8 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntr
 	public FilterExit<O> asc(QName... names) {
 		return finish().asc(names);
 	}
-	
-	
+
+
 
 	@Override
 	public FilterExit<O> asc(ItemPathType path) {
@@ -394,7 +394,7 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntr
 		return finish().maxSize(n);
 	}
 
-	
+
 //	@Override
 //	public PagingRuleBuilder<O> paging()
 //	{

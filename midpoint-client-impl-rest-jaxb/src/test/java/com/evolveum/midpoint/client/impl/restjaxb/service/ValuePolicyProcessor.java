@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,10 +28,10 @@ import javax.naming.CommunicationException;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.text.StrBuilder;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang3.text.StrBuilder;
 
 import com.evolveum.midpoint.client.api.exception.ConfigurationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
@@ -43,7 +43,6 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.LimitationsType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultStatusType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ParamsType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.PasswordLifeTimeType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.StringLimitType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.StringPolicyType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ValuePolicyType;
@@ -51,18 +50,18 @@ import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 import com.evolveum.prism.xml.ns._public.types_3.PolyStringType;
 
 public class ValuePolicyProcessor {
-	
+
 	private static final Random RAND = new Random(System.currentTimeMillis());
 	private static final String ASCII7_CHARS = " !\"#$%&'()*+,-.01234567890:;<=>?"
 			+ "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_" + "`abcdefghijklmnopqrstuvwxyz{|}~";
-	
+
 	public boolean validate(ValuePolicyType pp, String newValue,
 			OperationResultType parentResult) throws SchemaException, ObjectNotFoundException, CommunicationException, ConfigurationException, SecurityViolationException {
 
 		Validate.notNull(pp, "Value policy must not be null.");
 
 		StringBuilder message = new StringBuilder();
-		
+
 		OperationResultType result = new OperationResultType();
 		result.setOperation("string policy validation");
 		result.getPartialResults().add(result);	//	parentResult.createSubresult(OPERATION_STRING_POLICY_VALIDATION);
@@ -75,7 +74,7 @@ public class ValuePolicyProcessor {
 		normalize(pp);
 
 //		if (newValue == null &&
-//				(pp.getStringPolicy().getLimitations().getgetMinOccurs() == null)) {
+//				(pp.getMinOccurs() == null)) {
 //			// No password is allowed
 //			result.setStatus(OperationResultStatusType.SUCCESS);
 //			return true;
@@ -91,7 +90,7 @@ public class ValuePolicyProcessor {
 		testMaximalLength(newValue, lims, result, message);
 
 		testMinimalUniqueCharacters(newValue, lims, result, message);
-		
+
 		if (lims.getLimit() == null || lims.getLimit().isEmpty()) {
 			if (message.toString() == null || message.toString().isEmpty()) {
 				OperationResultUtil.computeStatus(result);
@@ -122,10 +121,10 @@ public class ValuePolicyProcessor {
 
 			OperationResultUtil.computeStatus(limitResult);
 			result.getPartialResults().add(limitResult);
-			
+
 		}
 		testInvalidCharacters(passwd, allValidChars, result, message);
-		
+
 		if (message.toString() == null || message.toString().isEmpty()) {
 			OperationResultUtil.computeStatus(result);
 		} else {
@@ -136,7 +135,7 @@ public class ValuePolicyProcessor {
 
 		return OperationResultUtil.isAcceptable(result);
 	}
-	
+
 	private HashSet<String> getValidCharacters(CharacterClassType characterClassType,
 			ValuePolicyType passwordPolicy) {
 		if (null != characterClassType.getValue()) {
@@ -156,7 +155,7 @@ public class ValuePolicyProcessor {
 		}
 		return count;
 	}
-	
+
 	private void normalize(ValuePolicyType pp) {
 		if (null == pp) {
 			throw new IllegalArgumentException("Password policy cannot be null");
@@ -179,8 +178,8 @@ public class ValuePolicyProcessor {
 //		}
 		return;
 	}
-	
-	
+
+
 	private void testMinimalLength(String password, LimitationsType limitations,
 			OperationResultType result, StringBuilder message) {
 		// Test minimal length
@@ -217,7 +216,7 @@ public class ValuePolicyProcessor {
 			}
 		}
 	}
-	
+
 	private void testMinimalUniqueCharacters(String password, LimitationsType limitations,
 			OperationResultType result, StringBuilder message) {
 		// Test uniqueness criteria
@@ -237,7 +236,7 @@ public class ValuePolicyProcessor {
 
 		}
 	}
-	
+
 	private void testMaximalOccurence(StringLimitType stringLimitationType, int count,
 			OperationResultType limitResult, StringBuilder message) {
 		// Test maximal occurrence
@@ -247,13 +246,13 @@ public class ValuePolicyProcessor {
 				String msg = "Required maximal occurrence (" + stringLimitationType.getMaxOccurs()
 						+ ") of characters (" + stringLimitationType.getDescription()
 						+ ") in password was exceeded (occurrence of characters in password " + count + ").";
-				
+
 				OperationResultType subResult = new OperationResultType();
 				subResult.setOperation("Check maximal occurrence of characters");
 				subResult.setStatus(OperationResultStatusType.FATAL_ERROR);
 				subResult.setMessage(msg);
 				limitResult.getPartialResults().add(subResult);
-				
+
 				message.append(msg);
 				message.append("\n");
 			}
@@ -286,7 +285,7 @@ public class ValuePolicyProcessor {
 			message.append("\n");
 		}
 	}
-	
+
 	private void testMustBeFirst(StringLimitType stringLimitationType, int count,
 			OperationResultType limitResult, StringBuilder message, String password, Set<String> validChars) {
 		// test if first character is valid
@@ -312,7 +311,7 @@ public class ValuePolicyProcessor {
 		// }
 
 	}
-	
+
 	private void testInvalidCharacters(List<String> password, HashSet<String> validChars,
 			OperationResultType result, StringBuilder message) {
 
@@ -326,13 +325,13 @@ public class ValuePolicyProcessor {
 		}
 		if (invalidCharacters.length() > 0) {
 			String msg = "Characters [ " + invalidCharacters + " ] are not allowed in value";
-			
+
 			OperationResultType subResult = new OperationResultType();
 			subResult.setOperation("Check if value does not contain invalid characters");
 			subResult.setStatus(OperationResultStatusType.FATAL_ERROR);
 			subResult.setMessage(msg);
 			result.getPartialResults().add(subResult);
-			
+
 			message.append(msg);
 			message.append("\n");
 		}
@@ -343,7 +342,7 @@ public class ValuePolicyProcessor {
 		// }
 
 	}
-	
+
 	public Object generate(ItemPathType path, ValuePolicyType policy, OperationResultType result) {
 		StringPolicyType stringPolicy = policy.getStringPolicy();
 		// if (policy.getLimitations() != null &&
@@ -382,7 +381,7 @@ public class ValuePolicyProcessor {
 			unique = stringPolicy.getLimitations().getMinUniqueChars() == null ? minLen
 					: stringPolicy.getLimitations().getMinUniqueChars().intValue();
 
-		} 
+		}
 		// test correctness of definition
 		if (unique > minLen) {
 			minLen = unique;
@@ -563,7 +562,7 @@ public class ValuePolicyProcessor {
 		sb.appendAll(shuffleBuffer);
 
 		return sb.toString();
-	
+
 }
 
 private Map<Integer, List<String>> cardinalityCounter(Map<StringLimitType, List<String>> lims,

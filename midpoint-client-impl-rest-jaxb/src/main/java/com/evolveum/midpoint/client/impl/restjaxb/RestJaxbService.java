@@ -15,12 +15,18 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import static java.util.Collections.singletonList;
+
+import com.evolveum.midpoint.client.api.*;
+import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.client.api.exception.AuthorizationException;
+import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.exception.PartialErrorException;
+import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
+import com.evolveum.midpoint.client.impl.restjaxb.scripting.ScriptingUtilImpl;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
+import org.apache.cxf.jaxrs.client.WebClient;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MediaType;
@@ -28,19 +34,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.namespace.QName;
-import javax.xml.bind.Unmarshaller;
-
-import com.evolveum.midpoint.client.api.*;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
-import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
-import com.evolveum.midpoint.client.impl.restjaxb.scripting.ScriptingUtilImpl;
-
-import org.apache.cxf.jaxrs.client.ClientConfiguration;
-import org.apache.cxf.jaxrs.client.WebClient;
-
-import com.evolveum.midpoint.client.api.exception.AuthenticationException;
-import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author semancik
@@ -53,75 +51,74 @@ public class RestJaxbService implements Service {
 	private final ServiceUtil util;
 	private final ScriptingUtil scriptingUtil;
 
-	// TODO: jaxb context
-	
 	private WebClient client;
 	private DomSerializer domSerializer;
 	private JAXBContext jaxbContext;
 	private AuthenticationManager<?> authenticationManager;
 	private List<AuthenticationType> supportedAuthenticationsByServer;
-	
-	public WebClient getClient() {
-		return client;
-	}
-	
+
 	public DomSerializer getDomSerializer() {
 		return domSerializer;
 	}
-	
+
 	public JAXBContext getJaxbContext() {
 		return jaxbContext;
 	}
-	
+
 	public List<AuthenticationType> getSupportedAuthenticationsByServer() {
 		if (supportedAuthenticationsByServer == null) {
 			supportedAuthenticationsByServer = new ArrayList<>();
 		}
 		return supportedAuthenticationsByServer;
 	}
-	
-	
+
+
 	@SuppressWarnings("unchecked")
 	public <T extends AuthenticationChallenge> AuthenticationManager<T> getAuthenticationManager() {
 		return (AuthenticationManager<T>) authenticationManager;
 	}
-	
+
+	ClientConfiguration getClientConfiguration () {
+		return WebClient.getConfig(client);
+	}
+
 	public RestJaxbService() {
 		super();
 		client = WebClient.create("");
 		util = new RestJaxbServiceUtil(null);
 		scriptingUtil = new ScriptingUtilImpl(util);
 	}
-	
-	RestJaxbService(String url, String username, String password, AuthenticationType authentication, List<SecurityQuestionAnswer> secQ) throws IOException {
+
+	RestJaxbService(String endpoint, String username, String password, AuthenticationType authentication, List<SecurityQuestionAnswer> secQ) throws IOException {
 		super();
 		try {
 			jaxbContext = createJaxbContext();
 		} catch (JAXBException e) {
 			throw new IOException(e);
 		}
-		
+
 		if (AuthenticationType.SECQ == authentication) {
 			authenticationManager = new SecurityQuestionAuthenticationManager(username, secQ);
 		} else if (authentication != null ){
 			authenticationManager = new BasicAuthenticationManager(username, password);
 		}
-		
+
+		util = new RestJaxbServiceUtil(jaxbContext);
+		scriptingUtil = new ScriptingUtilImpl(util);
+		domSerializer = new DomSerializer(jaxbContext);
+
 		CustomAuthNProvider<?> authNProvider = new CustomAuthNProvider<>(authenticationManager, this);
-		client = WebClient.create(url, Arrays.asList(new JaxbXmlProvider<>(jaxbContext)));
+		client = WebClient.create(endpoint, singletonList(new JaxbXmlProvider<>(jaxbContext)));
 		ClientConfiguration config = WebClient.getConfig(client);
 		config.getInInterceptors().add(authNProvider);
 		config.getInFaultInterceptors().add(authNProvider);
 		client.accept(MediaType.APPLICATION_XML);
 		client.type(MediaType.APPLICATION_XML);
-		
+
 		if (authenticationManager != null) {
 			client.header("Authorization", authenticationManager.createAuthorizationHeader());
 		}
-				
-		util = new RestJaxbServiceUtil(jaxbContext);
-		scriptingUtil = new ScriptingUtilImpl(util);
-		domSerializer = new DomSerializer(jaxbContext);
+
 	}
 
 	@Override
@@ -135,11 +132,11 @@ public class RestJaxbService implements Service {
 		client.header(header, value);
 		return this;
 	}
-	
+
 
 	@Override
-	public ObjectCollectionService<UserType> users() {
-		return new RestJaxbObjectCollectionService<>(this, Types.USERS.getRestPath(), UserType.class);
+	public FocusCollectionService<UserType> users() {
+		return new RestJaxbFocusCollectionService<>(this, Types.USERS.getRestPath(), UserType.class);
 	}
 
 	@Override
@@ -183,8 +180,8 @@ public class RestJaxbService implements Service {
 	}
 
 	@Override
-	public ObjectCollectionService<TaskType> tasks() {
-		return new RestJaxbObjectCollectionService<>(this, Types.TASKS.getRestPath(), TaskType.class);
+	public TaskCollectionService tasks() {
+		return new RestJaxbTaskCollectionService(this);
 	}
 
 	@Override
@@ -193,13 +190,13 @@ public class RestJaxbService implements Service {
 	}
 
 	@Override
-	public ObjectCollectionService<RoleType> roles() {
-		return new RestJaxbObjectCollectionService<>(this, Types.ROLES.getRestPath(), RoleType.class);
+	public FocusCollectionService<RoleType> roles() {
+		return new RestJaxbFocusCollectionService<>(this, Types.ROLES.getRestPath(), RoleType.class);
 	}
 
 	@Override
-	public ObjectCollectionService<OrgType> orgs() {
-		return new RestJaxbObjectCollectionService<>(this, Types.ORGS.getRestPath(), OrgType.class);
+	public FocusCollectionService<OrgType> orgs() {
+		return new RestJaxbFocusCollectionService<>(this, Types.ORGS.getRestPath(), OrgType.class);
 	}
 
 	@Override
@@ -218,42 +215,46 @@ public class RestJaxbService implements Service {
 	}
 
 	<O extends ObjectType> O getObject(final Class<O> type, final String oid)
-			throws ObjectNotFoundException, AuthenticationException {
+			throws ObjectNotFoundException {
 		return getObject(type, oid, null, null, null);
 	}
 
 	/**
 	 * Used frequently at several places. Therefore unified here.
-	 * @throws ObjectNotFoundException 
+	 * @throws ObjectNotFoundException
 	 */
 	<O extends ObjectType> O getObject(final Class<O> type, final String oid, List<String> options,
 									   List<String> include, List<String> exclude)
-			throws ObjectNotFoundException, AuthenticationException {
+			throws ObjectNotFoundException {
 
 		String urlPrefix = RestUtil.subUrl(Types.findType(type).getRestPath(), oid);
 		WebClient cli = client.replacePath(urlPrefix);
-		addQueryParameter(cli, "options", options);
-		addQueryParameter(cli, "include", include);
-		addQueryParameter(cli, "exclude", exclude);
+		client.resetQuery();
+		addQueryParameter("options", options);
+		addQueryParameter("include", include);
+		addQueryParameter( "exclude", exclude);
 
 		Response response = cli.get();
 
 		if (Status.OK.getStatusCode() == response.getStatus() ) {
 			return response.readEntity(type);
 		}
-		
+
 		if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
-			throw new ObjectNotFoundException("Cannot get object with oid" + oid + ". Object doesn't exist");
+			throw new ObjectNotFoundException("Cannot get object with oid " + oid + ". Object doesn't exist");
 		}
-		
+
 		if (Status.UNAUTHORIZED.getStatusCode() == response.getStatus()) {
 			throw new AuthenticationException(response.getStatusInfo().getReasonPhrase());
 		}
-		
+
+		if (Status.FORBIDDEN.getStatusCode() == response.getStatus()) {
+			throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());
+		}
 		return null;
 	}
 
-	private void addQueryParameter(WebClient client, String name, List<String> values) {
+	private void addQueryParameter(String name, List<String> values) {
 		if (values == null || values.isEmpty()) {
 			return;
 		}
@@ -263,7 +264,53 @@ public class RestJaxbService implements Service {
 		}
 	}
 
-	<O extends ObjectType> void deleteObject(final Class<O> type, final String oid) throws ObjectNotFoundException, AuthenticationException {
+	<T> Response post(String path, T object) throws ObjectNotFoundException {
+		return post(path, object, null);
+	}
+
+	<T> Response post(String path, T object, Map<String, List<String>> queryParams) throws ObjectNotFoundException {
+
+        client.resetQuery();
+        addQueryParameters(queryParams);
+		Response response = client.replacePath("/" + path).post(object);
+		handleCommonStatuses(response);
+		return response;
+	}
+
+	Response get(String path) throws ObjectNotFoundException {
+        client.resetQuery();
+	    Response response = client.replacePath("/" + path).get();
+	    handleCommonStatuses(response);
+	    return response;
+    }
+
+    private void handleCommonStatuses(Response response) throws ObjectNotFoundException {
+        switch (response.getStatus()) {
+            case 250:
+                throw new PartialErrorException(response.getStatusInfo().getReasonPhrase());
+            case 400:
+                throw new BadRequestException(response.getStatusInfo().getReasonPhrase());
+            case 401:
+                throw new AuthenticationException(response.getStatusInfo().getReasonPhrase());
+            case 403:
+                throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());
+                //TODO: Do we want to return a reference? Might be useful.
+            case 404:
+                throw new ObjectNotFoundException(response.getStatusInfo().getReasonPhrase());
+        }
+    }
+
+	private void addQueryParameters(Map<String, List<String>> queryParams) {
+		if (queryParams == null) {
+			return;
+		}
+
+		for (Map.Entry<String, List<String>> entry : queryParams.entrySet()) {
+			addQueryParameter(entry.getKey(), entry.getValue());
+		}
+	}
+
+	<O extends ObjectType> void deleteObject(final Class<O> type, final String oid) throws ObjectNotFoundException {
 		String urlPrefix = RestUtil.subUrl(Types.findType(type).getRestPath(), oid);
 		Response response = client.replacePath(urlPrefix).delete();
 
@@ -282,7 +329,7 @@ public class RestJaxbService implements Service {
 		}
 
 		if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
-			throw new ObjectNotFoundException("Cannot delete object with oid" + oid + ". Object doesn't exist");
+			throw new ObjectNotFoundException("Cannot delete object with oid " + oid + ". Object doesn't exist");
 		}
 
 		if (Status.UNAUTHORIZED.getStatusCode() == response.getStatus()) {
@@ -291,7 +338,7 @@ public class RestJaxbService implements Service {
 	}
 
 	@Override
-	public UserType self() throws AuthenticationException{
+	public UserType self() {
 		String urlPrefix = "/self";
 		Response response = client.replacePath(urlPrefix).get();
 
@@ -317,7 +364,6 @@ public class RestJaxbService implements Service {
 				+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_extension_3:"
 				+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.connector_schema_3:"
 				+ "com.evolveum.midpoint.xml.ns._public.connector.icf_1.resource_schema_3:"
-				+ "com.evolveum.midpoint.xml.ns._public.gui.admin_1:"
 				+ "com.evolveum.midpoint.xml.ns._public.model.extension_3:"
 				+ "com.evolveum.midpoint.xml.ns._public.model.scripting_3:"
 				+ "com.evolveum.midpoint.xml.ns._public.model.scripting.extension_3:"
@@ -329,5 +375,10 @@ public class RestJaxbService implements Service {
 				+ "com.evolveum.prism.xml.ns._public.annotation_3:"
 				+ "com.evolveum.prism.xml.ns._public.query_3:"
 				+ "com.evolveum.prism.xml.ns._public.types_3");
+	}
+
+	//TODO make something smarter - this is actually neede just for tests
+	public URI getCurrentUri() {
+		return client.getCurrentURI();
 	}
 }

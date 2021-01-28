@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,17 +29,10 @@ import java.util.List;
  */
 public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O> {
 
-	O get(List<String> options) throws ObjectNotFoundException, AuthenticationException;
+	O get(List<String> options) throws ObjectNotFoundException;
 
-	O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException, AuthenticationException;
+	O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException;
 
-	ObjectModifyService<O> modify() throws ObjectNotFoundException, AuthenticationException;
+	ObjectModifyService<O> modify() throws ObjectNotFoundException;
 
-	// todo this doesn't make much sense, it's not usable for all objects, only users, and maybe shadows?
-	ObjectCredentialService<O> credential();
-
-	ValidateGenerateRpcService generate();
-
-	ValidateGenerateRpcService validate();
-//    ObjectGenerateService<O> modifyGenerate(String path) throws ObjectNotFoundException, AuthenticationException;
 }

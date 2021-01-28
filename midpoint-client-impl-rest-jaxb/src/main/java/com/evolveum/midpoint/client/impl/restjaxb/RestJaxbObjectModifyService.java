@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,30 +93,21 @@ public class RestJaxbObjectModifyService<O extends ObjectType> extends AbstractO
     }
 
     @Override
-    public TaskFuture<ObjectReference<O>> apost() throws AuthorizationException, ObjectNotFoundException, AuthenticationException
-    {
-        String oid = getOid();
-        String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), oid);
+    public TaskFuture<ObjectReference<O>> apost() throws ObjectNotFoundException {
 
-        Response response = getService().getClient().replacePath(restPath).post(RestUtil.buildModifyObject(modifications));
+        String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), getOid());
+        Response response = getService().post(restPath, RestUtil.buildModifyObject(modifications), null); //TODO params
 
         switch (response.getStatus()) {
             case 204:
-                RestJaxbObjectReference<O> ref = new RestJaxbObjectReference<>(getService(), getType(), oid);
+                RestJaxbObjectReference<O> ref = new RestJaxbObjectReference<>(getService(), getType(), getOid());
                 return new RestJaxbCompletedFuture<>(ref);
             case 250:
                 throw new PartialErrorException(response.getStatusInfo().getReasonPhrase());
-            case 400:
-                throw new BadRequestException(response.getStatusInfo().getReasonPhrase());
-            case 401:
-                throw new AuthenticationException(response.getStatusInfo().getReasonPhrase());
-            case 403:
-                throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());
-                //TODO: Do we want to return a reference? Might be useful.
-            case 404:
-                throw new ObjectNotFoundException(response.getStatusInfo().getReasonPhrase());
             default:
                 throw new UnsupportedOperationException("Implement other status codes, unsupported return status: " + response.getStatus());
         }
+
+
     }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb.service;
 
-/**
- * @author katkav
- */
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultStatusType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 
@@ -26,46 +23,46 @@ public class OperationResultUtil {
 	public static boolean isPartialError(OperationResultType result) {
 		return OperationResultStatusType.PARTIAL_ERROR == result.getStatus();
 	}
-	
+
 	public static boolean isFatalError(OperationResultType result) {
 		return OperationResultStatusType.FATAL_ERROR == result.getStatus();
 	}
-	
+
 	public static boolean isHandledError(OperationResultType result) {
 		return OperationResultStatusType.HANDLED_ERROR == result.getStatus();
 	}
-	
+
 	public static boolean isInProgress(OperationResultType result) {
 		return OperationResultStatusType.IN_PROGRESS == result.getStatus();
 	}
-	
+
 	public static boolean isNotApplicable(OperationResultType result) {
 		return OperationResultStatusType.NOT_APPLICABLE == result.getStatus();
 	}
-	
+
 	public static boolean isSuccess(OperationResultType result) {
 		return OperationResultStatusType.SUCCESS == result.getStatus();
 	}
-	
+
 	public static boolean isUnknown(OperationResultType result) {
 		return result.getStatus() == null || OperationResultStatusType.UNKNOWN == result.getStatus();
 	}
-	
+
 	public static boolean isWarning(OperationResultType result) {
 		return OperationResultStatusType.WARNING == result.getStatus();
 	}
-	
+
 	public static boolean isAcceptable(OperationResultType result) {
 		return (result.getStatus() != OperationResultStatusType.FATAL_ERROR);
 	}
-	
+
 	public static void computeStatusIfUnknown(OperationResultType result) {
 		if (isUnknown(result)) {
 			computeStatus(result);
 		}
 	}
-	
-	
+
+
 	public static void computeStatus(OperationResultType result) {
 		OperationResultStatusType status = result.getStatus();
 		if (result.getPartialResults().isEmpty()) {

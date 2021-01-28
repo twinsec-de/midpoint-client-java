@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package com.evolveum.midpoint.client.api.verb;
 
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
+import com.evolveum.midpoint.client.api.exception.AuthorizationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 
 /**
@@ -24,6 +25,6 @@ import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
  */
 public interface Get<T> {
 
-	T get() throws ObjectNotFoundException, AuthenticationException;
-	
+	T get() throws ObjectNotFoundException;
+
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import javax.xml.namespace.QName;
 
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectReferenceType;
 import com.evolveum.prism.xml.ns._public.query_3.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Element;
 
 import com.evolveum.midpoint.client.api.SearchService;
@@ -35,23 +35,23 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
 public class FilterBuilder<O extends ObjectType> implements FilterEntryOrEmpty<O>, AtomicFilterExit<O> {
-	
+
 	private NAryLogicalOperatorFilterClauseType currentFilter;
 	private FilterLogicalSymbol lastLogicalSymbol;
-	
+
 	private RestJaxbService service;
 	private Class<O> type;
-	
+
 	private PagingType paging;
-	
+
 	public FilterBuilder(RestJaxbService service, Class<O> type) {
 		this.service = service;
 		this.type = type;
 		this.currentFilter = new NAryLogicalOperatorFilterClauseType();
 		lastLogicalSymbol = null;
-			
+
 	}
-	
+
 	private FilterBuilder(RestJaxbService service, Class<O> type, NAryLogicalOperatorFilterClauseType currentFilter, FilterLogicalSymbol logicalSymbol, PagingType paging) {
 		this.service = service;
 		this.type = type;
@@ -60,7 +60,7 @@ public class FilterBuilder<O extends ObjectType> implements FilterEntryOrEmpty<O
 		this.paging = paging;
 	}
 
-	
+
 	public FilterBuilder<O> addSubfilter(Element subfilter, boolean negated) {
         if (!currentFilter.getFilterClause().isEmpty() && lastLogicalSymbol == null) {
             throw new IllegalStateException("lastLogicalSymbol is empty but there is already some filter present: " + currentFilter);
@@ -68,20 +68,20 @@ public class FilterBuilder<O extends ObjectType> implements FilterEntryOrEmpty<O
             NAryLogicalOperatorFilterClauseType newFilter = appendAtomicFilter(subfilter, negated, lastLogicalSymbol);
             return new FilterBuilder<>(service, type, newFilter, null, paging);
     }
-	
+
 	private NAryLogicalOperatorFilterClauseType appendAtomicFilter(Element subfilter, boolean negated, FilterLogicalSymbol lastLogicalSymbol) {
-		 DomSerializer dom = service.getDomSerializer(); 
+		 DomSerializer dom = service.getDomSerializer();
 		if (negated) {
 			subfilter = dom.createNotFilter(subfilter);
 //	            subfilter = null;// TODO: dom.createNotFilter()
 	        }
-		 
+
 		 NAryLogicalOperatorFilterClauseType updatedFilter = new NAryLogicalOperatorFilterClauseType();
 		 updatedFilter.getFilterClause().addAll(currentFilter.getFilterClause());
 		 updatedFilter.setMatching(currentFilter.getMatching());
-		 
-		
-		 
+
+
+
 	        if (lastLogicalSymbol == null || lastLogicalSymbol == FilterLogicalSymbol.OR) {
 	        	updatedFilter.getFilterClause().add(dom.createAndFilter(subfilter));
 	        } else if (lastLogicalSymbol == FilterLogicalSymbol.AND) {
@@ -91,10 +91,10 @@ public class FilterBuilder<O extends ObjectType> implements FilterEntryOrEmpty<O
 	            throw new IllegalStateException("Unknown logical symbol: " + lastLogicalSymbol);
 	        }
 	        return updatedFilter;
-		
-		
+
+
 	}
-	
+
 	public Element getLastCondition(NAryLogicalOperatorFilterClauseType updatedFilter) {
 		List<Element> conditions = updatedFilter.getFilterClause();
 		if (conditions.isEmpty()) {
@@ -109,12 +109,12 @@ public class FilterBuilder<O extends ObjectType> implements FilterEntryOrEmpty<O
 	public SearchService<O> build() {
 		QueryType queryType = new QueryType();
 		queryType.setFilter(buildFilter());
-		
+
 		if (paging != null) {
 			queryType.setPaging(paging);
 		}
 		return new RestJaxbSearchService<>(service, type, queryType);
-		
+
 	}
 
 
@@ -201,7 +201,7 @@ public class FilterBuilder<O extends ObjectType> implements FilterEntryOrEmpty<O
 //		queryType.setFilter(buildFilter());
 //		return new RestJaxbQueryBuilder<>(service, type, queryType);
 //	}
-	
+
 	public SearchFilterType buildFilter() {
 		SearchFilterType filter = new SearchFilterType();
 		if (currentFilter.getFilterClause().size() == 1) {
@@ -242,10 +242,10 @@ public FilterExit<O> asc(QName... names) {
 		pathValue += qname.getLocalPart() + "/";
 	}
 	ItemPathType path = new ItemPathType();
-	
+
 	path.setValue(StringUtils.removeEnd(pathValue, "/"));;
 	return addOrdering(path, OrderDirectionType.ASCENDING);
-	
+
 }
 
 @Override
@@ -303,14 +303,14 @@ private FilterBuilder<O> addGrouping(ItemPathType groupBy) {
 private FilterBuilder<O> setOffset(Integer n) {
 	paging = getPaging();
 	paging.setOffset(n);
-	
+
 	return new FilterBuilder<>(service, type, currentFilter, null, paging);
 }
 
 private FilterBuilder<O> setMaxSize(Integer n) {
 	paging = getPaging();
 	paging.setMaxSize(n);
-	
+
 	return new FilterBuilder<>(service, type, currentFilter, null, paging);
 }
 
@@ -318,7 +318,7 @@ private PagingType getPaging() {
 	if (paging == null) {
 		paging = new PagingType();
 	}
-	
+
 	return paging;
 }
 

@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.AuthorizationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.PolicyItemsDefinitionType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
 /**
@@ -33,7 +34,6 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
  */
 public class RestJaxbObjectGenerateService<O extends ObjectType> extends AbstractObjectWebResource<O> implements ObjectGenerateService<O>
 {
-
 
     private String path;
 
@@ -46,29 +46,20 @@ public class RestJaxbObjectGenerateService<O extends ObjectType> extends Abstrac
 
 
     @Override
-    public TaskFuture<ObjectReference<O>> apost() throws AuthorizationException, ObjectNotFoundException, AuthenticationException
-    {
+    public TaskFuture<ObjectReference<O>> apost() throws ObjectNotFoundException {
         String oid = getOid();
         String restPath = RestUtil.subUrl(Types.findType(getType()).getRestPath(), oid);
         restPath += "/generate";
-        Response response = getService().getClient().replacePath(restPath).post(RestUtil.buildGenerateObject(this.path, true));
+        Response response = getService().post(restPath, RestUtil.buildGenerateObject(this.path, true));
 
         switch (response.getStatus()) {
             case 200:
                 RestJaxbObjectReference<O> ref = new RestJaxbObjectReference<>(getService(), getType(), oid);
                 return new RestJaxbCompletedFuture<>(ref);
-            case 400:
-                throw new BadRequestException(response.getStatusInfo().getReasonPhrase());
-            case 401:
-                throw new AuthenticationException(response.getStatusInfo().getReasonPhrase());
-            case 403:
-                throw new AuthorizationException(response.getStatusInfo().getReasonPhrase());
-                //TODO: Do we want to return a reference? Might be useful.
-            case 404:
-                throw new ObjectNotFoundException(response.getStatusInfo().getReasonPhrase());
             default:
                 throw new UnsupportedOperationException("Implement other status codes, unsupported return status: " + response.getStatus());
         }
+
     }
 
 

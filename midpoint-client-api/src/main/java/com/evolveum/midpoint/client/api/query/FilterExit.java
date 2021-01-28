@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,5 +31,5 @@ public interface FilterExit<O extends ObjectType> extends QueryExit<O>{
     FilterExit<O> group(ItemPathType path);
     FilterExit<O> offset(Integer n);
     FilterExit<O> maxSize(Integer n);
-	
+
 }

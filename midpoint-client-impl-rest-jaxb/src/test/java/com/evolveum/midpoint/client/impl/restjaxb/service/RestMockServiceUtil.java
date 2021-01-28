@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2017-2018 Evolveum
+/*
+ * Copyright (c) 2017-2020 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,14 @@
 package com.evolveum.midpoint.client.impl.restjaxb.service;
 
 import java.net.URI;
-import java.util.List;
 
 import javax.naming.CommunicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.eclipse.jetty.util.thread.Scheduler.Task;
@@ -44,7 +42,7 @@ import com.evolveum.midpoint.client.api.exception.TunnelException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 
 /**
- * 
+ *
  * @author katkav
  *
  */
@@ -139,7 +137,7 @@ public class RestMockServiceUtil {
 		}
 
 //		public static Response.ResponseBuilder createErrorResponseBuilder(Response.Status status, OperationResultType result) {
-//			
+//
 //			return createErrorResponseBuilder(status, result);
 //		}
 
