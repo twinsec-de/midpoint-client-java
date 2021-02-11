@@ -22,7 +22,6 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import com.evolveum.midpoint.client.api.*;
 import com.evolveum.midpoint.client.api.exception.*;
 import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
-import com.evolveum.midpoint.client.impl.prism.handler.HttpClientPrismResponseHandler;
 import com.evolveum.midpoint.prism.PrismContext;
 import com.evolveum.midpoint.schema.constants.ObjectTypes;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
@@ -55,7 +54,7 @@ public class RestPrismService implements Service {
                 case HttpStatus.SC_NOT_FOUND:
                     OperationResult result = getOperationResult(httpResponse.getEntity());
                     if (result.getCause() != null) {
-
+                        //TODO error handling?
                     }
                     String message = result.getMessage();
                     throw new ObjectNotFoundException("Cannot find object located at: " + fullPath + ", " + message);
@@ -72,7 +71,7 @@ public class RestPrismService implements Service {
         return null;
     }
 
-    private <O extends ObjectType> O parseObject(HttpEntity httpEntity) throws SchemaException {
+    <O extends ObjectType> O parseObject(HttpEntity httpEntity) throws SchemaException {
         PrismObject<O> object;
         try {
 
@@ -80,18 +79,16 @@ public class RestPrismService implements Service {
         } catch (com.evolveum.midpoint.util.exception.SchemaException | IOException e) {
             throw new SchemaException(e.getMessage(), e);
         }
-        if (object == null) {
-            return null;
-        }
+
         return object.asObjectable();
     }
 
-    private OperationResult getOperationResult(HttpEntity httpEntity) throws SchemaException {
+    OperationResult getOperationResult(HttpEntity httpEntity) throws SchemaException {
         OperationResultType result = parseOperationResult(httpEntity);
         return OperationResult.createOperationResult(result);
     }
 
-    private OperationResultType parseOperationResult(HttpEntity httpEntity) throws SchemaException {
+    OperationResultType parseOperationResult(HttpEntity httpEntity) throws SchemaException {
         try {
             return prismContext.parserFor(httpEntity.getContent()).language(getParserLanguage(httpEntity.getContentType())).parseRealValue(OperationResultType.class);
         } catch (IOException | com.evolveum.midpoint.util.exception.SchemaException e) {
@@ -100,10 +97,10 @@ public class RestPrismService implements Service {
     }
 
     private String getParserLanguage(String contentType) {
-        if (ContentType.APPLICATION_XML.equals(contentType)) {
+        if (ContentType.APPLICATION_XML.toString().equals(contentType)) {
             return "xml";
         }
-        if (ContentType.APPLICATION_JSON.equals(contentType)) {
+        if (ContentType.APPLICATION_JSON.toString().equals(contentType)) {
             return "json";
         }
         if ("application/yaml".equals(contentType)) {
@@ -112,20 +109,23 @@ public class RestPrismService implements Service {
         return "xml";
     }
 
-    Response httpGet(String fullPath) throws IOException {
+    Response httpGet(String relativePath) throws IOException {
         CloseableHttpClient client = createClient();
-        return Request.get(fullPath).execute(client);
+        return Request.get(relativePath).execute(client);
     }
 
-    Response httpPost(String fullPath, HttpEntity object) throws IOException {
+    Response httpPost(String relativePath, HttpEntity object) throws IOException {
         CloseableHttpClient client = createClient();
-        return Request.post(fullPath).body(object).execute(client);
+        Request req = Request.post(baseUrl + "/" + relativePath);
+        if (object != null) {
+            req.body(object);
+        }
+        return req.execute(client);
     }
 
     String addObject(ObjectTypes type, ObjectType object) throws ObjectAlreadyExistsException, SchemaException {
-        String fullPath = baseUrl + "/" + type.getRestType();
         try {
-            Response response = httpPost(fullPath, createEntity(object));
+            Response response = httpPost(type.getRestType(), createEntity(object));
 
             CloseableHttpResponse httpResponse = (CloseableHttpResponse) response.returnResponse();
             switch (httpResponse.getCode()) {
@@ -135,23 +135,16 @@ public class RestPrismService implements Service {
                 case 240:
                 case 250:
                     try {
-                        Header header = httpResponse.getHeader("Location");
-                        if (header == null) {
-                            throw new IllegalStateException("No location returned, something went wrong");
-                        }
-                        String location = header.getValue();
-                        if (StringUtils.isNotBlank(location)) {
-                            return location.substring(location.lastIndexOf("/") + 1);
-                        }
+                        return getOidFromLocation(httpResponse);
                     } catch (ProtocolException e) {
                         throw new IllegalStateException("Unexpected header found: " + e.getMessage(), e);
                     }
-                    return null;
                 case HttpStatus.SC_CONFLICT:
                     OperationResult result = getOperationResult(httpResponse.getEntity());
                     throw new ObjectAlreadyExistsException(result.getMessage());
                 case HttpStatus.SC_FORBIDDEN:
-                    throw new SecurityViolationException("User not authorized for " + fullPath);
+                    result = getOperationResult(httpResponse.getEntity());
+                    throw new SecurityViolationException(result.getMessage());
                 default:
                     throw new UnsupportedOperationException("Not impelemnted yet: " + httpResponse);
             }
@@ -159,6 +152,18 @@ public class RestPrismService implements Service {
             throw new SchemaException(e.getMessage(), e);
         }
 
+    }
+
+    String getOidFromLocation(HttpResponse httpResponse) throws ProtocolException {
+        Header header = httpResponse.getHeader("Location");
+        if (header == null) {
+            throw new IllegalStateException("No location returned, something went wrong");
+        }
+        String location = header.getValue();
+        if (StringUtils.isNotBlank(location)) {
+            return location.substring(location.lastIndexOf("/") + 1);
+        }
+        return null;
     }
 
     private <O extends ObjectType> StringEntity createEntity(O object) throws SchemaException {
@@ -231,7 +236,7 @@ public class RestPrismService implements Service {
 
     @Override
     public ResourceCollectionService resources() {
-        return null;
+        return new RestPrismResourceCollectionService(this);
     }
 
     @Override

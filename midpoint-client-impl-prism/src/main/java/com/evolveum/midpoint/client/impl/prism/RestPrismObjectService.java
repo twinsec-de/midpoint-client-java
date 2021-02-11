@@ -53,4 +53,10 @@ public class RestPrismObjectService<O extends ObjectType> extends CommonPrismSer
 
         return response;
     }
+
+    String getOid() {
+        return oid;
+    }
 }
+
+
