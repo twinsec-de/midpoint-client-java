@@ -6,7 +6,6 @@ import com.evolveum.midpoint.client.api.ObjectService;
 import com.evolveum.midpoint.client.api.SearchService;
 import com.evolveum.midpoint.schema.constants.ObjectTypes;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
-import reactor.core.publisher.Mono;
 
 public class RestPrismObjectCollectionService<O extends ObjectType> extends CommonPrismService implements ObjectCollectionService<O> {
 
@@ -27,6 +26,6 @@ public class RestPrismObjectCollectionService<O extends ObjectType> extends Comm
 
     @Override
     public ObjectAddService<O> add(O object) {
-        return null;
+        return new RestPrismObjectAddService<>(getService(), getType(), object);
     }
 }

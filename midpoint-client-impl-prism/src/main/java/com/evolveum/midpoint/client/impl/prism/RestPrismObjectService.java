@@ -1,15 +1,15 @@
 package com.evolveum.midpoint.client.impl.prism;
 
+import java.io.IOException;
+import java.util.List;
+
 import com.evolveum.midpoint.client.api.ObjectModifyService;
 import com.evolveum.midpoint.client.api.ObjectService;
 import com.evolveum.midpoint.client.api.exception.AuthenticationException;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
+import com.evolveum.midpoint.client.api.exception.SchemaException;
 import com.evolveum.midpoint.schema.constants.ObjectTypes;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
-import org.springframework.http.HttpStatus;
-import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 public class RestPrismObjectService<O extends ObjectType> extends CommonPrismService implements ObjectService<O> {
 
@@ -42,15 +42,9 @@ public class RestPrismObjectService<O extends ObjectType> extends CommonPrismSer
     }
 
     @Override
-    public O get() throws ObjectNotFoundException, AuthenticationException {
+    public O get() throws ObjectNotFoundException, AuthenticationException, SchemaException {
         System.out.println("getting object ");
-        O response = (O) getService().getClient()
-                .get()
-                .uri("/users/{oid}", oid)
-                .retrieve()
-                .onStatus(s -> HttpStatus.NOT_FOUND.value() == s.value(), clientResponse -> Mono.error(new ObjectNotFoundException("ObjectNot found")))
-                .bodyToMono(getType().getClassDefinition())
-                .block();
+        O response = getService().getObject(getType(), oid);
 
         if (response == null) {
             throw new ObjectNotFoundException("null returned");
