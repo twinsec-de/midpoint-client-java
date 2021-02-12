@@ -1,21 +1,27 @@
+/*
+ * Copyright (c) 2021 Evolveum
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.evolveum.midpoint.client.impl.prism;
 
 import java.io.IOException;
-import java.net.URI;
-
-import com.evolveum.midpoint.prism.PrismObject;
-
-import com.evolveum.midpoint.schema.result.OperationResult;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hc.client5.http.auth.AuthScope;
-import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.fluent.Request;
 import org.apache.hc.client5.http.fluent.Response;
-import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.core5.http.*;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 
@@ -23,18 +29,20 @@ import com.evolveum.midpoint.client.api.*;
 import com.evolveum.midpoint.client.api.exception.*;
 import com.evolveum.midpoint.client.api.scripting.ScriptingUtil;
 import com.evolveum.midpoint.prism.PrismContext;
+import com.evolveum.midpoint.prism.PrismObject;
 import com.evolveum.midpoint.schema.constants.ObjectTypes;
+import com.evolveum.midpoint.schema.result.OperationResult;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
 
 public class RestPrismService implements Service {
 
     private PrismContext prismContext;
-    private UsernamePasswordCredentials credentials;
+    private CloseableHttpClient httpClient;
     private String baseUrl;
 
 
-    RestPrismService (UsernamePasswordCredentials credentials, String baseUrl, PrismContext prismContext) {
-        this.credentials = credentials;
+    RestPrismService (CloseableHttpClient httpClient, String baseUrl, PrismContext prismContext) {
+        this.httpClient = httpClient;
         this.prismContext = prismContext;
         this.baseUrl = baseUrl;
     }
@@ -60,8 +68,6 @@ public class RestPrismService implements Service {
                     throw new ObjectNotFoundException("Cannot find object located at: " + fullPath + ", " + message);
                 case HttpStatus.SC_FORBIDDEN:
                     throw new SecurityViolationException("Cannot read object, " + httpResponse.getReasonPhrase());
-//                default:
-//                    parseOperationResult(httpResponse.getEntity());
             }
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage(), e);
@@ -110,48 +116,44 @@ public class RestPrismService implements Service {
     }
 
     Response httpGet(String relativePath) throws IOException {
-        CloseableHttpClient client = createClient();
-        return Request.get(relativePath).execute(client);
+        return Request.get(relativePath).execute(httpClient);
     }
 
-    Response httpPost(String relativePath, HttpEntity object) throws IOException {
-        CloseableHttpClient client = createClient();
+    CloseableHttpResponse httpPost(String relativePath, HttpEntity object) throws SchemaException {
         Request req = Request.post(baseUrl + "/" + relativePath);
         if (object != null) {
             req.body(object);
         }
-        return req.execute(client);
-    }
-
-    String addObject(ObjectTypes type, ObjectType object) throws ObjectAlreadyExistsException, SchemaException {
         try {
-            Response response = httpPost(type.getRestType(), createEntity(object));
-
-            CloseableHttpResponse httpResponse = (CloseableHttpResponse) response.returnResponse();
-            switch (httpResponse.getCode()) {
-                case HttpStatus.SC_OK:
-                case HttpStatus.SC_CREATED:
-                case HttpStatus.SC_ACCEPTED:
-                case 240:
-                case 250:
-                    try {
-                        return getOidFromLocation(httpResponse);
-                    } catch (ProtocolException e) {
-                        throw new IllegalStateException("Unexpected header found: " + e.getMessage(), e);
-                    }
-                case HttpStatus.SC_CONFLICT:
-                    OperationResult result = getOperationResult(httpResponse.getEntity());
-                    throw new ObjectAlreadyExistsException(result.getMessage());
-                case HttpStatus.SC_FORBIDDEN:
-                    result = getOperationResult(httpResponse.getEntity());
-                    throw new SecurityViolationException(result.getMessage());
-                default:
-                    throw new UnsupportedOperationException("Not impelemnted yet: " + httpResponse);
-            }
+            return (CloseableHttpResponse) req.execute(httpClient).returnResponse();
         } catch (IOException e) {
             throw new SchemaException(e.getMessage(), e);
         }
+    }
 
+    String addObject(ObjectTypes type, ObjectType object) throws ObjectAlreadyExistsException, SchemaException {
+        CloseableHttpResponse httpResponse = httpPost(type.getRestType(), createEntity(object));
+
+        switch (httpResponse.getCode()) {
+            case HttpStatus.SC_OK:
+            case HttpStatus.SC_CREATED:
+            case HttpStatus.SC_ACCEPTED:
+            case 240:
+            case 250:
+                try {
+                    return getOidFromLocation(httpResponse);
+                } catch (ProtocolException e) {
+                    throw new IllegalStateException("Unexpected header found: " + e.getMessage(), e);
+                }
+            case HttpStatus.SC_CONFLICT:
+                OperationResult result = getOperationResult(httpResponse.getEntity());
+                throw new ObjectAlreadyExistsException(result.getMessage());
+            case HttpStatus.SC_FORBIDDEN:
+                result = getOperationResult(httpResponse.getEntity());
+                throw new SecurityViolationException(result.getMessage());
+            default:
+                throw new UnsupportedOperationException("Not impelemnted yet: " + httpResponse);
+        }
     }
 
     String getOidFromLocation(HttpResponse httpResponse) throws ProtocolException {
@@ -172,15 +174,6 @@ public class RestPrismService implements Service {
         } catch (com.evolveum.midpoint.util.exception.SchemaException e) {
             throw new SchemaException(e);
         }
-    }
-
-    private CloseableHttpClient createClient() {
-        BasicCredentialsProvider provider = new BasicCredentialsProvider();
-
-        URI uri = URI.create(baseUrl);
-        HttpHost httpHost = HttpHost.create(uri);
-        provider.setCredentials(new AuthScope(httpHost), credentials);
-        return HttpClientBuilder.create().setDefaultCredentialsProvider(provider).build();
     }
 
 
@@ -216,17 +209,17 @@ public class RestPrismService implements Service {
 
     @Override
     public ObjectCollectionService<SecurityPolicyType> securityPolicies() {
-        return null;
+        return new RestPrismObjectCollectionService<>(this, ObjectTypes.SECURITY_POLICY);
     }
 
     @Override
     public ObjectCollectionService<ConnectorType> connectors() {
-        return null;
+        return new RestPrismObjectCollectionService<>(this, ObjectTypes.CONNECTOR);
     }
 
     @Override
     public ObjectCollectionService<ConnectorHostType> connectorHosts() {
-        return null;
+        return new RestPrismObjectCollectionService<>(this, ObjectTypes.CONNECTOR_HOST);
     }
 
     @Override
@@ -241,17 +234,17 @@ public class RestPrismService implements Service {
 
     @Override
     public ObjectCollectionService<ObjectTemplateType> objectTemplates() {
-        return null;
+        return new RestPrismObjectCollectionService<>(this, ObjectTypes.OBJECT_TEMPLATE);
     }
 
     @Override
     public ObjectCollectionService<SystemConfigurationType> systemConfigurations() {
-        return null;
+        return new RestPrismObjectCollectionService<>(this, ObjectTypes.SYSTEM_CONFIGURATION);
     }
 
     @Override
     public TaskCollectionService tasks() {
-        return null;
+        return new RestPrismTaskCollectionService(this);
     }
 
     @Override
@@ -261,12 +254,12 @@ public class RestPrismService implements Service {
 
     @Override
     public FocusCollectionService<RoleType> roles() {
-        return null;
+        return new RestPrismFocusCollectionService<>(this, ObjectTypes.ROLE);
     }
 
     @Override
     public FocusCollectionService<OrgType> orgs() {
-        return null;
+        return new RestPrismFocusCollectionService<>(this, ObjectTypes.ORG);
     }
 
     @Override
@@ -277,5 +270,14 @@ public class RestPrismService implements Service {
     @Override
     public ScriptingUtil scriptingUtil() {
         return null;
+    }
+
+    @Override
+    public void close() {
+        try {
+            httpClient.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

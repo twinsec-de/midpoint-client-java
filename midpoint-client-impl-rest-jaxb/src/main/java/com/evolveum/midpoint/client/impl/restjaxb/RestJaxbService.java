@@ -381,4 +381,9 @@ public class RestJaxbService implements Service {
 	public URI getCurrentUri() {
 		return client.getCurrentURI();
 	}
+
+    @Override
+    public void close() {
+        client.close();
+    }
 }

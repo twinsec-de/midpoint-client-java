@@ -1,6 +1,25 @@
+/*
+ * Copyright (c) 2021 Evolveum
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.evolveum.midpoint.client.impl.prism;
 
+import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
+
+import org.testng.Assert;
 import org.testng.AssertJUnit;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -8,9 +27,6 @@ import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.Service;
 import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.schema.result.OperationResult;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.SystemObjectsType;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.UserType;
 
 public class TestRestPrismService {
 
@@ -22,6 +38,10 @@ public class TestRestPrismService {
         service = createClient();
     }
 
+    @AfterClass
+    public void shutdown() {
+        service.close();
+    }
 
     @Test
     public void test001getUser() throws Exception {
@@ -47,8 +67,19 @@ public class TestRestPrismService {
     }
 
     @Test
-    public void test010addUser() throws Exception {
+    public void test003getSystemConfig() throws Exception {
+        SystemConfigurationType systemConfigurationType = service.systemConfigurations().oid(SystemObjectsType.SYSTEM_CONFIGURATION.value()).get();
+        AssertJUnit.assertNotNull(systemConfigurationType);
+    }
 
+    @Test
+    public void test004getTask() throws Exception {
+        TaskType taskType = service.tasks().oid(SystemObjectsType.TASK_CLEANUP.value()).get();
+        AssertJUnit.assertNotNull(taskType);
+    }
+
+    @Test
+    public void test010addUser() throws Exception {
         UserType user = new UserType().name("00clientUser").givenName("given").familyName("family");
         ObjectReference<UserType> ref = service.users().add(user).post();
 

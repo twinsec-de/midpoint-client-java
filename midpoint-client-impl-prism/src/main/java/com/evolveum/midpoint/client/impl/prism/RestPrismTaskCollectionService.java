@@ -15,19 +15,19 @@
  */
 package com.evolveum.midpoint.client.impl.prism;
 
-import com.evolveum.midpoint.client.api.FocusCollectionService;
-import com.evolveum.midpoint.client.api.FocusService;
+import com.evolveum.midpoint.client.api.TaskCollectionService;
+import com.evolveum.midpoint.client.api.TaskService;
 import com.evolveum.midpoint.schema.constants.ObjectTypes;
-import com.evolveum.midpoint.xml.ns._public.common.common_3.FocusType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 
-public class RestPrismFocusCollectionService<F extends FocusType> extends RestPrismObjectCollectionService<F> implements FocusCollectionService<F> {
+public class RestPrismTaskCollectionService extends RestPrismObjectCollectionService<TaskType> implements TaskCollectionService {
 
-    public RestPrismFocusCollectionService(RestPrismService service, ObjectTypes type) {
-        super(service, type);
+    public RestPrismTaskCollectionService(RestPrismService service) {
+        super(service, ObjectTypes.TASK);
     }
 
     @Override
-    public FocusService<F> oid(String oid) {
-        return new RestPrismFocusService<>(getService(), getType(), oid);
+    public TaskService oid(String oid) {
+        return new RestPrismTaskService(getService(), oid);
     }
 }
