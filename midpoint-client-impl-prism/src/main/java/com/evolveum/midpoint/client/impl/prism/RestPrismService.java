@@ -208,6 +208,16 @@ public class RestPrismService implements Service {
     }
 
     @Override
+    public ObjectCollectionService<ArchetypeType> archetypes() {
+        return new RestPrismObjectCollectionService<>(this, ObjectTypes.ARCHETYPE);
+    }
+
+    @Override
+    public ObjectCollectionService<LookupTableType> lookupTables() {
+        return new RestPrismObjectCollectionService<>(this, ObjectTypes.LOOKUP_TABLE);
+    }
+
+    @Override
     public ObjectCollectionService<SecurityPolicyType> securityPolicies() {
         return new RestPrismObjectCollectionService<>(this, ObjectTypes.SECURITY_POLICY);
     }

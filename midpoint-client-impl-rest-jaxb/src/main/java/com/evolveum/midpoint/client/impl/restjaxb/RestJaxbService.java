@@ -145,6 +145,16 @@ public class RestJaxbService implements Service {
 	}
 
 	@Override
+	public ObjectCollectionService<ArchetypeType> archetypes() {
+		return new RestJaxbObjectCollectionService<>(this, Types.ARCHETYPES.getRestPath(), ArchetypeType.class);
+	}
+
+	@Override
+    public ObjectCollectionService<LookupTableType> lookupTables() {
+		return null;
+	}
+
+	@Override
 	public ObjectCollectionService<SecurityPolicyType> securityPolicies() {
 		return new RestJaxbObjectCollectionService<>(this, Types.SECURITY_POLICIES.getRestPath(), SecurityPolicyType.class);
 	}

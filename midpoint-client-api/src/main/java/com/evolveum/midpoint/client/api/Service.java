@@ -33,6 +33,10 @@ public interface Service {
 
 	ObjectCollectionService<ValuePolicyType> valuePolicies();
 
+	ObjectCollectionService<ArchetypeType> archetypes();
+
+	ObjectCollectionService<LookupTableType> lookupTables();
+
 	UserType self();
 
 	Service impersonate(String oid);
