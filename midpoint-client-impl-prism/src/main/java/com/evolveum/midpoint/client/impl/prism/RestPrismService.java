@@ -16,6 +16,7 @@
 package com.evolveum.midpoint.client.impl.prism;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hc.client5.http.fluent.Request;
@@ -120,7 +121,21 @@ public class RestPrismService implements Service {
     }
 
     CloseableHttpResponse httpPost(String relativePath, HttpEntity object) throws SchemaException {
-        Request req = Request.post(baseUrl + "/" + relativePath);
+        return httpPost(relativePath, object, null);
+    }
+
+    CloseableHttpResponse httpPost(String relativePath, HttpEntity object, List<String> options) throws SchemaException {
+        StringBuilder uri = new StringBuilder(baseUrl + "/" + relativePath);
+        if (options != null && options.size() > 0) {
+            uri.append("?");
+            for (String option : options) {
+                if (options.indexOf(option) > 0) {
+                    uri.append("&");
+                }
+                uri.append(option);
+            }
+        }
+        Request req = Request.post(uri.toString());
         if (object != null) {
             req.body(object);
         }
@@ -131,8 +146,8 @@ public class RestPrismService implements Service {
         }
     }
 
-    String addObject(ObjectTypes type, ObjectType object) throws ObjectAlreadyExistsException, SchemaException {
-        CloseableHttpResponse httpResponse = httpPost(type.getRestType(), createEntity(object));
+    String addObject(ObjectTypes type, ObjectType object, List<String> options) throws ObjectAlreadyExistsException, SchemaException {
+        CloseableHttpResponse httpResponse = httpPost(type.getRestType(), createEntity(object), options);
 
         switch (httpResponse.getCode()) {
             case HttpStatus.SC_OK:

@@ -23,11 +23,14 @@ import com.evolveum.midpoint.client.api.exception.SchemaException;
 import com.evolveum.midpoint.schema.constants.ObjectTypes;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 
+import java.util.List;
+
 public class RestPrismObjectAddService<O extends ObjectType> implements ObjectAddService<O> {
 
     private RestPrismService service;
     private ObjectTypes type;
     private O object;
+    private List options;
 
     public RestPrismObjectAddService(RestPrismService service, ObjectTypes type, O object) {
         this.service = service;
@@ -35,10 +38,15 @@ public class RestPrismObjectAddService<O extends ObjectType> implements ObjectAd
         this.object = object;
     }
 
+    public RestPrismObjectAddService setOptions(List<String> options) {
+        this.options = options;
+        return this;
+    }
+
     @Override
     public TaskFuture<ObjectReference<O>> apost() throws ObjectAlreadyExistsException, SchemaException {
 
-        String oid = service.addObject(type, object);
+        String oid = service.addObject(type, object, options);
 
         RestPrismObjectReference<O> ref = new RestPrismObjectReference<>(oid, type.getClassDefinition());
         return new RestPrismCompletedFuture<>(ref);
