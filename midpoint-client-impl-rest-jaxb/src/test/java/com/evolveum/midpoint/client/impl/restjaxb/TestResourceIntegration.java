@@ -22,7 +22,7 @@ import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultStatusType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.OperationResultType;
 
-import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskExecutionStatusType;
+import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskExecutionStateType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.TaskType;
 
 import static org.testng.AssertJUnit.*;
@@ -66,7 +66,7 @@ public class TestResourceIntegration extends AbstractTest {
 
         taskOid = importTask.getOid();
         TaskType task = service.tasks().oid(taskOid).get();
-        assertEquals("Expected thath the task is runnable", task.getExecutionStatus(), TaskExecutionStatusType.RUNNABLE);
+        assertEquals("Expected thath the task is runnable", task.getExecutionStatus(), TaskExecutionStateType.RUNNABLE);
     }
 
     //cleanup environment

@@ -49,7 +49,7 @@ public class TestTaskIntegration extends AbstractTest {
 
     @Test
     public void test100addRecomputeTask() throws Exception {
-        TaskType recomputeTask = createRecomputeTask(TaskExecutionStatusType.RUNNABLE, TaskRecurrenceType.SINGLE);
+        TaskType recomputeTask = createRecomputeTask(TaskExecutionStateType.RUNNABLE, TaskRecurrenceType.SINGLE);
 
         ObjectReference<TaskType> taskType = service.tasks().add(recomputeTask).post();
         recomputeTaskOid = taskType.getOid();
@@ -57,7 +57,7 @@ public class TestTaskIntegration extends AbstractTest {
         TaskType taskAfter = service.tasks().oid(recomputeTaskOid).get(null, Collections.singletonList("nodeAsObserved"), null);
 
         assertNotNull("Node as observed should be set (task is running)", taskAfter.getNodeAsObserved());
-        assertEquals("Unexpected execution status", TaskExecutionStatusType.RUNNABLE, taskAfter.getExecutionStatus());
+        assertEquals("Unexpected execution status", TaskExecutionStateType.RUNNABLE, taskAfter.getExecutionStatus());
     }
 
     @Test
@@ -68,7 +68,7 @@ public class TestTaskIntegration extends AbstractTest {
         Thread.sleep(5000);
 
         TaskType taskAfter = service.tasks().oid(recomputeTaskOid).get();
-        assertEquals("Unexpected execution status", TaskExecutionStatusType.SUSPENDED, taskAfter.getExecutionStatus());
+        assertEquals("Unexpected execution status", TaskExecutionStateType.SUSPENDED, taskAfter.getExecutionStatus());
     }
 
     @Test
@@ -79,7 +79,7 @@ public class TestTaskIntegration extends AbstractTest {
         Thread.sleep(5000);
 
         TaskType taskAfter = service.tasks().oid(recomputeTaskOid).get(null, Collections.singletonList("nodeAsObserved"), null);
-        assertEquals("Unexpected execution status", TaskExecutionStatusType.RUNNABLE, taskAfter.getExecutionStatus());
+        assertEquals("Unexpected execution status", TaskExecutionStateType.RUNNABLE, taskAfter.getExecutionStatus());
         assertNotNull("Node as observed should be set (task is running)", taskAfter.getNodeAsObserved());
     }
 
@@ -98,7 +98,7 @@ public class TestTaskIntegration extends AbstractTest {
         }
     }
 
-    private TaskType createRecomputeTask(TaskExecutionStatusType status, TaskRecurrenceType recurrenceType) {
+    private TaskType createRecomputeTask(TaskExecutionStateType status, TaskRecurrenceType recurrenceType) {
         TaskType taskType = new TaskType();
         taskType.setName(service.util().createPoly("Recompute task (java client)"));
         taskType.setChannel(Channel.RECOMPUTATION.getUri());
