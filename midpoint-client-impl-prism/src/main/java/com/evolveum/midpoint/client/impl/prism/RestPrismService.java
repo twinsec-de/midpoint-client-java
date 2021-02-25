@@ -204,7 +204,7 @@ public class RestPrismService implements Service {
 
     @Override
     public ObjectCollectionService<ValuePolicyType> valuePolicies() {
-        return null;
+        return new RestPrismObjectCollectionService<>(this, ObjectTypes.PASSWORD_POLICY);
     }
 
     @Override
