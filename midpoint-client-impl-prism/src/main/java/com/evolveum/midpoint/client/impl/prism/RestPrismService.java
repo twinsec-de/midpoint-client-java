@@ -127,10 +127,10 @@ public class RestPrismService implements Service {
     CloseableHttpResponse httpPost(String relativePath, HttpEntity object, List<String> options) throws SchemaException {
         StringBuilder uri = new StringBuilder(baseUrl + "/" + relativePath);
         if (options != null && options.size() > 0) {
-            uri.append("?");
+            uri.append("?options=");
             for (String option : options) {
                 if (options.indexOf(option) > 0) {
-                    uri.append("&");
+                    uri.append(",");
                 }
                 uri.append(option);
             }
