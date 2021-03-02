@@ -55,6 +55,8 @@ public interface Service {
 
 	ObjectCollectionService<ObjectTemplateType> objectTemplates();
 
+	ObjectCollectionService<ObjectCollectionType> objectCollections();
+
 	ObjectCollectionService<SystemConfigurationType> systemConfigurations();
 
 	ObjectCollectionService<FormType> forms();

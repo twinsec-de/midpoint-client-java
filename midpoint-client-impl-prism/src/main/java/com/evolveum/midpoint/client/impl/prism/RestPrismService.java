@@ -263,6 +263,11 @@ public class RestPrismService implements Service {
     }
 
     @Override
+    public ObjectCollectionService<ObjectCollectionType> objectCollections() {
+        return new RestPrismObjectCollectionService<>(this, ObjectTypes.OBJECT_COLLECTION);
+    }
+
+    @Override
     public ObjectCollectionService<SystemConfigurationType> systemConfigurations() {
         return new RestPrismObjectCollectionService<>(this, ObjectTypes.SYSTEM_CONFIGURATION);
     }

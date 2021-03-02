@@ -45,6 +45,7 @@ public enum Types {
 	GENERIC_OBJECTS(GenericObjectType.class, new QName(SchemaConstants.NS_COMMON, "GenericObjectType"), new QName(SchemaConstants.NS_COMMON, "genericObject"), "genericObjects"),
 	RESOURCES(ResourceType.class, new QName(SchemaConstants.NS_COMMON, "ResourceType"), new QName(SchemaConstants.NS_COMMON, "resource"), "resources"),
 	OBJECT_TEMPLATES(ObjectTemplateType.class, new QName(SchemaConstants.NS_COMMON, "ObjectTemplateType"), new QName(SchemaConstants.NS_COMMON, "objectTemplate"), "objectTemplates"),
+	OBJECT_COLLECTIONS(ObjectCollectionType.class, new QName(SchemaConstants.NS_COMMON, "ObjectCollectionType"), new QName(SchemaConstants.NS_COMMON, "objectCollection"), "objectCollections"),
 	SYSTEM_CONFIGURATIONS(SystemConfigurationType.class, new QName(SchemaConstants.NS_COMMON, "SystemConfigurationType"), new QName(SchemaConstants.NS_COMMON, "systemConfiguration"), "systemConfigurations"),
 	TASKS(TaskType.class, new QName(SchemaConstants.NS_COMMON, "TaskType"), new QName(SchemaConstants.NS_COMMON, "task"), "tasks"),
 	SHADOWS(ShadowType.class, new QName(SchemaConstants.NS_COMMON, "ShadowType"), new QName(SchemaConstants.NS_COMMON, "shadow"), "shadows"),
