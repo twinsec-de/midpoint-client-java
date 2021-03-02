@@ -51,6 +51,7 @@ public enum Types {
 	ROLES(RoleType.class, new QName(SchemaConstants.NS_COMMON, "RoleType"), new QName(SchemaConstants.NS_COMMON, "role"), "roles"),
 	ORGS(OrgType.class, new QName(SchemaConstants.NS_COMMON, "OrgType"), new QName(SchemaConstants.NS_COMMON, "org"), "orgs"),
     ARCHETYPES(ArchetypeType.class, new QName(SchemaConstants.NS_COMMON, "ArchetypeType"), new QName(SchemaConstants.NS_COMMON, "archetype"), "archetypes"),
+    FORMS(FormType.class, new QName(SchemaConstants.NS_COMMON, "FormType"), new QName(SchemaConstants.NS_COMMON, "form"), "forms"),
 
 	//Other types
 	QUERY(QueryType.class, new QName(SchemaConstants.NS_QUERY, "QueryType"), new QName(SchemaConstants.NS_QUERY, "query"), null),

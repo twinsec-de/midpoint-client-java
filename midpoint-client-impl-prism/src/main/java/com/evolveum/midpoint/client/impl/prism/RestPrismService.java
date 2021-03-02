@@ -268,6 +268,11 @@ public class RestPrismService implements Service {
     }
 
     @Override
+    public ObjectCollectionService<FormType> forms() {
+        return new RestPrismObjectCollectionService<>(this, ObjectTypes.FORM);
+    }
+
+    @Override
     public TaskCollectionService tasks() {
         return new RestPrismTaskCollectionService(this);
     }

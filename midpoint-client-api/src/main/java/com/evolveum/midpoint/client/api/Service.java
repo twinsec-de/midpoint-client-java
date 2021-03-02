@@ -57,6 +57,8 @@ public interface Service {
 
 	ObjectCollectionService<SystemConfigurationType> systemConfigurations();
 
+	ObjectCollectionService<FormType> forms();
+
 	TaskCollectionService tasks();
 
 	ShadowCollectionService shadows();

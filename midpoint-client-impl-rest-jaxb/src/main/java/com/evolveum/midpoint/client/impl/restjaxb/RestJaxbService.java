@@ -190,6 +190,11 @@ public class RestJaxbService implements Service {
 	}
 
 	@Override
+	public ObjectCollectionService<FormType> forms() {
+		return new RestJaxbObjectCollectionService<>(this, Types.FORMS.getRestPath(), FormType.class);
+	}
+
+	@Override
 	public TaskCollectionService tasks() {
 		return new RestJaxbTaskCollectionService(this);
 	}
