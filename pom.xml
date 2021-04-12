@@ -34,7 +34,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.source.version>11</project.source.version>
-        <midpoint.version>4.3-SNAPSHOT</midpoint.version>
+        <midpoint.version>4.4-SNAPSHOT</midpoint.version>
         <testng.version>6.14.3</testng.version>
         <cxf.version>3.1.6</cxf.version>
         <jackson.version>2.10.3</jackson.version>
