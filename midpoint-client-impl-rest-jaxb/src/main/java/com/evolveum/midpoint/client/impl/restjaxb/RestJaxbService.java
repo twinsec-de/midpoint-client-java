@@ -190,6 +190,11 @@ public class RestJaxbService implements Service {
 	}
 
 	@Override
+	public ObjectCollectionService<SequenceType> sequences() {
+		return new RestJaxbObjectCollectionService<>(this, Types.SEQUENCES.getRestPath(), SequenceType.class);
+	}
+
+	@Override
 	public ObjectCollectionService<SystemConfigurationType> systemConfigurations() {
 		return new RestJaxbObjectCollectionService<>(this, Types.SYSTEM_CONFIGURATIONS.getRestPath(), SystemConfigurationType.class);
 	}

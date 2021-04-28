@@ -268,6 +268,11 @@ public class RestPrismService implements Service {
     }
 
     @Override
+    public ObjectCollectionService<SequenceType> sequences() {
+        return new RestPrismObjectCollectionService<>(this, ObjectTypes.SEQUENCE);
+    }
+
+    @Override
     public ObjectCollectionService<SystemConfigurationType> systemConfigurations() {
         return new RestPrismObjectCollectionService<>(this, ObjectTypes.SYSTEM_CONFIGURATION);
     }

@@ -57,7 +57,9 @@ public interface Service {
 
 	ObjectCollectionService<ObjectCollectionType> objectCollections();
 
-	ObjectCollectionService<SystemConfigurationType> systemConfigurations();
+    ObjectCollectionService<SequenceType> sequences();
+
+    ObjectCollectionService<SystemConfigurationType> systemConfigurations();
 
 	ObjectCollectionService<FormType> forms();
 
