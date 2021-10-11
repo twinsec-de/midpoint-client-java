@@ -27,15 +27,10 @@ import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManagerBuilder;
-import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactoryBuilder;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.config.Http1Config;
-import org.apache.hc.core5.http.io.HttpMessageParser;
-import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
 import org.apache.hc.core5.pool.PoolReusePolicy;
-import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.xml.sax.SAXException;
@@ -56,8 +51,13 @@ public class RestPrismServiceBuilder {
         RestPrismServiceBuilder builder = new RestPrismServiceBuilder();
         PrismContextFactory pcf = new MidPointPrismContextFactory();
         try {
-            builder.prismContext = pcf.createPrismContext();
-            builder.prismContext.initialize();
+            PrismContext existingPrism = PrismContext.get();
+            if (existingPrism != null) {
+                builder.prismContext = PrismContext.get();
+            } else {
+                builder.prismContext = pcf.createPrismContext();
+                builder.prismContext.initialize();
+            }
         } catch (SchemaException | SAXException | IOException e) {
             throw new com.evolveum.midpoint.client.api.exception.SchemaException(e);
         }
