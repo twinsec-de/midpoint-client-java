@@ -15,9 +15,12 @@
  */
 package com.evolveum.midpoint.client.api;
 
+import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
 import com.evolveum.midpoint.client.api.query.FilterEntryOrEmpty;
 import com.evolveum.midpoint.client.api.verb.Get;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
+
+import java.util.List;
 
 /**
  *
@@ -29,5 +32,7 @@ import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
 public interface SearchService<O extends ObjectType> extends Get<SearchResult<O>> {
 
 	FilterEntryOrEmpty<O> queryFor(Class<O> type);
+
+    SearchResult<O> get(List<String> options) throws ObjectNotFoundException;
 
 }

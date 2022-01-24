@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -104,10 +105,10 @@ public class RestJaxbServiceUtil implements ServiceUtil {
 
 	@Override
 	public ItemPathType createItemPathType(QName... qname) {
-		ItemPathType itemPathType = new ItemPathType();
-		itemPathType.setValue("");
-		Arrays.asList(qname).forEach(name -> itemPathType.setValue(itemPathType + "/" + name.getLocalPart()));
-		return itemPathType;
+        String itemPathValue = Arrays.stream(qname).map(item -> item.getLocalPart()).collect(Collectors.joining("/"));
+	    ItemPathType itemPathType = new ItemPathType();
+	    itemPathType.setValue(itemPathValue);
+	    return itemPathType;
 	}
 
 	@Override

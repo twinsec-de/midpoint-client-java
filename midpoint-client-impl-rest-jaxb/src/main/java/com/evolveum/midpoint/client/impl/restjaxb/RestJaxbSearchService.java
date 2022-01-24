@@ -15,7 +15,9 @@
  */
 package com.evolveum.midpoint.client.impl.restjaxb;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -50,21 +52,30 @@ public class RestJaxbSearchService<O extends ObjectType> extends AbstractObjectT
 
 		@Override
 	public SearchResult<O> get() throws ObjectNotFoundException {
-		String path = "/" + Types.findType(getType()).getRestPath() + "/search";
-		Response response = getService().post(path, query, null); // TODO params
-
-		if (Status.OK.getStatusCode() == response.getStatus()) {
-			return new JaxbSearchResult<>(getSearchResultList(response));
-		}
-
-		if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
-			throw new ObjectNotFoundException("Cannot search objects. No such service");
-		}
-		return null;
-
+	    return get(null);
 	}
 
-	@Override
+    @Override
+    public SearchResult<O> get(List<String> options) throws ObjectNotFoundException {
+        String path = "/" + Types.findType(getType()).getRestPath() + "/search";
+        Map<String, List<String>> queryParams = null;
+        if (options != null && !options.isEmpty()) {
+            queryParams = new HashMap<>();
+            queryParams.put("options", options);
+        }
+        Response response = getService().post(path, query, queryParams); // TODO params
+
+        if (Status.OK.getStatusCode() == response.getStatus()) {
+            return new JaxbSearchResult<>(getSearchResultList(response));
+        }
+
+        if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
+            throw new ObjectNotFoundException("Cannot search objects. No such service");
+        }
+        return null;
+    }
+
+    @Override
 	public FilterEntryOrEmpty<O> queryFor(Class<O> type) {
 		return new FilterBuilder<O>(getService(), getType());
 	}

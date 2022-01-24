@@ -14,6 +14,8 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.namespace.QName;
 
+import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
+
 import org.apache.commons.lang3.StringUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeClass;
@@ -300,7 +302,7 @@ public class TestIntegrationBasic extends AbstractTest {
     }
 
     @Test
-    public void test510deteleOrg300() throws Exception {
+    public void test510deleteOrg300() throws Exception {
         service.orgs().oid(test300oid).delete();
 
         try {
@@ -314,7 +316,7 @@ public class TestIntegrationBasic extends AbstractTest {
     }
 
     @Test
-    public void test510deteleOrg310() throws Exception {
+    public void test510deleteOrg310() throws Exception {
         service.orgs().oid(test310oid).delete();
 
         try {
@@ -328,7 +330,7 @@ public class TestIntegrationBasic extends AbstractTest {
     }
 
     @Test
-    public void test510deteleOrg320() throws Exception {
+    public void test510deleteOrg320() throws Exception {
         service.orgs().oid(test320oid).delete();
 
         try {
@@ -339,6 +341,21 @@ public class TestIntegrationBasic extends AbstractTest {
         }
 
         assertNull("No query should be here", getQuery(service));
+    }
+
+    @Test
+    public void test600searchDistinct() throws Exception {
+        SearchResult<UserType> users = service.users().search().queryFor(UserType.class)
+                .item(createAssignmentTargetRefPath())
+                    .ref("e2c88fea-db21-11e5-80ba-d7b2f1155264")
+                .build().get();
+
+        assertEquals(users.size(), 10);
+    }
+
+    private ItemPathType createAssignmentTargetRefPath() {
+        return service.util()
+                .createItemPathType(new QName(SchemaConstants.NS_COMMON, "assignment"), new QName(SchemaConstants.NS_TYPES, "targetRef"));
     }
 
     private RestJaxbService getService() throws IOException {

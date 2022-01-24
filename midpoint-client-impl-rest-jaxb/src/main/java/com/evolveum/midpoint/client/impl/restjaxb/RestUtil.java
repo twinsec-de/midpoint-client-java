@@ -101,14 +101,16 @@ public class RestUtil {
 		return policyItemsDefinitionType;
 	}
 
-	private static ObjectReferenceType buildValuePolicyRef(String policyOid)
-	{
-		ObjectReferenceType objectReferenceType = new ObjectReferenceType();
-		objectReferenceType.setOid(policyOid);
-		QName qname = new QName(SchemaConstants.NS_COMMON, "ValuePolicyType");
-		objectReferenceType.setType(qname);
-		return objectReferenceType;
+    private static ObjectReferenceType buildValuePolicyRef(String policyOid) {
+		return createObjectReference(policyOid, Types.VALUE_POLICIES);
 	}
+
+    public static ObjectReferenceType createObjectReference(String targetOid, Types type) {
+        ObjectReferenceType objectReferenceType = new ObjectReferenceType();
+        objectReferenceType.setOid(targetOid);
+        objectReferenceType.setType(type.getTypeQName());
+        return objectReferenceType;
+    }
 
 	public static String getFailedValidationMessage(OperationResultType operationResultType){
 

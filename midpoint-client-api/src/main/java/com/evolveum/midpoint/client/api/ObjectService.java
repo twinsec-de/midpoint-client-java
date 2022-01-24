@@ -29,10 +29,10 @@ import java.util.List;
  */
 public interface ObjectService<O extends ObjectType> extends Get<O>, Delete<O> {
 
-	O get(List<String> options) throws ObjectNotFoundException;
-
-	O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException;
-
 	ObjectModifyService<O> modify() throws ObjectNotFoundException;
 
+	//TODO cleanup interface, options/include/exclude should be probably handled also in fluent style.
+    O get(List<String> options) throws ObjectNotFoundException;
+
+    O get(List<String> options, List<String> include, List<String> exclude) throws ObjectNotFoundException;
 }
