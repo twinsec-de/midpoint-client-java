@@ -78,6 +78,34 @@ public class RestPrismService implements Service {
         return null;
     }
 
+    void deleteObject(ObjectTypes type, String oid) throws SchemaException, ObjectNotFoundException {
+        String fullPath = baseUrl + "/" + type.getRestType() + "/" + oid;
+        Response response = httpDelete(fullPath, null);
+
+        ClassicHttpResponse httpResponse;
+        try {
+            httpResponse = (ClassicHttpResponse) response.returnResponse();
+        } catch (IOException e) {
+            throw new SystemException(e.getMessage(), e);
+        }
+        switch (httpResponse.getCode()) {
+            case 240:
+            case 250:
+            case HttpStatus.SC_OK :
+            case HttpStatus.SC_NO_CONTENT:
+                return;
+            case HttpStatus.SC_NOT_FOUND:
+                OperationResult result = getOperationResult(httpResponse.getEntity());
+                if (result.getCause() != null) {
+                    //TODO error handling?
+                }
+                String message = result.getMessage();
+                throw new ObjectNotFoundException("Cannot find object located at: " + fullPath + ", " + message);
+            case HttpStatus.SC_FORBIDDEN:
+                throw new SecurityViolationException("Cannot read object, " + httpResponse.getReasonPhrase());
+        }
+    }
+
     <O extends ObjectType> O parseObject(HttpEntity httpEntity) throws SchemaException {
         PrismObject<O> object;
         try {
@@ -143,6 +171,26 @@ public class RestPrismService implements Service {
             return (CloseableHttpResponse) req.execute(httpClient).returnResponse();
         } catch (IOException e) {
             throw new SchemaException(e.getMessage(), e);
+        }
+    }
+
+    Response httpDelete(String fullPath, List<String> options) {
+
+        StringBuilder uri = new StringBuilder(fullPath);
+        if (options != null && options.size() > 0) {
+            uri.append("?options=");
+            for (String option : options) {
+                if (options.indexOf(option) > 0) {
+                    uri.append(",");
+                }
+                uri.append(option);
+            }
+        }
+        Request req = Request.delete(uri.toString());
+        try {
+            return req.execute(httpClient);
+        } catch (IOException e) {
+            throw new SystemException(e.getMessage(), e);
         }
     }
 

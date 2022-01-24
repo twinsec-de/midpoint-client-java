@@ -15,15 +15,20 @@
  */
 package com.evolveum.midpoint.client.impl.prism;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.evolveum.midpoint.client.api.ObjectModifyService;
 import com.evolveum.midpoint.client.api.ObjectService;
-import com.evolveum.midpoint.client.api.exception.AuthenticationException;
-import com.evolveum.midpoint.client.api.exception.ObjectNotFoundException;
-import com.evolveum.midpoint.client.api.exception.SchemaException;
+import com.evolveum.midpoint.client.api.exception.*;
 import com.evolveum.midpoint.schema.constants.ObjectTypes;
+import com.evolveum.midpoint.schema.result.OperationResult;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
+
+import org.apache.hc.client5.http.fluent.Response;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 
 public class RestPrismObjectService<O extends ObjectType> extends CommonPrismService implements ObjectService<O> {
 
@@ -52,18 +57,20 @@ public class RestPrismObjectService<O extends ObjectType> extends CommonPrismSer
 
     @Override
     public void delete() throws ObjectNotFoundException, AuthenticationException {
-        throw new UnsupportedOperationException("Not impelemted yet");
+        try {
+            getService().deleteObject(getType(), getOid());
+        } catch (SchemaException e) { // TODO add to methid signature?
+            throw new SystemException(e.getMessage(), e);
+        }
     }
 
     @Override
     public O get() throws ObjectNotFoundException, AuthenticationException, SchemaException {
-        System.out.println("getting object ");
         O response = getService().getObject(getType(), oid);
 
         if (response == null) {
             throw new ObjectNotFoundException("null returned");
         }
-        System.out.println("got object " + response);
 
         return response;
     }

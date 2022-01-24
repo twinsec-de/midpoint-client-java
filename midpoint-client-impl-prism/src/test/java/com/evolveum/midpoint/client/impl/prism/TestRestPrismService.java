@@ -78,12 +78,27 @@ public class TestRestPrismService {
         AssertJUnit.assertNotNull(taskType);
     }
 
+    private String userOid = null;
     @Test
     public void test010addUser() throws Exception {
         UserType user = new UserType().name("00clientUser").givenName("given").familyName("family");
         ObjectReference<UserType> ref = service.users().add(user).post();
 
-        System.out.println("oid: " + ref.getOid());
+        AssertJUnit.assertNotNull(ref.getOid());
+        userOid = ref.getOid();
+    }
+
+    @Test
+    public void test019deleteUser() throws Exception {
+        service.users().oid(userOid).delete();
+
+        try {
+            UserType user = service.users().oid(userOid).get();
+            AssertJUnit.fail("Unexpected user found: " + user);
+        } catch (ObjectNotFoundException e) {
+            //expected
+        }
+
     }
 
     @Test

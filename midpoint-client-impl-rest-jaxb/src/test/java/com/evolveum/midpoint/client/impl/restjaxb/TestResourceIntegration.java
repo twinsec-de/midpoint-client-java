@@ -66,7 +66,7 @@ public class TestResourceIntegration extends AbstractTest {
 
         taskOid = importTask.getOid();
         TaskType task = service.tasks().oid(taskOid).get();
-//        assertEquals("Expected thath the task is runnable", task.getExecutionStatus(), TaskExecutionStateType.RUNNABLE);
+        assertEquals("Expected that the task is running", task.getExecutionState(), TaskExecutionStateType.RUNNING);
     }
 
     //cleanup environment
