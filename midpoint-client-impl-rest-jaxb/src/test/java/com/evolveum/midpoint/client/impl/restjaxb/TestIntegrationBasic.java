@@ -14,6 +14,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.namespace.QName;
 
+import com.evolveum.midpoint.client.api.Service;
 import com.evolveum.prism.xml.ns._public.types_3.ItemPathType;
 
 import org.apache.commons.lang3.StringUtils;
@@ -343,19 +344,34 @@ public class TestIntegrationBasic extends AbstractTest {
         assertNull("No query should be here", getQuery(service));
     }
 
+    /**
+     * Test for MID-7459, import attached objects from Jira issue before test run
+     */
     @Test
     public void test600searchDistinct() throws Exception {
-        SearchResult<UserType> users = service.users().search().queryFor(UserType.class)
+        Service service2 = getService("pavol", "western", ENDPOINT_ADDRESS);
+        SearchResult<UserType> users = service2.users().search().queryFor(UserType.class)
                 .item(createAssignmentTargetRefPath())
-                    .ref("e2c88fea-db21-11e5-80ba-d7b2f1155264")
-                .build().get();
+                    .ref("westernu-0003-0000-0000-000000000001")
+                .and()
+                .item(createArtMovementPath())
+                    .eq("westernu-0004-0000-0000-000000000004")
+                .build().get(Arrays.asList("distinct"));
 
+        for (UserType user : users) {
+            System.out.println("user: " + service.util().getOrig(user.getName()));
+        }
         assertEquals(users.size(), 10);
     }
 
     private ItemPathType createAssignmentTargetRefPath() {
         return service.util()
                 .createItemPathType(new QName(SchemaConstants.NS_COMMON, "assignment"), new QName(SchemaConstants.NS_TYPES, "targetRef"));
+    }
+
+    private ItemPathType createArtMovementPath() {
+        return service.util()
+                .createItemPathType(new QName(SchemaConstants.NS_COMMON, "extension"), new QName("http://whatever.com/my", "artMovement"));
     }
 
     private RestJaxbService getService() throws IOException {
