@@ -40,5 +40,8 @@
 
     <assignment>
         <targetRef oid="00000000-0000-0000-0000-000000000008" type="RoleType" />
+        <activation>
+            <validFrom>2022-01-25T00:00:00.000+01:00</validFrom>
+        </activation>
     </assignment>
 </user>
