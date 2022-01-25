@@ -69,7 +69,9 @@ public class RestUtil {
 		itemPathType.setValue(path);
 		itemDeltaType.setPath(itemPathType);
 
-		itemDeltaType.getValue().add(value);
+		if (value != null) {
+            itemDeltaType.getValue().add(value);
+        }
 
 		return itemDeltaType;
 	}

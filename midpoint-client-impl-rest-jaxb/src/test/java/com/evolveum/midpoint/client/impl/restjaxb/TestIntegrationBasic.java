@@ -288,6 +288,12 @@ public class TestIntegrationBasic extends AbstractTest {
         assertNull("No query should be here", getQuery(service));
     }
 
+    //TODO finish test, MID-6851
+    @Test
+    public void test490modifyReplaceNull() throws Exception {
+        service.users().oid(USER_JACK_OID).modify().replace("assignment[1]/activation/validFrom", null).post();
+    }
+
     @Test
     public void test500deleteUserJack() throws Exception {
         service.users().oid(USER_JACK_OID).delete();

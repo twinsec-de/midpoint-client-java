@@ -37,4 +37,8 @@
     <activation>
         <administrativeStatus>enabled</administrativeStatus>
     </activation>
+
+    <assignment>
+        <targetRef oid="00000000-0000-0000-0000-000000000008" type="RoleType" />
+    </assignment>
 </user>
