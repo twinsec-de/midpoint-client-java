@@ -55,6 +55,8 @@ public enum Types {
     FORMS(FormType.class, new QName(SchemaConstants.NS_COMMON, "FormType"), new QName(SchemaConstants.NS_COMMON, "form"), "forms"),
     SEQUENCES(SequenceType.class, new QName(SchemaConstants.NS_COMMON, "SequenceType"), new QName(SchemaConstants.NS_COMMON, "sequence"), "sequences"),
 
+    LOOKUP_TABLE(LookupTableType.class, new QName(SchemaConstants.NS_COMMON, "LookupTableType"), new QName(SchemaConstants.NS_COMMON, "lookupTable"), "lookupTables"),
+
 	//Other types
 	QUERY(QueryType.class, new QName(SchemaConstants.NS_QUERY, "QueryType"), new QName(SchemaConstants.NS_QUERY, "query"), null),
 	OBJECT_LIST_TYPE(ObjectListType.class, new QName(SchemaConstants.NS_API_TYPES, "ObjectListType"), new QName(SchemaConstants.NS_API_TYPES, "objectList"), ""),
