@@ -374,17 +374,6 @@ public class RestJaxbQueryBuilder<O extends ObjectType> implements ConditionEntr
 	}
 
 	@Override
-	public FilterExit<O> group(QName... names) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public FilterExit<O> group(ItemPathType path) {
-		return finish().group(path);
-	}
-
-	@Override
 	public FilterExit<O> offset(Integer n) {
 		return finish().offset(n);
 	}

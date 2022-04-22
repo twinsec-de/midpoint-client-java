@@ -27,8 +27,6 @@ public interface FilterExit<O extends ObjectType> extends QueryExit<O>{
     FilterExit<O> asc(ItemPathType path);
     FilterExit<O> desc(QName... names);
     FilterExit<O> desc(ItemPathType path);
-    FilterExit<O> group(QName... names);
-    FilterExit<O> group(ItemPathType path);
     FilterExit<O> offset(Integer n);
     FilterExit<O> maxSize(Integer n);
 

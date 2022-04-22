@@ -103,7 +103,6 @@ public class AbstractTest {
                     + "com.evolveum.midpoint.xml.ns._public.model.scripting.extension_3:"
                     + "com.evolveum.midpoint.xml.ns._public.report.extension_3:"
                     + "com.evolveum.midpoint.xml.ns._public.resource.capabilities_3:"
-                    + "com.evolveum.midpoint.xml.ns._public.task.extension_3:"
                     + "com.evolveum.midpoint.xml.ns._public.task.jdbc_ping.handler_3:"
                     + "com.evolveum.midpoint.xml.ns._public.task.noop.handler_3:"
                     + "com.evolveum.prism.xml.ns._public.annotation_3:"

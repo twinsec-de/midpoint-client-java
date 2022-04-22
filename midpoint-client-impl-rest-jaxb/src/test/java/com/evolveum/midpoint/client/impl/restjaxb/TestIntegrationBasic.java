@@ -358,10 +358,10 @@ public class TestIntegrationBasic extends AbstractTest {
         Service service2 = getService("pavol", "western", ENDPOINT_ADDRESS);
         SearchResult<UserType> users = service2.users().search().queryFor(UserType.class)
                 .item(createAssignmentTargetRefPath())
-                    .ref("westernu-0003-0000-0000-000000000001")
+                    .ref("be1a87e3-67ae-4ff9-bb84-95a4ce2ba068")
                 .and()
                 .item(createArtMovementPath())
-                    .eq("westernu-0004-0000-0000-000000000004")
+                    .eq("96658ae1-2b9e-4189-b450-399d6d924889")
                 .build().get(Arrays.asList("distinct"));
 
         for (UserType user : users) {

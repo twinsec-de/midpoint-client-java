@@ -265,17 +265,6 @@ public FilterExit<O> desc(ItemPathType path) {
 }
 
 @Override
-public FilterExit<O> group(QName... names) {
-	// TODO Auto-generated method stub
-	return null;
-}
-
-@Override
-public FilterExit<O> group(ItemPathType path) {
-	return addGrouping(path);
-}
-
-@Override
 public FilterExit<O> offset(Integer n) {
 	return setOffset(n);
 }
@@ -289,13 +278,6 @@ private FilterBuilder<O> addOrdering(ItemPathType orderBy, OrderDirectionType di
 	paging = getPaging();
 	paging.setOrderDirection(direction);
 	paging.setOrderBy(orderBy);
-
-	return new FilterBuilder<>(service, type, currentFilter, null, paging);
-}
-
-private FilterBuilder<O> addGrouping(ItemPathType groupBy) {
-	paging = getPaging();
-	paging.setGroupBy(groupBy);
 
 	return new FilterBuilder<>(service, type, currentFilter, null, paging);
 }
