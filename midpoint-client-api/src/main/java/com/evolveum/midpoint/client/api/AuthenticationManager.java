@@ -24,12 +24,12 @@ public interface AuthenticationManager<T extends AuthenticationChallenge> {
 		parseChallenge(authenticationChallenge);
 	}
 
-	public String getType();
+	String getType();
 
-	public void parseChallenge(String authenticationChallenge) throws SchemaException;
+	void parseChallenge(String authenticationChallenge) throws SchemaException;
 
-	public String createAuthorizationHeader();
+	String createAuthorizationHeader();
 
-	public T getChallenge();
+	T getChallenge();
 
 }

@@ -57,7 +57,7 @@ public class SecurityQuestionAuthenticationManager implements AuthenticationMana
 
 	@Override
 	public void parseChallenge(String authenticationChallenge) throws SchemaException {
-		JsonFactory f = new JsonFactory();
+        JsonFactory f = new JsonFactory();
 		ObjectMapper mapper = new ObjectMapper(f);
 		JsonNode node = null;
 			try {
