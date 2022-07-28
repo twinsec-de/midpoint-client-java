@@ -52,60 +52,81 @@ public class CustomAuthNProvider<T extends AuthenticationChallenge> extends Abst
 			return;
 		}
 
-		System.out.println("headers:  " + headers);
 		@SuppressWarnings("unchecked")
 		List<String> header = (List<String>) headers.get(WWW_AUTHENTICATE);
 
 		if (authenticationManager != null) {
-			String authenticationType = header.stream().filter(h -> {
-				String[] challenge = h.split(" ");
-				return authenticationManager.getType().equals(challenge[0]);
-			}).findFirst().orElse(null);
-
-			if (authenticationType == null) {
-				return;
-			}
-
-			String[] authNConfig = authenticationType.split(" ");
-			if (authNConfig.length > 1) {
-				String challenge = authNConfig[1];
-				if (AuthenticationType.SECQ.getType().equals(authNConfig[0])) {
-					try {
-						authenticationManager.setAuthenticationChallenge(new String(Base64Utility.decode(challenge)));
-					} catch (Base64Exception | SchemaException e) {
-						throw new AuthenticationException(e.getMessage());
-					}
-				}
-
-			}
-
+			prepareChallenge(header);
 			return;
 		}
 
-		for (String auhtN : header) {
-			String[] authNType = auhtN.split(",");
-
-			for (String s : authNType) {
-				String[] type = s.split(" ");
-				try {
-					AuthenticationType supportedAuthentication = AuthenticationType.getAuthenticationType(type[0]);
-					service.getSupportedAuthenticationsByServer().add(supportedAuthentication);
-				} catch (SchemaException e) {
-					throw new Fault(e);
-				}
-			}
-
-
-
-		}
-
+        setupSupportedAuthentications(header);
 	}
+
+    private void prepareChallenge(List<String> header) {
+        String authenticationHeader = header.stream()
+                .filter(h -> currentAuthenticationMatched(h))
+                .findFirst().orElse(null);
+
+        if (authenticationHeader == null) {
+            return;
+        }
+
+        try {
+            String challenge = findChallenge(authenticationHeader);
+            if (challenge != null) {
+                authenticationManager.setAuthenticationChallenge(challenge);
+            }
+        } catch (SchemaException | Base64Exception e) {
+            throw new AuthenticationException(e.getMessage());
+        }
+    }
+
+    private boolean currentAuthenticationMatched(String header) {
+        String[] challenge = header.split(" ");
+        return authenticationManager.getType().equals(challenge[0]);
+    }
+
+    private String findChallenge(String authenticationHeader) throws Base64Exception {
+        String[] authNConfig = authenticationHeader.split(" ");
+
+        if (authNConfig.length < 2) {
+            return null;
+        }
+
+        if (!AuthenticationType.SECQ.getType().equals(authNConfig[0])) {
+            return null;
+        }
+
+        String challenge = authNConfig[1];
+        if (challenge.startsWith("realm")) {
+            return null;
+        }
+
+        if (challenge != null) {
+            challenge = new String(Base64Utility.decode(challenge));
+        }
+
+        return challenge;
+    }
+
+    private void setupSupportedAuthentications(List<String> header) {
+        for (String auhtN : header) {
+            String[] authNType = auhtN.split(",");
+
+            for (String s : authNType) {
+                String[] type = s.split(" ");
+                try {
+                    AuthenticationType supportedAuthentication = AuthenticationType.getAuthenticationType(type[0]);
+                    service.getSupportedAuthenticationsByServer().add(supportedAuthentication);
+                } catch (SchemaException e) {
+                    throw new Fault(e);
+                }
+            }
+        }
+    }
 
 	private boolean isApplicable(Map<?, ?> headers) {
-		if (headers != null && headers.containsKey(WWW_AUTHENTICATE)) {
-			return true;
-		}
-		return false;
-	}
-
+        return headers != null && headers.containsKey(WWW_AUTHENTICATE);
+    }
 }

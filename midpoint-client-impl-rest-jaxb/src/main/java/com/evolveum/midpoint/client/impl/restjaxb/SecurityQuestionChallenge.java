@@ -23,6 +23,7 @@ public class SecurityQuestionChallenge implements AuthenticationChallenge {
 
 	private String user;
 	private List<SecurityQuestionAnswer> answer;
+    private String realm;
 
 	public String getUser() {
 		return user;
@@ -40,4 +41,11 @@ public class SecurityQuestionChallenge implements AuthenticationChallenge {
 		this.answer = answer;
 	}
 
+    public String getRealm() {
+        return realm;
+    }
+
+    public void setRealm(String realm) {
+        this.realm = realm;
+    }
 }
