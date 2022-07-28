@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Evolveum
+ * Copyright (C) 2019-2022 Evolveum
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.evolveum.midpoint.client.impl.prism;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.fluent.Request;
 import org.apache.hc.client5.http.fluent.Response;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
