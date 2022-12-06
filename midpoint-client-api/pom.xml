@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.evolveum.midpoint.client</groupId>
+        <groupId>de.twinsec.midpoint.client</groupId>
         <artifactId>parent</artifactId>
         <version>4.6</version>
     </parent>

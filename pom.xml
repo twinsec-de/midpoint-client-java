@@ -19,7 +19,8 @@
         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.evolveum.midpoint.client</groupId>
+    <name>Midpoint Client Parent</name>
+    <groupId>de.twinsec.midpoint.client</groupId>
     <artifactId>parent</artifactId>
     <version>4.6</version>
     <packaging>pom</packaging>
@@ -56,17 +57,16 @@
     </scm>
 
     <distributionManagement>
-        <repository>
-            <id>evolveum-nexus</id>
-            <name>Internal Releases</name>
-            <url>https://nexus.evolveum.com/nexus/content/repositories/releases/</url>
-        </repository>
-
-        <snapshotRepository>
-            <id>evolveum-nexus</id>
-            <name>Internal Releases</name>
-            <url>https://nexus.evolveum.com/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
+      <repository>
+        <id>twinsec-nexus</id>
+        <name>Internal Releases</name>
+        <url>https://nexus.twinsec.de/repository/maven-releases</url>
+      </repository>
+      <snapshotRepository>
+        <id>twinsec-nexus</id>
+        <name>Internal Snapshots</name>
+        <url>https://nexus.twinsec.de/repository/maven-snapshots/</url>
+      </snapshotRepository>
     </distributionManagement>
 
     <repositories>
