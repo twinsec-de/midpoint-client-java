@@ -368,4 +368,9 @@ public class RestPrismService implements Service {
             e.printStackTrace();
         }
     }
+
+    public <O extends ObjectType> ObjectModifyService<O> modifyObject(ObjectTypes type, String oid) throws SchemaException,ObjectNotFoundException, AuthenticationException {
+        return new RestPrismObjectModifyService<>(this,type.getClassDefinition(),oid);
+       
+    }
 }

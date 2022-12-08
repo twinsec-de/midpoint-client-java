@@ -52,7 +52,11 @@ public class RestPrismObjectService<O extends ObjectType> extends CommonPrismSer
 
     @Override
     public ObjectModifyService<O> modify() throws ObjectNotFoundException, AuthenticationException {
-        throw new UnsupportedOperationException("Not impelemted yet");
+        try {
+           return getService().modifyObject(getType(), getOid());
+        } catch (SchemaException e) { // TODO add to methid signature?
+            throw new SystemException(e.getMessage(), e);
+        }
     }
 
     @Override
