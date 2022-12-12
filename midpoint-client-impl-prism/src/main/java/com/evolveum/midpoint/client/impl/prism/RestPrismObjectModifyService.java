@@ -9,7 +9,12 @@ import com.evolveum.midpoint.client.api.ObjectModifyService;
 import com.evolveum.midpoint.client.api.ObjectReference;
 import com.evolveum.midpoint.client.api.TaskFuture;
 import com.evolveum.midpoint.client.api.exception.CommonException;
+import com.evolveum.midpoint.prism.path.ItemPath;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.ObjectType;
+import com.evolveum.prism.xml.ns._public.types_3.ItemDeltaType;
+import com.evolveum.prism.xml.ns._public.types_3.ModificationTypeType;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,11 +27,13 @@ public class RestPrismObjectModifyService<O extends ObjectType> implements Objec
     final private String oid;
     final private Class<O> type;
     final private RestPrismService service;
+    private List<ItemDeltaType> modifications;
    
     public RestPrismObjectModifyService (RestPrismService service,Class<O> type,String oid) {
         this.service=service;
         this.type=type;
         this.oid=oid;
+        modifications = new ArrayList<>();
     }
 
     
@@ -39,12 +46,15 @@ public class RestPrismObjectModifyService<O extends ObjectType> implements Objec
 
     @Override
     public ObjectModifyService<O> add(String path, Object value) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        addModification(path, value, ModificationTypeType.ADD);
+        return this;
+        
     }
 
     @Override
     public ObjectModifyService<O> add(Map<String, Object> modifications) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        addModifications(modifications, ModificationTypeType.ADD);
+        return this;
     }
 
     @Override
@@ -66,5 +76,16 @@ public class RestPrismObjectModifyService<O extends ObjectType> implements Objec
     public ObjectModifyService<O> delete(Map<String, Object> modifications) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+    
+    private void addModification(String path, Object value, ModificationTypeType modificationType){
+        modifications.add(RestPrismUtil.buildItemDelta(modificationType, path, value));
+        
+    }
+    private void addModifications(Map<String, Object> modifications,  ModificationTypeType modificationType){
+        modifications.forEach((path, value) ->
+        addModification(path, value, modificationType));
+    }
+    
+   
     
 }
