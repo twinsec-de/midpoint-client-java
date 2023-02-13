@@ -33,7 +33,11 @@ import com.evolveum.midpoint.prism.PrismContext;
 import com.evolveum.midpoint.prism.PrismObject;
 import com.evolveum.midpoint.schema.constants.ObjectTypes;
 import com.evolveum.midpoint.schema.result.OperationResult;
+import com.evolveum.midpoint.xml.ns._public.common.api_types_3.ObjectModificationType;
 import com.evolveum.midpoint.xml.ns._public.common.common_3.*;
+import java.util.Map;
+import static org.apache.hc.core5.http.impl.HttpProcessors.client;
+import static org.apache.hc.core5.http2.impl.H2Processors.client;
 
 public class RestPrismService implements Service {
 
@@ -41,8 +45,7 @@ public class RestPrismService implements Service {
     private CloseableHttpClient httpClient;
     private String baseUrl;
 
-
-    RestPrismService (CloseableHttpClient httpClient, String baseUrl, PrismContext prismContext) {
+    RestPrismService(CloseableHttpClient httpClient, String baseUrl, PrismContext prismContext) {
         this.httpClient = httpClient;
         this.prismContext = prismContext;
         this.baseUrl = baseUrl;
@@ -58,7 +61,7 @@ public class RestPrismService implements Service {
             switch (httpResponse.getCode()) {
                 case 240:
                 case 250:
-                case HttpStatus.SC_OK :
+                case HttpStatus.SC_OK:
                     return parseObject(httpResponse.getEntity());
                 case HttpStatus.SC_NOT_FOUND:
                     OperationResult result = getOperationResult(httpResponse.getEntity());
@@ -73,7 +76,6 @@ public class RestPrismService implements Service {
         } catch (IOException e) {
             throw new IllegalStateException(e.getMessage(), e);
         }
-
 
         return null;
     }
@@ -91,7 +93,7 @@ public class RestPrismService implements Service {
         switch (httpResponse.getCode()) {
             case 240:
             case 250:
-            case HttpStatus.SC_OK :
+            case HttpStatus.SC_OK:
             case HttpStatus.SC_NO_CONTENT:
                 return;
             case HttpStatus.SC_NOT_FOUND:
@@ -204,10 +206,10 @@ public class RestPrismService implements Service {
             case 240:
             case 250:
                 try {
-                    return getOidFromLocation(httpResponse);
-                } catch (ProtocolException e) {
-                    throw new IllegalStateException("Unexpected header found: " + e.getMessage(), e);
-                }
+                return getOidFromLocation(httpResponse);
+            } catch (ProtocolException e) {
+                throw new IllegalStateException("Unexpected header found: " + e.getMessage(), e);
+            }
             case HttpStatus.SC_CONFLICT:
                 OperationResult result = getOperationResult(httpResponse.getEntity());
                 throw new ObjectAlreadyExistsException(result.getMessage());
@@ -238,7 +240,6 @@ public class RestPrismService implements Service {
             throw new SchemaException(e);
         }
     }
-
 
     @Override
     public FocusCollectionService<UserType> users() {
@@ -369,8 +370,32 @@ public class RestPrismService implements Service {
         }
     }
 
-    public <O extends ObjectType> ObjectModifyService<O> modifyObject(ObjectTypes type, String oid) throws SchemaException,ObjectNotFoundException, AuthenticationException {
-        return new RestPrismObjectModifyService<>(this,type.getClassDefinition(),oid);
-       
+    String modifyObject(ObjectTypes type, String oid, ObjectModificationType modification) throws ObjectNotFoundException, SchemaException, ObjectAlreadyExistsException {
+        StringEntity entity = null;
+        try {
+            entity = new StringEntity(prismContext.xmlSerializer().serializeRealValue(modification), ContentType.APPLICATION_XML);
+        } catch (com.evolveum.midpoint.util.exception.SchemaException e) {
+            throw new SchemaException(e);
+        }
+        CloseableHttpResponse httpResponse = httpPost(type.getRestType() + "/" + oid, entity);
+
+        switch (httpResponse.getCode()) {
+            case HttpStatus.SC_OK:
+            case HttpStatus.SC_CREATED:
+            case HttpStatus.SC_ACCEPTED:
+            case HttpStatus.SC_NO_CONTENT:
+            case 240:
+            case 250:
+                return oid;
+            case HttpStatus.SC_CONFLICT:
+                OperationResult result = getOperationResult(httpResponse.getEntity());
+                throw new ObjectAlreadyExistsException(result.getMessage());
+            case HttpStatus.SC_FORBIDDEN:
+                result = getOperationResult(httpResponse.getEntity());
+                throw new SecurityViolationException(result.getMessage());
+            default:
+                throw new UnsupportedOperationException("Not impelemnted yet: " + httpResponse);
+        }
     }
+
 }
