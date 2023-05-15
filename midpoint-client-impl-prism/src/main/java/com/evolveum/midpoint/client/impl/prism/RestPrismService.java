@@ -153,7 +153,36 @@ public class RestPrismService implements Service {
     CloseableHttpResponse httpPost(String relativePath, HttpEntity object) throws SchemaException {
         return httpPost(relativePath, object, null);
     }
+    
+     CloseableHttpResponse httpPut(String relativePath, HttpEntity object) throws SchemaException {
+        return httpPut(relativePath, object, null);
+    }
 
+    
+    CloseableHttpResponse httpPut(String relativePath, HttpEntity object, List<String> options) throws SchemaException {
+        StringBuilder uri = new StringBuilder(baseUrl + "/" + relativePath);
+        if (options != null && options.size() > 0) {
+            uri.append("?options=");
+            for (String option : options) {
+                if (options.indexOf(option) > 0) {
+                    uri.append(",");
+                }
+                uri.append(option);
+            }
+        }
+        Request req = Request.put(uri.toString());
+        if (object != null) {
+            req.body(object);
+        }
+        try {
+            return (CloseableHttpResponse) req.execute(httpClient).returnResponse();
+        } catch (IOException e) {
+            throw new SchemaException(e.getMessage(), e);
+        }
+    }
+    
+    
+    
     CloseableHttpResponse httpPost(String relativePath, HttpEntity object, List<String> options) throws SchemaException {
         StringBuilder uri = new StringBuilder(baseUrl + "/" + relativePath);
         if (options != null && options.size() > 0) {
@@ -377,13 +406,13 @@ public class RestPrismService implements Service {
         } catch (com.evolveum.midpoint.util.exception.SchemaException e) {
             throw new SchemaException(e);
         }
-        CloseableHttpResponse httpResponse = httpPost(type.getRestType() + "/" + oid, entity);
+        CloseableHttpResponse httpResponse = httpPut(type.getRestType() + "/" + oid, entity);
 
         switch (httpResponse.getCode()) {
             case HttpStatus.SC_OK:
             case HttpStatus.SC_CREATED:
             case HttpStatus.SC_ACCEPTED:
-            case HttpStatus.SC_NO_CONTENT:
+            case HttpStatus.SC_NO_CONTENT:    
             case 240:
             case 250:
                 return oid;
